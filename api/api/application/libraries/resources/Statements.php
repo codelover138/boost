@@ -1,0 +1,241 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Statements
+{
+    public $params;
+    public $model;
+    public $table_prefix;
+    public $activities_params;
+    public $invoice_params;
+
+    public function __construct($params = null)
+    {
+        $this->CI =& get_instance();
+        $this->params = $params;
+        $this->table_prefix = $this->CI->config->item('db_table_prefix');
+
+        $this->CI->load->model('template_model');
+
+        $this->CI->load->model('statements_model');
+
+        if (isset($this->params['model'])) :
+            $this->CI->load->model($this->params['model']);
+            $this->model = $this->params['model'];
+        else :
+            $this->model = 'generic_model';
+        endif;
+
+        $this->invoice_params = array(
+            'table' => $this->table_prefix . 'invoices',
+            'entity' => 'invoice',
+            'items_table' => $this->table_prefix . 'invoice_items',
+        );
+    }
+
+    public function entry($contact_id)
+    {
+        # allow cross origin and set allowed HTTP methods
+        $this->CI->regular->set_response_headers();
+
+        # set content type
+        $this->CI->regular->header_('json');
+        $response = array();
+
+        # check if the request method is valid
+        if ($method = $this->CI->regular->valid_method()) {
+            $entry_params['method'] = $method;
+            $method_function = '_' . strtolower($method);
+
+            $is_allowed = $this->CI->regular->is_allowed($method, calling_function());
+
+            if (!$is_allowed) {
+                $this->CI->regular->header_(405);
+                $this->CI->regular->respond(
+                    array(
+                        'status' => 'ERROR',
+                        'message' => array($method . ' method is not allowed on ' . calling_function())
+                    ));
+                return;
+            }
+
+            $post_vars = $this->CI->regular->decode();
+
+            $inputs = array(
+                'id' => $contact_id,
+                'post'=>$post_vars
+            );
+
+            $response = $this->$method_function($inputs);
+        }
+        else
+        {
+            $response['status'] = 'ERROR';
+            $response['message'][] = 'Bad request';
+            $this->CI->regular->header_(400);
+        }
+
+        # Add user data to response
+        $user_data = $this->CI->userhandler->determine_user();
+        if($user_data['bool']) $response['user_data'] = $user_data['data'];
+
+        $this->CI->regular->respond($response);
+    }
+
+    /*
+     * PARAMS:
+     * inputs(id, post(filters))
+     * */
+    public function _get($inputs)
+    {
+        $contact_id = $inputs['id'];
+
+        # contact info
+        $this->CI->load->model('contacts_model');
+        $contact_params = array(
+            'table' => $this->table_prefix . 'contacts',
+            'entity' => 'contact'
+        );
+        $contact = $this->CI->contacts_model->read($contact_params, $contact_id, 'single');
+
+        # Check for filters array
+        if(isset($inputs['post']['filters']))
+        {
+            $filters = $inputs['post']['filters'];
+        }
+        else
+        {
+            $filters = $this->CI->generic_model->period_filter();
+
+            $filters['start_date'] = date('Y-m-d', strtotime($filters['start_date']));
+            $filters['end_date'] = date('Y-m-d', strtotime($filters['end_date']));
+        }
+		
+		
+
+        # documents
+        $documents = $this->documents($contact_id, $filters);
+
+        # final output
+        $return = array('status' => 'OK');
+        $return['contact'] = $contact;
+        $return['statements'] = $documents;
+        $return['filters'] = $filters;
+
+        /* Piggyback:
+         * additional requested data
+         ----------------------------------------------------------------------------------------------*/
+        if (isset($inputs['post']['piggyback'])) {
+            $return['piggyback'] = $this->CI->regular->piggyback($inputs['post']);
+        }
+		
+
+        return $return;
+    }
+
+    public function _send($inputs)
+    {
+        $return = array('status' => 'ERROR');
+
+        # Add account name to parameters if it is set in the headers
+        $headers = $this->CI->regular->get_request_headers();
+        if(isset($headers['Auth'])) $this->params['account_name'] = $headers['Account-Name'];
+
+        # Check for filters array
+        $filters = array();
+        if(isset($inputs['post']['filters'])) {
+            $filters = $inputs['post']['filters'];
+            $this->params['filters'] = $filters;
+        }
+
+        $this->CI->load->library('messaging');
+
+        $this->params['entity'] = 'statement';
+        $this->params['entity_id'] = $inputs['id'];
+        $this->params['subject'] = $inputs['post']['subject'];
+        $this->params['contact_email'] = $inputs['post']['contact_email'];
+        $this->params['message_body'] = $inputs['post']['message_body'];
+
+        $result = $this->CI->messaging->send_email2($this->params);
+
+        if ($result['bool']) :
+            $return['status'] = 'OK';
+        else :
+            //$this->CI->regular->header_();
+        endif;
+
+        $return['contact_email'] = $result['contact_email'];
+        $return['message'][] = $result['message'];
+
+        return $return;
+    }
+
+    public function contact_invoices($contact_id)
+    {
+        $params = $this->invoice_params;
+        $params['main_id_field'] = 'contact_id';
+
+        $results = $this->CI->template_model->read($params, $contact_id);
+
+        return $results;
+    }
+
+    public function documents($contact_id, $filters = array())
+    {
+        $statements = $this->CI->statements_model->read($contact_id, $filters);
+        $date_indices = $this->date_indices($statements);
+        $change_to_numeric_array = $this->change_to_numeric_array($date_indices);
+        $totals = $this->CI->statements_model->totals($contact_id, $filters);
+
+        return array(
+            'documents' => $change_to_numeric_array,
+            'totals' => $totals
+        );
+    }
+
+    public function date_indices($statements)
+    {
+        $date_indices = array();
+
+        foreach($statements as $index => $statement)
+        {
+            foreach($statement as $key => $value)
+            {
+                if(strpos($key, 'invoice') !== false && !is_null($statement->invoice_date_created)) :
+                    $key = str_replace('invoice_', '', $key);
+                    $date_indices[$statement->invoice_date_created.'_inv'][$key] = $value;
+                    $date_indices[$statement->invoice_date_created.'_inv']['type'] = 'invoice';
+                endif;
+
+                if(strpos($key, 'credit_note') !== false && !is_null($statement->credit_note_date_created)) :
+                    $key = str_replace('credit_note_', '', $key);
+                    $date_indices[$statement->credit_note_date_created.'_cn'][$key] = $value;
+                    $date_indices[$statement->credit_note_date_created.'_cn']['type'] = 'credit_note';
+                endif;
+
+                if(strpos($key, 'payment') !== false && !is_null($statement->payment_date_created)) :
+                    $key = str_replace('payment_', '', $key);
+                    $date_indices[$statement->payment_date_created.'_pay'][$key] = $value;
+                    $date_indices[$statement->payment_date_created.'_pay']['type'] = 'payment';
+                endif;
+
+                /*if(strpos($key, 'credit_log') !== false && !is_null($statement->credit_log_date_created)) :
+                    $key = str_replace('credit_log_', '', $key);
+                    $date_indices[$statement->credit_log_date_created.'_cl'][$key] = $value;
+                    $date_indices[$statement->credit_log_date_created.'_cl']['type'] = 'credit';
+                endif;*/
+            }
+        }
+        ksort($date_indices);
+
+        return $date_indices;
+    }
+
+    public function change_to_numeric_array($array)
+    {
+        $numeric_indices = array();
+        foreach($array as $key => $value) $numeric_indices[] = $value;
+
+        return $numeric_indices;
+    }
+}

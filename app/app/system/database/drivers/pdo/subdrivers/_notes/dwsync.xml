@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<dwsync>
+<file name="index.html" server="Y:/testing_server/" local="130818680026372003" remote="130818680020000000" />
+<file name="pdo_4d_driver.php" server="Y:/testing_server/" local="130818680026532124" remote="130818680020000000" />
+<file name="pdo_4d_forge.php" server="Y:/testing_server/" local="130818680026702226" remote="130818680020000000" />
+<file name="pdo_cubrid_driver.php" server="Y:/testing_server/" local="130818680026862329" remote="130818680020000000" />
+<file name="pdo_cubrid_forge.php" server="Y:/testing_server/" local="130818680027032449" remote="130818680020000000" />
+<file name="pdo_dblib_driver.php" server="Y:/testing_server/" local="130818680027162543" remote="130818680020000000" />
+<file name="pdo_dblib_forge.php" server="Y:/testing_server/" local="130818680027372672" remote="130818680020000000" />
+<file name="pdo_firebird_driver.php" server="Y:/testing_server/" local="130818680027512775" remote="130818680020000000" />
+<file name="pdo_firebird_forge.php" server="Y:/testing_server/" local="130818680027702900" remote="130818680020000000" />
+<file name="pdo_ibm_driver.php" server="Y:/testing_server/" local="130818680027873016" remote="130818680020000000" />
+<file name="pdo_ibm_forge.php" server="Y:/testing_server/" local="130818680028083154" remote="130818680020000000" />
+<file name="pdo_informix_driver.php" server="Y:/testing_server/" local="130818680028313296" remote="130818680020000000" />
+<file name="pdo_informix_forge.php" server="Y:/testing_server/" local="130818680028463399" remote="130818680020000000" />
+<file name="pdo_mysql_driver.php" server="Y:/testing_server/" local="130818680028643519" remote="130818680020000000" />
+<file name="pdo_mysql_forge.php" server="Y:/testing_server/" local="130818680028803631" remote="130818680020000000" />
+<file name="pdo_oci_driver.php" server="Y:/testing_server/" local="130818680028963742" remote="130818680020000000" />
+<file name="pdo_oci_forge.php" server="Y:/testing_server/" local="130818680029143849" remote="130818680020000000" />
+<file name="pdo_odbc_driver.php" server="Y:/testing_server/" local="130818680029333997" remote="130818680020000000" />
+<file name="pdo_odbc_forge.php" server="Y:/testing_server/" local="130818680029494108" remote="130818680020000000" />
+<file name="pdo_pgsql_driver.php" server="Y:/testing_server/" local="130818680029634184" remote="130818680020000000" />
+<file name="pdo_pgsql_forge.php" server="Y:/testing_server/" local="130818680029824318" remote="130818680020000000" />
+<file name="pdo_sqlite_driver.php" server="Y:/testing_server/" local="130818680030014438" remote="130818680030000000" />
+<file name="pdo_sqlite_forge.php" server="Y:/testing_server/" local="130818680030174545" remote="130818680030000000" />
+<file name="pdo_sqlsrv_driver.php" server="Y:/testing_server/" local="130818680030354670" remote="130818680030000000" />
+<file name="pdo_sqlsrv_forge.php" server="Y:/testing_server/" local="130818680030524781" remote="130818680030000000" />
+</dwsync>

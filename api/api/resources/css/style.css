@@ -1,0 +1,22 @@
+.top-content {
+    margin-top: 100px;
+}
+
+.btn-default2 {
+    color: #fff;
+    background-color: #a1a1a1;
+}
+
+.btn-default2:hover {
+    background-color: #222;
+    color: #fff;
+}
+
+.btn-black {
+    background-color: #222;
+    color: #9d9d9d;
+}
+
+.btn-black:hover {
+    color:#fff;
+}

@@ -1,0 +1,197 @@
+[15-Dec-2015 12:07:15 UTC] PHP Warning:  include(xmlapi.php.inc): failed to open stream: No such file or directory in /home/boost/public_html/api/test/new_db_old.php on line 2
+[15-Dec-2015 12:07:15 UTC] PHP Warning:  include(xmlapi.php.inc): failed to open stream: No such file or directory in /home/boost/public_html/api/test/new_db_old.php on line 2
+[15-Dec-2015 12:07:15 UTC] PHP Warning:  include(): Failed opening 'xmlapi.php.inc' for inclusion (include_path='.:/usr/lib/php:/usr/local/lib/php') in /home/boost/public_html/api/test/new_db_old.php on line 2
+[15-Dec-2015 12:07:15 UTC] PHP Fatal error:  Class 'xmlapi' not found in /home/boost/public_html/api/test/new_db_old.php on line 11
+[15-Dec-2015 12:30:49 UTC] PHP Warning:  include(xmlapi.php.inc): failed to open stream: No such file or directory in /home/boost/public_html/api/test/new_db_old.php on line 2
+[15-Dec-2015 12:30:49 UTC] PHP Warning:  include(xmlapi.php.inc): failed to open stream: No such file or directory in /home/boost/public_html/api/test/new_db_old.php on line 2
+[15-Dec-2015 12:30:49 UTC] PHP Warning:  include(): Failed opening 'xmlapi.php.inc' for inclusion (include_path='.:/usr/lib/php:/usr/local/lib/php') in /home/boost/public_html/api/test/new_db_old.php on line 2
+[15-Dec-2015 12:30:49 UTC] PHP Fatal error:  Class 'xmlapi' not found in /home/boost/public_html/api/test/new_db_old.php on line 11
+[15-Dec-2015 12:31:11 UTC] PHP Warning:  include(xmlapi.php.inc): failed to open stream: No such file or directory in /home/boost/public_html/api/test/new_db_old.php on line 2
+[15-Dec-2015 12:31:11 UTC] PHP Warning:  include(xmlapi.php.inc): failed to open stream: No such file or directory in /home/boost/public_html/api/test/new_db_old.php on line 2
+[15-Dec-2015 12:31:11 UTC] PHP Warning:  include(): Failed opening 'xmlapi.php.inc' for inclusion (include_path='.:/usr/lib/php:/usr/local/lib/php') in /home/boost/public_html/api/test/new_db_old.php on line 2
+[15-Dec-2015 12:31:11 UTC] PHP Fatal error:  Class 'xmlapi' not found in /home/boost/public_html/api/test/new_db_old.php on line 11
+[15-Dec-2015 12:35:19 UTC] api1_query requires that it is passed an array as the 4th parameter
+[15-Dec-2015 12:35:19 UTC] URL: https://api.boosaccounting.com:2083/xml-api/cpanel
+[15-Dec-2015 12:35:19 UTC] DATA: cpanel_xmlapi_user=boost&cpanel_xmlapi_module=Mysql&cpanel_xmlapi_func=adduser&cpanel_xmlapi_apiversion=1
+[15-Dec-2015 12:35:19 UTC] Authentication Header: Authorization: Basic Ym9vc3Q6fjtrdUZjP3tIZEBi
+
+
+[15-Dec-2015 12:35:20 UTC] PHP Fatal error:  Uncaught exception 'Exception' with message 'curl_exec threw error "Couldn't resolve host 'api.boosaccounting.com'" for https://api.boosaccounting.com:2083/xml-api/cpanel?cpanel_xmlapi_user=boost&cpanel_xmlapi_module=Mysql&cpanel_xmlapi_func=adduser&cpanel_xmlapi_apiversion=1' in /home/boost/public_html/api/test/xmlapi.php:758
+Stack trace:
+#0 /home/boost/public_html/api/test/xmlapi.php(676): xmlapi->curl_query('https://api.boo...', 'cpanel_xmlapi_u...', 'Authorization: ...')
+#1 /home/boost/public_html/api/test/xmlapi.php(865): xmlapi->xmlapi_query('cpanel', Array)
+#2 /home/boost/public_html/api/test/new_db_old.php(18): xmlapi->api1_query('boost', 'Mysql', 'adduser', Array)
+#3 {main}
+  thrown in /home/boost/public_html/api/test/xmlapi.php on line 758
+[15-Dec-2015 12:35:44 UTC] api1_query requires that it is passed an array as the 4th parameter
+[15-Dec-2015 12:35:44 UTC] URL: https://api.boostaccounting.com:2083/xml-api/cpanel
+[15-Dec-2015 12:35:44 UTC] DATA: cpanel_xmlapi_user=boost&cpanel_xmlapi_module=Mysql&cpanel_xmlapi_func=adduser&cpanel_xmlapi_apiversion=1
+[15-Dec-2015 12:35:44 UTC] Authentication Header: Authorization: Basic Ym9vc3Q6fjtrdUZjP3tIZEBi
+
+
+[15-Dec-2015 12:35:45 UTC] RESPONSE:
+ <?xml version="1.0" ?>
+<cpanelresult><module>Mysql</module><func>adduser</func><type>event</type><source>internal</source><apiversion>1</apiversion><data><result>&lt;br /&gt;&lt;font color=&quot;#FF0000&quot;&gt;The “password” argument cannot be empty.&lt;/font&gt;
+</result></data>  <event>
+    <result>1</result>
+  </event>
+<error>The “password” argument cannot be empty.</error></cpanelresult>
+[15-Dec-2015 12:35:45 UTC] SimpleXML var_dump:
+SimpleXMLElement Object
+(
+    [module] => Mysql
+    [func] => adduser
+    [type] => event
+    [source] => internal
+    [apiversion] => 1
+    [data] => SimpleXMLElement Object
+        (
+            [result] => <br /><font color="#FF0000">The “password” argument cannot be empty.</font>
+
+        )
+
+    [event] => SimpleXMLElement Object
+        (
+            [result] => 1
+        )
+
+    [error] => The “password” argument cannot be empty.
+)
+
+[15-Dec-2015 12:35:45 UTC] URL: https://api.boostaccounting.com:2083/xml-api/cpanel
+[15-Dec-2015 12:35:45 UTC] DATA: cpanel_xmlapi_user=boost&cpanel_xmlapi_module=Mysql&cpanel_xmlapi_func=adduserdb&cpanel_xmlapi_apiversion=1&arg-0=SELECT+INSERT+UPDATE+CREATE+DELETE+ALTER+DROP
+[15-Dec-2015 12:35:45 UTC] Authentication Header: Authorization: Basic Ym9vc3Q6fjtrdUZjP3tIZEBi
+
+
+[15-Dec-2015 12:35:46 UTC] RESPONSE:
+ <?xml version="1.0" ?>
+<cpanelresult><module>Mysql</module><func>adduserdb</func><type>event</type><source>internal</source><apiversion>1</apiversion><data><result></result></data>  <event>
+    <result>1</result>
+  </event>
+<error>No username given</error></cpanelresult>
+[15-Dec-2015 12:35:46 UTC] SimpleXML var_dump:
+SimpleXMLElement Object
+(
+    [module] => Mysql
+    [func] => adduserdb
+    [type] => event
+    [source] => internal
+    [apiversion] => 1
+    [data] => SimpleXMLElement Object
+        (
+            [0] => SimpleXMLElement Object
+                (
+                )
+
+        )
+
+    [event] => SimpleXMLElement Object
+        (
+            [result] => 1
+        )
+
+    [error] => No username given
+)
+
+[15-Dec-2015 12:37:00 UTC] api1_query requires that it is passed an array as the 4th parameter
+[15-Dec-2015 12:37:00 UTC] URL: https://http://api.boostaccounting.com:2083/xml-api/cpanel
+[15-Dec-2015 12:37:00 UTC] DATA: cpanel_xmlapi_user=boost&cpanel_xmlapi_module=Mysql&cpanel_xmlapi_func=adduser&cpanel_xmlapi_apiversion=1
+[15-Dec-2015 12:37:00 UTC] Authentication Header: Authorization: Basic Ym9vc3Q6fjtrdUZjP3tIZEBi
+
+
+[15-Dec-2015 12:37:00 UTC] PHP Fatal error:  Uncaught exception 'Exception' with message 'curl_exec threw error "Couldn't resolve host 'http'" for https://http://api.boostaccounting.com:2083/xml-api/cpanel?cpanel_xmlapi_user=boost&cpanel_xmlapi_module=Mysql&cpanel_xmlapi_func=adduser&cpanel_xmlapi_apiversion=1' in /home/boost/public_html/api/test/xmlapi.php:758
+Stack trace:
+#0 /home/boost/public_html/api/test/xmlapi.php(676): xmlapi->curl_query('https://http://...', 'cpanel_xmlapi_u...', 'Authorization: ...')
+#1 /home/boost/public_html/api/test/xmlapi.php(865): xmlapi->xmlapi_query('cpanel', Array)
+#2 /home/boost/public_html/api/test/new_db_old.php(18): xmlapi->api1_query('boost', 'Mysql', 'adduser', Array)
+#3 {main}
+  thrown in /home/boost/public_html/api/test/xmlapi.php on line 758
+[15-Dec-2015 12:38:31 UTC] api1_query requires that it is passed an array as the 4th parameter
+[15-Dec-2015 12:38:31 UTC] URL: https://api.boostaccounting.com:2083/xml-api/cpanel
+[15-Dec-2015 12:38:31 UTC] DATA: cpanel_xmlapi_user=boost&cpanel_xmlapi_module=Mysql&cpanel_xmlapi_func=adduser&cpanel_xmlapi_apiversion=1
+[15-Dec-2015 12:38:31 UTC] Authentication Header: Authorization: Basic Ym9vc3Q6fjtrdUZjP3tIZEBi
+
+
+[15-Dec-2015 12:38:32 UTC] RESPONSE:
+ <?xml version="1.0" ?>
+<cpanelresult><module>Mysql</module><func>adduser</func><type>event</type><source>internal</source><apiversion>1</apiversion><data><result>&lt;br /&gt;&lt;font color=&quot;#FF0000&quot;&gt;The “password” argument cannot be empty.&lt;/font&gt;
+</result></data>  <event>
+    <result>1</result>
+  </event>
+<error>The “password” argument cannot be empty.</error></cpanelresult>
+[15-Dec-2015 12:38:32 UTC] SimpleXML var_dump:
+SimpleXMLElement Object
+(
+    [module] => Mysql
+    [func] => adduser
+    [type] => event
+    [source] => internal
+    [apiversion] => 1
+    [data] => SimpleXMLElement Object
+        (
+            [result] => <br /><font color="#FF0000">The “password” argument cannot be empty.</font>
+
+        )
+
+    [event] => SimpleXMLElement Object
+        (
+            [result] => 1
+        )
+
+    [error] => The “password” argument cannot be empty.
+)
+
+[15-Dec-2015 12:38:32 UTC] URL: https://api.boostaccounting.com:2083/xml-api/cpanel
+[15-Dec-2015 12:38:32 UTC] DATA: cpanel_xmlapi_user=boost&cpanel_xmlapi_module=Mysql&cpanel_xmlapi_func=adduserdb&cpanel_xmlapi_apiversion=1&arg-0=SELECT+INSERT+UPDATE+CREATE+DELETE+ALTER+DROP
+[15-Dec-2015 12:38:32 UTC] Authentication Header: Authorization: Basic Ym9vc3Q6fjtrdUZjP3tIZEBi
+
+
+[15-Dec-2015 12:38:33 UTC] RESPONSE:
+ <?xml version="1.0" ?>
+<cpanelresult><module>Mysql</module><func>adduserdb</func><type>event</type><source>internal</source><apiversion>1</apiversion><data><result></result></data>  <event>
+    <result>1</result>
+  </event>
+<error>No username given</error></cpanelresult>
+[15-Dec-2015 12:38:33 UTC] SimpleXML var_dump:
+SimpleXMLElement Object
+(
+    [module] => Mysql
+    [func] => adduserdb
+    [type] => event
+    [source] => internal
+    [apiversion] => 1
+    [data] => SimpleXMLElement Object
+        (
+            [0] => SimpleXMLElement Object
+                (
+                )
+
+        )
+
+    [event] => SimpleXMLElement Object
+        (
+            [result] => 1
+        )
+
+    [error] => No username given
+)
+
+[15-Dec-2015 12:44:14 UTC] api1_query requires that a module and function are passed to it
+[15-Dec-2015 12:44:14 UTC] api1_query requires that a module and function are passed to it
+[15-Dec-2015 12:44:14 UTC] api1_query requires that a module and function are passed to it
+[15-Dec-2015 12:44:23 UTC] api1_query requires that a module and function are passed to it
+[15-Dec-2015 12:44:23 UTC] api1_query requires that a module and function are passed to it
+[15-Dec-2015 12:44:23 UTC] api1_query requires that a module and function are passed to it
+[15-Dec-2015 12:45:02 UTC] PHP Fatal error:  Uncaught exception 'RuntimeException' with message 'There was a problem fetching the env variablecontaining the path to the socket' in /usr/local/cpanel/php/cpanel.php:146
+Stack trace:
+#0 /home/boost/public_html/api/test/new_db.php(7): CPANEL->__construct()
+#1 {main}
+  thrown in /usr/local/cpanel/php/cpanel.php on line 146
+[17-Dec-2015 06:27:07 UTC] PHP Fatal error:  Uncaught exception 'RuntimeException' with message 'There was a problem fetching the env variablecontaining the path to the socket' in /usr/local/cpanel/php/cpanel.php:146
+Stack trace:
+#0 /home/boost/public_html/api/test/new_db.live.php(7): CPANEL->__construct()
+#1 {main}
+  thrown in /usr/local/cpanel/php/cpanel.php on line 146
+[17-Dec-2015 07:10:14 UTC] api1_query requires that a module and function are passed to it
+[17-Dec-2015 07:11:05 UTC] api1_query requires that a module and function are passed to it
+[17-Dec-2015 07:14:03 UTC] api1_query requires that a module and function are passed to it

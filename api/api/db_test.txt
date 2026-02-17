@@ -1,0 +1,6 @@
+string(122) "GET /frontend/x3/sql/addb.html?db=boost_acc68
+HTTP/1.0
+Host:localhost
+Authorization: Basic Ym9vc3Q6fjtrdUZjP3tIZEBi
+
+"

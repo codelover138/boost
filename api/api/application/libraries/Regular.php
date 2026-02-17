@@ -1,0 +1,763 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+class Regular
+{
+    public $methods = array('POST', 'GET', 'PUT', 'DELETE', 'SEND');
+    private $CI;
+    public $table_prefix;
+	public $sent_data;
+
+    public function __construct()
+    {
+        $this->CI =& get_instance();
+        $this->table_prefix = $this->CI->config->item('db_table_prefix');
+    }
+
+    public function request_method()
+    {
+        $result = strtoupper($_SERVER['REQUEST_METHOD']);
+        return $result;
+    }
+
+    public function request_uri()
+    {
+        $url_path = ltrim(parse_url($this->CI->config->item('api_url'), PHP_URL_PATH), '/');
+
+        # returns request uri without a query string if one is present
+        $request_uri = str_replace($url_path, '', strtok($_SERVER['REQUEST_URI'], '?'));
+
+        return ltrim($request_uri, '/');
+    }
+
+    public function requested_resource()
+    {
+        $request_uri = $this->request_uri();
+        $base_url = str_replace($this->get_protocol(), '', rtrim(base_url(), '/'));
+        $base_uri_array = explode('/', $base_url);
+        $base_uri = '';
+
+        if(isset($base_uri_array[0])) unset($base_uri_array[0]); $base_uri = implode('/', $base_uri_array);
+
+        $resource_uri = trim(str_replace($base_uri, '', $request_uri), '/');
+
+        $resource_uri_arr = explode('/', $resource_uri);
+
+        if(!isset($resource_uri_arr[0])) :
+            return false;
+         else :
+             if($resource_uri_arr[0] == 'api') :
+                 if(isset($resource_uri_arr[1])) :
+                     return $resource_uri_arr[1];
+                 else :
+                    return '';
+                 endif;
+             endif;
+            return $resource_uri_arr[0];
+        endif;
+    }
+
+    public function hello()
+    {
+        return 'hello';
+    }
+
+    public function uri_array()
+    {
+        $request_uri = trim($this->request_uri(), '/');
+        $uri_arr = explode('/', $request_uri);
+
+        return $uri_arr;
+    }
+
+    public function uri_segment($n)
+    {
+        $uri_arr = $this->uri_array();
+        $arr_count = count($uri_arr);
+
+        if($n == 'last') :
+            return end($uri_arr);
+        elseif($n < 0) :
+            $index = $arr_count - 1 - (-($n));
+            return $uri_arr[$index];
+        else :
+            return $uri_arr[$n];
+        endif;
+    }
+
+    public function get_protocol()
+    {
+        $protocol = stripos($_SERVER['SERVER_PROTOCOL'],'https') === true ? 'https://' : 'http://';
+        return $protocol;
+    }
+
+    public function get_domain()
+    {
+        $domain = $this->get_protocol() . $_SERVER['HTTP_HOST'] . '/';
+        return $domain;
+    }
+
+    public function get_request_headers()
+    {
+       // return apache_request_headers();
+       if (function_exists('apache_request_headers')) {
+            return apache_request_headers();
+       }
+        $headers = [];
+        foreach ($_SERVER as $key => $value) {
+            if (strpos($key, 'HTTP_') === 0) {
+                $header = str_replace('_', '-', substr($key, 5));
+               if($header === 'ACCOUNT-NAME') $header=str_replace(' ', '-', ucwords(str_replace('-', ' ', strtolower($header))));
+               else $header= ucwords(strtolower($header));
+               $headers[$header] = $value;
+            }
+        }
+        return $headers;
+    }
+
+    public function check_content_type()
+    {
+        if(empty(apache_request_headers()['Content-Type']))
+        {
+            $this->respond(array(
+                'error' => 'Invalid mean of access'
+            ));
+
+            //redirect('home');
+        }
+    }
+
+    public function valid_method($methods = array())
+    {
+        $method = $this->request_method();
+
+        if (!empty($methods)) {
+            $this->methods = $methods;
+            $methods_ = array();
+            foreach ($methods as $method_) {
+                if (in_array(strtoupper($method_), $this->methods)) :
+                    $methods_[] = $method_;
+                endif;
+            }
+
+            if (!empty($methods_)) :
+                $this->methods = $methods_;
+            endif;
+        }
+
+        if(in_array($method, $this->methods)) :
+            return $method;
+        else :
+            return false;
+        endif;
+    }
+
+    public function is_allowed($method, $resource)
+    {
+        $resource = strtolower($resource);
+
+        # if method is not within the methods property
+        if (in_array(strtoupper($method), $this->methods)) :
+            $method = strtolower($method);
+        else :
+            return false;
+        endif;
+
+        # disallowed resource/method combinations config file
+        $this->CI->load->config('disallowed');
+        $disallowed = $this->CI->config->item('resources');
+
+        if (isset($disallowed[$method]) && in_array($resource, $disallowed[$method])) :
+            return false;
+        else :
+            return true;
+        endif;
+    }
+
+    public function header_($code)
+    {
+        if(!is_numeric($code)) :
+            $code = strtolower($code);
+        endif;
+
+        switch($code)
+        {
+            case 200:
+                $result = 'HTTP/1.1 200 OK';
+                break;
+            case 201:
+                $result = 'HTTP/1.1 201 Created';
+                break;
+            case 204:
+                $result = 'HTTP/1.1 204 No Content';
+                break;
+            case 400:
+                $result = 'HTTP/1.1 400 Bad Request';
+                break;
+            case 401:
+                $result = 'HTTP/1.1 401 Authentication Error';
+                break;
+            case 403:
+                $result = 'HTTP/1.1 403 Forbidden';
+                break;
+            case 404:
+                $result = 'HTTP/1.1 404 Not Found';
+                break;
+            case 405:
+                $result = 'HTTP/1.1 405 Method Not Allowed';
+                break;
+            case 417:
+                $result = 'HTTP/1.1 417 Expectation Failed';
+                break;
+            case 498:
+                $result = 'HTTP/1.1 401 Token Expired/Invalid';
+                break;
+            case 499:
+                $result = 'HTTP/1.1 401 Token Required';
+                break;
+            case 'cookie':
+                $this->CI->load->helper('cookie');
+                $result = 'Cookie: $Version=1; Skin=new;';
+                break;
+            case 'json':
+                $result = 'Content-Type: application/json';
+                break;
+            default:
+                $result = '';
+        }
+
+        if(!headers_sent()) :
+            return header($result);
+        endif;
+    }
+
+    public function decode($method = null)
+    {
+        if(is_null($method)) :
+            $method = $this->request_method();
+        endif;
+
+        if(empty($_SERVER['QUERY_STRING'])) :
+            # get inputs and attach them to variable $post_vars
+            $inputs = file_get_contents("php://input");
+            if(!empty($inputs)) :
+                parse_str(http_build_query(json_decode($inputs, true)),$post_vars);
+
+                if($method == 'GET') :
+                    $_GET = $post_vars;
+                elseif($method == 'POST') :
+                    $_POST = $post_vars;
+                endif;
+            else :
+                $post_vars = false;
+            endif;
+
+        else :
+            $inputs = (array)json_decode(urldecode($_SERVER['QUERY_STRING']), true);
+            $_GET = $inputs;
+            $post_vars = $inputs;
+        endif;
+		
+		$this->sent_data = $post_vars;
+		
+        return $post_vars;
+    }
+
+    public function basic_resource_map($name = null, $resources = array())
+    {
+        if(is_null($name))
+        {
+            $name = calling_function();
+        }
+
+        $representation = array();
+
+        $representation['request_methods']['post'][] = $name;
+        $representation['request_methods']['get'][] = $name;
+        $representation['request_methods']['get'][] = $name.'/id';
+        $representation['request_methods']['get'][] = $name.'/order_by';
+        $representation['request_methods']['put'][] = $name.'/id';
+        $representation['request_methods']['delete'][] = $name.'/id';
+
+        if(!empty($resources)) :
+            foreach($resources as $key => $resource) :
+                $representation['request_methods'][$key][] = $resource;
+            endforeach;
+        endif;
+
+        $representation['fields'] = $this->CI->generic_model->describe('boost_'.$name);
+
+        if(!is_null($name)) :
+            return $representation;
+        else :
+            $this->respond($representation);
+        endif;
+    }
+
+    public function id_exists($params, $id)
+    {
+        if(!isset($params['field'])) :
+            $field = 'id';
+        else :
+            $field = $params['field'];
+        endif;
+
+        $params['where'] = array($field=>$id);
+        $result = $this->CI->generic_model->exists($params);
+
+        return $result;
+    }
+
+    public function check_id($inputs)
+    {
+        if(!isset($inputs['url']['id'])) {
+            $return = array('bool' => false, 'message' => 'record id not specified');
+            return $return;
+        }
+    }
+
+    public function get_required_fields($table)
+    {
+        return $this->CI->generic_model->get_required_fields($table);
+    }
+
+    public function respond($array, $echo_out = true)
+    {
+        log_message('error', json_encode($array));
+        $this->header_('json');
+        if ($echo_out) :
+            echo json_encode($array);
+        else :
+            return json_encode($array);
+        endif;
+    }
+
+    public function curl_request($method, $resource, $data = null, $request_url = null)
+    {
+        $http_header = array('Content-Type: application/json');
+
+        if(is_null($request_url)) :
+            $request_url = $this->CI->config->item('api_url');
+        endif;
+
+        $request_headers = $this->get_request_headers();
+        if (isset($request_headers['Account-Name'])) $http_header[] = 'Account-Name: ' . $request_headers['Account-Name'];
+        if (isset($request_headers['Auth'])) $http_header[] = 'Auth: ' . $request_headers['Auth'];
+        if (isset($request_headers['Session'])) $http_header[] = 'Session: ' . $request_headers['Session'];
+
+        # set up the curl resources
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $request_url.$resource.'/');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method); # note the method here
+
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $http_header);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        if(!is_null($data))
+        {
+            $data_string = json_encode($data);
+            $http_header[] = 'Content-Length: ' . strlen($data_string);
+
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+        }
+
+        # execute the request
+        $output = curl_exec($ch);
+
+        # Closing curl handler
+        curl_close($ch);
+
+        $decoded = json_decode($output, true);
+
+        return $decoded;
+    }
+
+    public function curl_request2($params)
+    {
+        $http_header = array();
+
+        if (isset($params['headers'])) :
+            $http_header[] = $params['headers'];
+        endif;
+
+        $data = null;
+        if (isset($params['data'])) :
+            $data = $params['data'];
+        endif;
+
+        $request_url = null;
+        if (isset($params['request_url'])) :
+            $request_url = $params['request_url'];
+        endif;
+
+        $http_header[] = 'Content-Type: application/json';
+
+        $request_headers = $this->get_request_headers();
+        if (isset($request_headers['Account-Name'])) $http_header[] = 'Account-Name: ' . $request_headers['Account-Name'];
+        if (isset($request_headers['Auth'])) $http_header[] = 'Auth: ' . $request_headers['Auth'];
+        if (isset($request_headers['Session'])) $http_header[] = 'Session: ' . $request_headers['Session'];
+
+        if (is_null($request_url)) :
+            $request_url = $this->CI->config->item('api_url');
+        endif;
+
+        # set up the curl resources
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $request_url . $params['resource'] . '/');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $params['method']); # note the method here
+
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $http_header);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        # DEBUG------------------------------------------------------------
+        if (isset($params['debug']) && $params['debug'] == true) {
+            curl_setopt($ch, CURLOPT_VERBOSE, true);
+
+            $verbose = fopen('php://temp', 'w+');
+            curl_setopt($ch, CURLOPT_STDERR, $verbose);
+        }
+        /*-------------------------------------------------------------*/
+
+        if (!is_null($data)) {
+            $data_string = json_encode($data);
+            $http_header[] = 'Content-Length: ' . strlen($data_string);
+
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+        }
+
+        # execute the request
+        $output = curl_exec($ch);
+
+        # DEBUG -------------------------------------------------------------------------------------
+        if (isset($params['debug']) && $params['debug'] == true) {
+            $result = $output;
+            if ($result === FALSE) {
+                printf("cUrl error (#%d): %s<br>\n", curl_errno($ch),
+                    htmlspecialchars(curl_error($ch)));
+            }
+
+            rewind($verbose);
+            $verboseLog = stream_get_contents($verbose);
+
+            echo "Verbose information:\n<pre>", htmlspecialchars($verboseLog), "</pre>\n";
+        }
+        /*-------------------------------------------------------------------------------------------*/
+
+        # Closing curl handler
+        curl_close($ch);
+
+        $decoded = json_decode($output, true);
+
+        return $decoded;
+    }
+
+    public function piggyback1($post_vars = null)
+    {
+        /* Piggyback:
+         * additional requested data
+         ----------------------------------------------------------------------------------------------*/
+        if (is_null($post_vars)) :
+            $post_vars = $this->decode();
+        endif;
+
+        $return = array();
+        if (isset($post_vars['piggyback'])) :
+            foreach ($post_vars['piggyback'] as $resource) {
+                $return[$resource] = $this->curl_request('GET', $resource);
+
+                if (isset($return[$resource]['data'])) :
+                    $return[$resource] = $return[$resource]['data'];
+                endif;
+            }
+
+            return $return;
+        else :
+            false;
+        endif;
+    }
+
+    public function piggyback($post_vars = null)
+    {
+        /* Piggyback 2:
+         * additional requested data
+         ----------------------------------------------------------------------------------------------*/
+        if (is_null($post_vars)) :
+            $post_vars = $this->decode();
+        endif;
+
+        $return = array();
+        if (isset($post_vars['piggyback'])) :
+					
+            foreach ($post_vars['piggyback'] as $key => $resource_data) {
+
+				if(is_array($resource_data)){
+					$resource = $resource_data['resource'];					
+				}else{
+					$resource = $resource_data;
+				}
+				
+                $exploded_string = explode('/', $resource);
+                $resource_name = $exploded_string[0];
+                unset($exploded_string[0]);
+
+                $resource_parameter = '';
+
+                if (count($exploded_string) > 0) {
+                    $count = 0;
+                    foreach ($exploded_string as $string) :
+                        if ($count > 0) :
+                            $resource_parameter .= '/' . $string;
+                        else :
+                            $resource_parameter .= $string;
+                        endif;
+                        $count++;
+                    endforeach;
+                }
+
+                if (strpos($resource_name, 'organizations') !== false) :
+                    $resource_name = str_replace('organizations', 'organisations', $resource_name);
+                endif;
+				
+				if($resource == 'statement_url')
+					continue;
+
+                $entity_name = create_slug($resource_name, '_');
+
+                $params = array(
+                    'resource' => $resource_name,
+                    'table' => $this->table_prefix . $resource_name,
+                    'entity' => $entity_name,
+                    'string' => $resource_parameter
+                );
+				
+				//accept data from piggyback modification
+				if(is_array($resource_data)){
+					if(isset($resource_data['where']) && is_array($resource_data['where'])){
+						$params['where'] = $resource_data['where'];
+					}
+				}
+				
+                $response = $this->api_query($params);
+
+                if (!is_null($response)) :
+                    $return[$resource] = $response;
+                endif;
+            }
+
+            return $return;
+        else :
+            false;
+        endif;
+    }
+
+    /*
+     * API Query (READ ONLY):
+     * This method is used to simulate the querying of an api without actually
+     * doing it through HTTP
+     * */
+    public function api_query($params)
+    {
+        $model = 'generic_model';
+
+        if (!isset($params['string'])) :
+            $params['string'] = '';
+        endif;
+
+        if (substr($params['entity'], -1) == 's') :
+            $params['entity'] = rtrim($params['entity'], 's');
+        endif;
+
+        $string_def = $this->prep_string_param($params['string']);
+
+        $id = $string_def[0];
+        $order = $string_def[1];
+        $limit = $string_def[2];
+        $offset = $string_def[3];
+
+        $params['order'] = $order;
+        $params['limit'] = $limit;
+        $params['offset'] = $offset;
+
+        # checks if the ID is not a numeric value and treats it as an order by field if condition is true
+        if (!is_numeric($id) && $id != 'next_reference') $params['order_by'] = $id;
+
+        # checks if there is a corresponding model for the resource
+        if (model_exists($params['resource'] . '_model')) $model = $params['resource'] . '_model';
+        /*--------------------------------------------------------------------------------------------*/
+
+        # checking if the resource has any specific configuration to it
+        # and using that resources config information if found
+        $resource_config = $this->CI->config->item($params['resource']);
+        if (isset($resource_config)) {
+            if (is_array($resource_config)) {
+                if (isset($resource_config['table'])) :
+                    $params['table'] = $resource_config['table'];
+                endif;
+
+                if (isset($resource_config['model'])) :
+                    $model = $resource_config['model'];
+                endif;
+            }
+        }
+        /*-------------------------------------------------------------------*/
+
+        # loads the model specified in the resource's configuration
+        if ($model != 'generic_model') :
+            $this->CI->load->model($model);
+        endif;
+        /*-----------------------------------------------------------*/
+
+        # checks if the resource model (if defined) has a read method
+        if ($model != 'generic_model' && !method_exists($model, 'read')) :
+            $model = 'generic_model';
+        endif;
+        /*-----------------------------------------------------------------*/
+
+        if ($id == 'next_reference') {
+            $this->CI->load->library('finance');
+            $params['fields'] = $params['entity'] . '_number';
+            $result = str_pad($this->CI->finance->unique_reference($params), 6, '0', STR_PAD_LEFT);
+        } elseif ($params['resource'] == 'messages') {
+            # if the resource is "messages", $id becomes the resource name and $order becomes the id in messages() parameters
+            $this->CI->load->library('resources/generic');
+            $result = $this->CI->generic->messages($id, $order, false)['data'];
+        } else {
+            $result = $this->CI->$model->read($params, $id);
+        }
+
+        return $result;
+    }
+
+    /*
+     * Prepare String Parameter:
+     * Takes a string and turns it into an array.
+     * This function was originally built to be used by the api_query() funtion
+     * to transform a uri into an array so that it can query data much like the API does
+     * except the request doesn't go through HTTP, it's all done using the available functions
+     * built into the system
+     * */
+    public function prep_string_param($string = '')
+    {
+        $string_def = array(null, 'ASC', null, null);
+
+        if ($string != '') {
+            $string = trim($string, '/');
+            $exploded_string = explode('/', $string);
+
+            foreach ($exploded_string as $key => $param) :
+                $string_def[$key] = $param;
+            endforeach;
+        }
+        return $string_def;
+    }
+
+    public function api_update($update_data)
+    {
+        $update = $this->CI->generic_model->update($update_data['params'], $update_data['id'], $update_data['post']);
+
+        return $update;
+    }
+
+    public function set_response_headers()
+    {
+        if (!headers_sent()) {
+            # allow cross origin and set allowed HTTP methods
+            //header("Access-Control-Allow-Origin: *");
+            header("Access-Control-Request-Headers: accept, content-type");
+            header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, SEND");
+            header('Access-Control-Max-Age: 86400');    // cache for 1 day
+            header("Access-Control-Allow-Headers: x-requested-with");
+
+            // Allow from any origin
+            if (isset($_SERVER['HTTP_ORIGIN']) && !empty($_SERVER['HTTP_ORIGIN'])) {
+                header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+            } else {
+                header("Access-Control-Allow-Origin: *");
+            }
+
+            // Access-Control headers are received during OPTIONS requests
+            if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+
+                header("Access-Control-Allow-Headers: Content-Type");
+
+                if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) :
+                    header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+                endif;
+                exit(0);
+            }
+        }
+    }
+
+    public function validate_base64($base64string)
+    {
+        if (base64_encode(base64_decode($base64string, true)) === $base64string) :
+            return true;
+        else :
+            return false;
+        endif;
+    }
+
+    public function unique_name($name, $field, $table)
+    {
+        $params = array(
+            'table' => $table,
+            'entity' => 'account'
+        );
+
+        $params['like'][$field] = $name;
+        $params['wildcard_position'] = 'both';
+
+        $matches = $this->CI->generic_model->read($params, null, 'zero');
+
+        # returns account name as it is if no matches were found
+        if(empty($matches)) return $name;
+
+        # puts all matching values in one array
+        $match_arr = array();
+        foreach($matches as $key => $match) :
+            $match_arr[] = $match->$field;
+        endforeach;
+
+        # seeks numerical values within the end of the matching values and saves them all in an array
+        $matches_numbers = array();
+        foreach($match_arr as $match) :
+            $unique_part = preg_replace('/[^0-9]+/', '', strtolower($match));
+            if(is_numeric($unique_part)) $matches_numbers[] = $unique_part;
+        endforeach;
+
+        # adds a value of 0 if there were no numerical values found in the matches
+        if(empty($matches_numbers)) :
+            $matches_numbers[0] = 0;
+        else :
+            rsort($matches_numbers);
+        endif;
+
+        # renaming account name
+        $new_name = $name . ($matches_numbers[0] + 1);
+		
+		if(in_array($new_name,$this->CI->config->item('disallowed_account_names'))){
+			return false;	
+		}else{
+			return $new_name;
+		}
+    
+    }
+
+    public function extract_subdomain($domain)
+    {
+        $domain_parts = explode('.', $domain);
+
+        if (count($domain_parts) == 3) {
+            return $domain_parts[0];
+        } else {
+            return false;
+        }
+    }
+}

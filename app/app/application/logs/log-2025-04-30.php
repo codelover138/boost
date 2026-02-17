@@ -1,0 +1,32 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2025-04-30 00:20:39 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2025-04-30 00:20:39 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2025-04-30 00:20:39 --> 404 Page Not Found: Faviconico/index
+ERROR - 2025-04-30 00:20:39 --> 404 Page Not Found: Faviconico/index
+ERROR - 2025-04-30 00:20:39 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2025-04-30 00:20:39 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2025-04-30 00:20:43 --> 404 Page Not Found: Faviconico/index
+ERROR - 2025-04-30 00:20:43 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2025-04-30 00:20:43 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2025-04-30 01:52:33 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2025-04-30 01:52:33 --> 404 Page Not Found: Faviconico/index
+ERROR - 2025-04-30 01:52:33 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2025-04-30 01:52:33 --> 404 Page Not Found: Faviconico/index
+ERROR - 2025-04-30 01:52:33 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2025-04-30 01:52:33 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2025-04-30 01:52:36 --> 404 Page Not Found: Faviconico/index
+ERROR - 2025-04-30 01:52:37 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2025-04-30 01:52:37 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2025-04-30 02:36:40 --> 404 Page Not Found: Faviconico/index
+ERROR - 2025-04-30 02:36:40 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2025-04-30 02:36:40 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2025-04-30 02:36:41 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2025-04-30 02:36:41 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2025-04-30 02:36:41 --> 404 Page Not Found: Faviconico/index
+ERROR - 2025-04-30 02:36:44 --> 404 Page Not Found: Faviconico/index
+ERROR - 2025-04-30 02:36:44 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2025-04-30 02:36:44 --> 404 Page Not Found: Sitemapxml/index
+ERROR - 2025-04-30 11:05:28 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2025-04-30 11:30:51 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2025-04-30 16:08:03 --> 404 Page Not Found: Robotstxt/index
