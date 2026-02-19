@@ -55,3 +55,16 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 $route['api/api_rest/dashboard'] = 'api_rest/dashboard_info';
 $route['api/api_rest/reports/(:any)'] = 'api_rest/report_info/$1';
+$route['(me|login|invoices|contacts|organisations|estimates|credit_notes|users|expenses|reports|taxes|items|countries|currencies)(/.*)?'] = 'api/$1$2';
+
+// Super Admin Routes
+// Super Admin Routes
+// Super Admin Routes
+$route['api/admin/(:any)'] = 'admin/$1';
+$route['api/admin/(:any)/(:any)'] = 'admin/$1/$2';
+$route['api/admin/(:any)/(:any)/(:any)'] = 'admin/$1/$2/$3';
+$route['api/admin/(:any)/(:any)/(:any)/(:any)'] = 'admin/$1/$2/$3/$4';
+$route['admin/(:any)'] = 'admin/$1';
+$route['admin/(:any)/(:any)'] = 'admin/$1/$2';
+$route['admin/(:any)/(:any)/(:any)'] = 'admin/$1/$2/$3';
+$route['admin/(:any)/(:any)/(:any)/(:any)'] = 'admin/$1/$2/$3/$4';

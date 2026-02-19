@@ -73,6 +73,10 @@ class Checks
     {
         $return = array('bool'=>false);
 
+        if (in_array(strtolower($string), ['app', 'api', 'www', 'boostaccounting', 'admin'])) {
+            return array('bool' => true, 'message' => ['This account exists']);
+        }
+
         $this->CI->load->library('db/switcher', array('account_name'=>$string));
         $this->CI->switcher->main_db();
 

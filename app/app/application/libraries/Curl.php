@@ -63,9 +63,9 @@ class Curl{
         $http_header = array(
             'Content-Type: application/json',
             'Content-Length: '	. strlen($data_string),
-			'Auth:'				. @$auth_token,
-			'Account-Name:' 	. $subdomain,
-			'Session:' 			. @$session_id
+			'Auth: '				. @$auth_token,
+			'Account-Name: ' 	. $subdomain,
+			'Session: ' 			. @$session_id
         );
 
         // set up the curl resources

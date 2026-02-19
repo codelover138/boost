@@ -54,6 +54,13 @@
                                     role="menuitem">Account Settings</a></li>
                             <li role="separator" class="divider"></li>
                             <?php } ?>
+
+                            <?php if(isset($user_data['email']) && ($user_data['email'] == 'babu313136@gmail.com' || $user_data['email'] == 'admin@boostaccounting.com')): ?>
+                            <li role="presentation"><a href="<?php echo base_url('admin/workspaces'); ?>"
+                                    role="menuitem">Super Admin</a></li>
+                            <li role="separator" class="divider"></li>
+                            <?php endif; ?>
+
                             <li role="presentation"><a href="javascript:boostLogout();" class="logout_button"
                                     role="menuitem">Logout</a></li>
                         </ul>

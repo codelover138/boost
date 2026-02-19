@@ -179,8 +179,8 @@ class Generic
             switch ($method) {
                 case 'POST':
                     if (isset($post['login'])) {
-                        $decoded_authorization = json_decode(base64_decode($post['login']), true);
-                        $this->CI->userhandler->login($decoded_authorization);
+                        $raw_login = $post['login'];
+                        $decoded_authorization = json_decode(base64_decode($raw_login), true);
                         log_message('error', 'if condition');
                         return;
                     }

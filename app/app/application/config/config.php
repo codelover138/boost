@@ -19,7 +19,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 
 //base url for the site
-$config['base_url'] = 'https://'.$_SERVER['HTTP_HOST'];
+$config['base_url'] = 'https://'.$_SERVER['HTTP_HOST'].'/';
 
 /*
 |--------------------------------------------------------------------------
@@ -42,6 +42,7 @@ $config['base_url'] = 'https://'.$_SERVER['HTTP_HOST'];
 //$config['api_base_url'] = 'http://boostapi.soitesting.co.za/api/';
 //$config['api_base_url'] = 'http://api.boostaccounting.com/api/';
 $config['api_base_url'] = 'https://api.boostaccounting.com/api/';
+//$config['api_base_url'] = 'http://localhost/boost/api/api/';
 
 
 $config['domain_string'] = 'boostaccounting';
@@ -75,7 +76,7 @@ $config['pagination']['max_page_links'] = 5;
 | variable so that it is blank.
 |
 */
-$config['index_page'] = 'index.php';
+$config['index_page'] = '';
 
 /*
 |--------------------------------------------------------------------------

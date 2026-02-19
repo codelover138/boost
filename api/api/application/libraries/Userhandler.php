@@ -15,28 +15,7 @@ class Userhandler
         );
     }
 
-    public function confirm_account()
-    {
-        $headers = $this->CI->regular->get_request_headers();
-        
-        $response = array('status' => 'ERROR');
-        if (!isset($headers['Account-Name'])) :
-            $response['message'][] = 'Account-Name header not found';
-            $this->CI->regular->header_(401);
-            $this->CI->regular->respond($response);
-            die();
-        endif;
 
-        $this->CI->load->library('db/switcher', array('account_name' => $headers['Account-Name']));
-        $switch = $this->CI->switcher->account_db();
-
-        if (!$switch) :
-            $response['message'][0] = 'Account does not exist';
-            $this->CI->regular->header_(401);
-            $this->CI->regular->respond($response);
-            die();
-        endif;
-    }
 
     public function validate_login_input($input)
     {
@@ -63,11 +42,14 @@ class Userhandler
 
     public function login($input)
     {
+        log_message('error', 'Userhandler::login called with input: ' . json_encode($input));
         $this->validate_login_input($input);
 
         $this->CI->load->library('db/switcher', array('account_name' => $input['account_name']));
         $this->CI->switcher->account_db();
 
+        log_message('error', 'Userhandler::login using account: ' . $input['account_name'] . ' and email: ' . $input['email'] . ' on db: ' . $this->CI->db->database);
+        
         $email = $input['email'];
         $password = $input['password'];
         
@@ -91,7 +73,7 @@ class Userhandler
 
         # user data params
         $params = array(
-            'table' => 'boost_users',
+            'table' => $this->table_prefix . 'users',
             'entity' => 'user',
             'where' => array(
                 'email' => $email
@@ -100,53 +82,50 @@ class Userhandler
 
         $result = $this->CI->generic_model->read($params);
 
-        # if there were results
         if (!empty($result)) {
-            # determine the user's ID
-            $user_id = '';
-            foreach ($result as $key => $res) :
-                $user_id = $res->id;
-            endforeach;
+            # Success indicator and user data holder
+            $user_id = null;
+            $user_data = null;
+            
+            # loop through results to find matching password
+            foreach ($result as $res) {
+                if ($res->password == md5($password)) {
+                    $user_id = $res->id;
+                    $user_data = $res;
+                    break;
+                }
+            }
 
-            # update post array for updating user record
-            $update_post = array(
-                'last_attempt_datetime' => current_datetime()
-            );
+            if ($user_id) {
+                # update post array for updating user record
+                $update_post = array(
+                    'last_attempt_datetime' => current_datetime(),
+                    'last_activity' => current_datetime(),
+                    'failed_attempts' => 0
+                );
 
-            # check if given user password matches the password saved in the database
-            if ($result[$user_id]->password == md5($password))
-            {
                 $http_code = 200;
 
-                # generate token if password is correct
+                # generate token
                 $token_data = $this->generate_token($user_id, $session_id);
-
-                # added values to be updated to update post array
-                /*$token_post['token'] = $token_data['token'];
-                $token_post['token_expire'] = $token_data['token_expire'];*/
-                $update_post['failed_attempts'] = 0;
 
                 # set response status to OK
                 $return['status'] = 'OK';
-
-                # add retun values to return array
-                
-               
                 $return['token'] = $token_data['token'];
                 $return['token_expire'] = $token_data['token_expire'];
                 $return['session_id'] = $token_data['session_id'];
                 $return['message'][0] = 'login successful';
-                $update_post['last_activity'] = current_datetime();
+                $return['user_data'] = $user_data;
 
+                unset($params['where']);
+                $this->CI->generic_model->update($params, $user_id, $update_post);
             } else {
-                $update_post['failed_attempts'] = $result[$user_id]->failed_attempts + 1;
+                # Update failed attempts for first user found with this email
+                $first_user = $result[0];
+                $this->CI->generic_model->update($params, $first_user->id, array('failed_attempts' => $first_user->failed_attempts + 1));
             }
-
-            unset($params['where']);
-
-            $this->CI->generic_model->update($params, $user_id, $update_post);
-            log_message('error', json_encode($return));
         }
+        log_message('error', json_encode($return));
 
         # http header response code
         $this->CI->regular->header_($http_code);
@@ -169,8 +148,10 @@ class Userhandler
         }
         else
         {
-            $this->CI->load->library('db/switcher', array('account_name' => $headers['Account-Name']));
-            $this->CI->switcher->account_db();
+            if (!in_array(strtolower($headers['Account-Name']), ['app', 'api', 'www', 'boostaccounting', 'admin'])) {
+                $this->CI->load->library('db/switcher', array('account_name' => $headers['Account-Name']));
+                $this->CI->switcher->account_db();
+            }
 
 
             $params = $this->user_tokens_params;
@@ -237,6 +218,111 @@ class Userhandler
         return $return;
     }
 
+    public function confirm_account($requested_resource = null)
+    {
+        $headers = $this->CI->regular->get_request_headers();
+        $response = array('status' => 'ERROR');
+        
+        $account_name = isset($headers['Account-Name']) ? $headers['Account-Name'] : null;
+        
+        // 1. If we have an account name, check if it's a system account
+        if ($account_name && in_array(strtolower($account_name), ['app', 'api', 'www', 'boostaccounting', 'admin'])) {
+            return true;
+        }
+
+        // 2. Handle missing Account-Name header
+        if (!$account_name) {
+            $requested_resource = $this->CI->regular->requested_resource();
+            // Allow bypass for these resources if no account name is provided (Super Admin flow)
+            $bypass_resources = array('admin', 'me', 'api', 'login'); 
+            if (in_array($requested_resource, $bypass_resources)) {
+                return true;
+            }
+            
+            $response['message'][] = 'Account-Name header not found';
+            $this->CI->regular->header_(401);
+            $this->CI->regular->respond($response);
+            die();
+        }
+
+        // 3. For non-system accounts, ensure the DB is switched
+        $this->CI->load->library('db/switcher', array('account_name' => $account_name));
+        $switch = $this->CI->switcher->account_db();
+
+        if (!$switch) :
+            $response['message'][0] = 'Account does not exist';
+            $this->CI->regular->header_(401);
+            $this->CI->regular->respond($response);
+            die();
+        endif;
+
+        // 4. Check Access Control (Manual Block & Subscription)
+        $account_details = $this->CI->switcher->check_sub_status($account_name);
+
+        if ($account_details) {
+            // 1. Manual Block
+            if (isset($account_details->is_manual_blocked) && $account_details->is_manual_blocked == 1) {
+                $response['status'] = 'ERROR';
+                $response['message'][0] = 'Account is manually blocked. Reason: ' . ($account_details->manual_block_reason ? $account_details->manual_block_reason : 'Contact Support');
+                $this->CI->regular->header_(403);
+                $this->CI->regular->respond($response);
+                die();
+            }
+
+            // 2. Subscription / Trial Logic
+            $uri_string = ltrim(uri_string(), '/');
+            $allowed_routes = array(
+                'api/logout','api/login', 'api/settings', 'api/users', 'api/roles', 
+                'api/permissions', 'api/billing', 'api/subscription', 'api/organisations'
+            );
+
+            $is_allowed_route = false;
+            foreach ($allowed_routes as $route) {
+                if (strpos($uri_string, $route) !== false) {
+                    $is_allowed_route = true;
+                    break;
+                }
+            }
+            
+            if (!$is_allowed_route) {
+                $status = isset($account_details->subscription_status) ? $account_details->subscription_status : 'trial';
+                $access_denied = false;
+                $msg = '';
+
+                if ($status == 'trial') {
+                    $trial_ends = strtotime($account_details->trial_ends_at);
+                    if ($trial_ends < time()) {
+                        $access_denied = true;
+                        $msg = 'Trial expired. Please upgrade to continue.';
+                    }
+                } elseif ($status == 'cancelled' || $status == 'expired' || $status == 'past_due') {
+                     if (isset($account_details->paid_until) && strtotime($account_details->paid_until) > time()) {
+                         // Allowed
+                     } else {
+                         if ($status == 'past_due' || $status == 'grace_period') {
+                             if (isset($account_details->grace_period_ends_at) && strtotime($account_details->grace_period_ends_at) < time()) {
+                                 $access_denied = true;
+                                 $msg = 'Subscription past due. Please update payment method.';
+                             }
+                         } else {
+                             $access_denied = true;
+                             $msg = 'Subscription inactive. Please reactivate.';
+                         }
+                     }
+                }
+
+                if ($access_denied) {
+                    $response['status'] = 'ERROR';
+                    $response['message'][0] = $msg;
+                    $response['code'] = 'SUBSCRIPTION_RESTRICTED';
+                    $this->CI->regular->header_(403);
+                    $this->CI->regular->respond($response);
+                    die();
+                }
+            }
+        }
+    }
+
     public function valid_token()
     {
         $headers = $this->CI->regular->get_request_headers();
@@ -251,10 +337,12 @@ class Userhandler
         }
 
         if (!isset($headers['Account-Name'])) {
-            $errors['status'] = 'ERROR';
-            $errors['message'][] = 'Account-Name header not found';
-
-            $this->CI->regular->header_(401);
+            $requested_resource = $this->CI->regular->requested_resource();
+            if ($requested_resource !== 'admin') {
+                $errors['status'] = 'ERROR';
+                $errors['message'][] = 'Account-Name header not found';
+                $this->CI->regular->header_(401);
+            }
         }
 
         if (!isset($headers['Session'])) {
@@ -273,8 +361,10 @@ class Userhandler
         if (isset($headers['Auth'])) {
             $token = $headers['Auth'];
 
-            $this->CI->load->library('db/switcher', array('account_name' => $headers['Account-Name']));
-            $this->CI->switcher->account_db();
+            if (isset($headers['Account-Name'])) {
+                $this->CI->load->library('db/switcher', array('account_name' => $headers['Account-Name']));
+                $this->CI->switcher->account_db();
+            }
 
             if (isset($headers['Session'])) {
                 $session_id = $headers['Session'];
@@ -403,6 +493,11 @@ class Userhandler
         }
         else
         {
+            if (isset($headers['Account-Name'])) {
+                $this->CI->load->library('db/switcher', array('account_name' => $headers['Account-Name']));
+                $this->CI->switcher->account_db();
+            }
+
             $token = $headers['Auth'];
 
             $user_tokens_params = array(
@@ -412,7 +507,7 @@ class Userhandler
             );
 
             $token_data = $this->CI->generic_model->read($user_tokens_params, null, 'single');
-
+        
             if(!empty($token_data))
             {
                 # Get relevant user data

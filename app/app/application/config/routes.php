@@ -61,3 +61,8 @@ $route['documents/(:any)'] = "documents/index/$1";
 $route['reports/download/excel'] = 'reports/download_excel';
 $route['reports/download/pdf'] = 'reports/download_pdf';
 
+$route['admin/workspaces'] = 'Admin/workspaces';
+$route['admin/users/(:num)'] = 'Admin/users/$1';
+$route['admin/block/(:num)'] = 'Admin/block/$1';
+$route['admin/unblock/(:num)'] = 'Admin/unblock/$1';
+

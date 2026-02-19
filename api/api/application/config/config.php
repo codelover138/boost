@@ -90,7 +90,8 @@ $config['disallowed_account_names'] = array(
 	'app',
 	'api',
 	'blog',
-	'boost'
+	'boost',
+	'admin'
 );
 
 /*

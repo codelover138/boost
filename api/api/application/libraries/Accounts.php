@@ -42,6 +42,11 @@ class Accounts
 			$return['validation_results']['company_name'] = 'Please enter a different company name.';
 			$org_details['bool'] = false;
 		}else{
+			# Set trial and subscription status
+			$post['trial_ends_at'] = date('Y-m-d H:i:s', strtotime('+45 days'));
+			$post['subscription_status'] = 'trial';
+			$post['is_manual_blocked'] = 0;
+
 			# save the organisations details
         	$org_details = $this->save_account_details($post);	
 		}

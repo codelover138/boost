@@ -533,7 +533,7 @@ class Api extends CI_Controller
         $this->generic->entry($id, $order, $limit, $offset);
     }
 	
-	public function expenses_categories($id = null, $order = 'ASC', $limit = null, $offset = null)
+    public function expenses_categories($id = null, $order = 'ASC', $limit = null, $offset = null)
     {
         $params = array(
             'table' => 'boost_expenses_categories',
@@ -543,6 +543,12 @@ class Api extends CI_Controller
 
         $this->load->library('resources/generic', $params);
         $this->generic->entry($id, $order, $limit, $offset);
+    }
+
+    public function me()
+    {
+        $user_data = $this->userhandler->determine_user();
+        $this->regular->respond($user_data);
     }
 		
 }

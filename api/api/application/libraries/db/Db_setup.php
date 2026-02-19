@@ -520,7 +520,13 @@ class Db_setup
             'account_name' => array('type' => 'VARCHAR', 'constraint' => 50, 'null' => TRUE),
             'day_light_savings' => array('type' => 'VARCHAR', 'constraint' => 5, 'default' => 'no', 'null' => TRUE),
             'postal_code' => array('type' => 'VARCHAR', 'constraint' => 10, 'null' => TRUE),
-            'subdomain' => array('type' => 'VARCHAR', 'constraint' => 45, 'null' => TRUE)
+            'subdomain' => array('type' => 'VARCHAR', 'constraint' => 45, 'null' => TRUE),
+            'trial_ends_at' => array('type' => 'DATETIME', 'null' => TRUE),
+            'subscription_status' => array('type' => 'VARCHAR', 'constraint' => 20, 'default' => 'trial'),
+            'paid_until' => array('type' => 'DATETIME', 'null' => TRUE),
+            'manual_block_reason' => array('type' => 'VARCHAR', 'constraint' => 255, 'null' => TRUE),
+            'is_manual_blocked' => array('type' => 'TINYINT', 'constraint' => 1, 'default' => 0),
+            'grace_period_ends_at' => array('type' => 'DATETIME', 'null' => TRUE)
         );
 
         $this->CI->dbforge->add_field($organisations);
@@ -681,7 +687,8 @@ class Db_setup
             'user_role_id' => array('type' => 'INT', 'constraint' => 11),
             'owner' => array('type' => 'INT', 'constraint' => 2, 'default' => 0, 'null' => TRUE),
             'password' => array('type' => 'VARCHAR', 'constraint' => 33),
-            'failed_attempts' => array('type' => 'INT', 'constraint' => 2, 'null' => TRUE, 'default' => 0)
+            'failed_attempts' => array('type' => 'INT', 'constraint' => 2, 'null' => TRUE, 'default' => 0),
+            'is_active' => array('type' => 'TINYINT', 'constraint' => 1, 'default' => 1)
         );
 
         $this->CI->dbforge->add_field($users);

@@ -18,11 +18,15 @@ class Userhandler
     public function confirm_account()
     {
         $headers = $this->CI->regular->get_request_headers();
+        $requested_resource = $this->CI->regular->requested_resource();
         
-        log_message('error', json_encode($headers));
         $response = array('status' => 'ERROR');
 
         if (!isset($headers['Account-Name'])) :
+            if($requested_resource === 'admin' || $requested_resource === 'me') {
+                // Allow bypass for these resources if no account name is provided (Super Admin flow)
+                return true;
+            }
             $response['message'][] = 'Account-Name header not found';
             $this->CI->regular->header_(401);
             $this->CI->regular->respond($response);
@@ -70,13 +74,12 @@ class Userhandler
         $this->CI->load->library('db/switcher', array('account_name' => $input['account_name']));
         $this->CI->switcher->account_db();
 
+        
         $email = $input['email'];
         $password = $input['password'];
         
-
         $session_id = null;
         if (isset($input['session_id'])) $session_id = $input['session_id'];
-
 
         # return array for holding results to be issued
         $return = array(
@@ -93,7 +96,7 @@ class Userhandler
 
         # user data params
         $params = array(
-            'table' => 'boost_users',
+            'table' => $this->table_prefix . 'users',
             'entity' => 'user',
             'where' => array(
                 'email' => $email
@@ -101,58 +104,59 @@ class Userhandler
         );
 
         $result = $this->CI->generic_model->read($params);
-
-        # if there were results
+        
+        # Diagnostic: Log email being searched and result count
         if (!empty($result)) {
-            # determine the user's ID
-            $user_id = '';
-            foreach ($result as $key => $res) :
-                $user_id = $res->id;
-            endforeach;
+            $first = $result[0];
+            $expected_hash = md5($password);
+        }
 
-            # update post array for updating user record
-            $update_post = array(
-                'last_attempt_datetime' => current_datetime()
-            );
+        if (!empty($result)) {
+            # Success indicator and user data holder
+            $user_id = null;
+            $user_data = null;
+            
+            # loop through results to find matching password
+            foreach ($result as $res) {
+                if ($res->password == md5($password)) {
+                    $user_id = $res->id;
+                    $user_data = $res;
+                    break;
+                }
+            }
 
-            # check if given user password matches the password saved in the database
-            if ($result[$user_id]->password == md5($password))
-            {
+            if ($user_id) {
+                # update post array for updating user record
+                $update_post = array(
+                    'last_attempt_datetime' => current_datetime(),
+                    'last_activity' => current_datetime(),
+                    'failed_attempts' => 0
+                );
+
                 $http_code = 200;
 
-                # generate token if password is correct
+                # generate token
                 $token_data = $this->generate_token($user_id, $session_id);
-
-                # added values to be updated to update post array
-                /*$token_post['token'] = $token_data['token'];
-                $token_post['token_expire'] = $token_data['token_expire'];*/
-                $update_post['failed_attempts'] = 0;
 
                 # set response status to OK
                 $return['status'] = 'OK';
-
-                # add retun values to return array
-                
-               
                 $return['token'] = $token_data['token'];
                 $return['token_expire'] = $token_data['token_expire'];
                 $return['session_id'] = $token_data['session_id'];
                 $return['message'][0] = 'login successful';
-                $update_post['last_activity'] = current_datetime();
+                $return['user_data'] = $user_data;
 
+                unset($params['where']);
+                $this->CI->generic_model->update($params, $user_id, $update_post);
             } else {
-                $update_post['failed_attempts'] = $result[$user_id]->failed_attempts + 1;
+                # Update failed attempts for first user found with this email
+                $first_user = $result[0];
+                $this->CI->generic_model->update($params, $first_user->id, array('failed_attempts' => $first_user->failed_attempts + 1));
             }
-
-            unset($params['where']);
-
-            $this->CI->generic_model->update($params, $user_id, $update_post);
-            log_message('error', json_encode($return));
         }
 
         # http header response code
         $this->CI->regular->header_($http_code);
-        log_message('error', json_encode($return));
         $this->CI->regular->respond($return);
     }
 
@@ -405,6 +409,11 @@ class Userhandler
         }
         else
         {
+            if (isset($headers['Account-Name'])) {
+                $this->CI->load->library('db/switcher', array('account_name' => $headers['Account-Name']));
+                $this->CI->switcher->account_db();
+            }
+
             $token = $headers['Auth'];
 
             $user_tokens_params = array(
