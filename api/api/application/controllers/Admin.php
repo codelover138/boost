@@ -31,6 +31,10 @@ class Admin extends CI_Controller
     public function workspaces($id = null)
     {
         $this->load->model('generic_model');
+
+        // Organisations table lives in the main DB (boost_api), switch to it explicitly
+        $this->db->query('USE boost_api');
+
         $params = array(
             'table' => 'boost_organisations',
             'entity' => 'organisations'
@@ -58,7 +62,14 @@ class Admin extends CI_Controller
     private function modify_block_status($id, $status)
     {
         $this->load->model('generic_model');
-        $post = $this->input->post(); // Get reason if provided
+
+        // Curl library sends data as a raw JSON body, not form-encoded POST
+        // so we must read it from php://input and decode it
+        $post = json_decode(file_get_contents('php://input'), true);
+        if (!is_array($post)) $post = [];
+
+        // Organisations table lives in the main DB (boost_api)
+        $this->db->query('USE boost_api');
 
         $update_data = [
             'is_manual_blocked' => $status,
@@ -85,7 +96,9 @@ class Admin extends CI_Controller
         $this->load->model('generic_model');
         $this->load->library('db/switcher');
 
-        // 1. Get the organization to find its DB name
+        // 1. Get the organization to find its DB name (organisations live in main DB boost_api)
+        $this->db->query('USE boost_api');
+
         $org_params = array(
             'table' => 'boost_organisations',
             'entity' => 'organisation'
