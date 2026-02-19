@@ -85,25 +85,21 @@ class Admin extends CI_Controller {
         if(!$this->check_auth()) return;
 
         $users_response = $this->curl->api_call('GET', 'admin/workspace_users/' . $org_id);
-        
-        $data['page']['title'] = 'Super Admin | Users';
-        $data['page']['heading'] = 'Workspace Users';
-        $data['page']['main_view'] = 'admin/users';
-        $data['org_id'] = $org_id; // Pass org_id for back link or actions
-        
-        $data['users'] = isset($users_response['data']) ? $users_response['data'] : [];
-        
-        // Need to pass user_data for header again... 
-        // Refactor check_auth to return data or set it in a property? 
-        // For now, duplicate the fetch 'me' call or refactor.
-        // Let's refactor slightly to avoid duplication if possible, 
-        // but for speed, I'll just recall 'me' or store it in session if I could.
-        // Actually, the previous method 'workspaces' fetched 'me'. 
-        // I should stick to that pattern.
-        
+
+        $org = isset($users_response['org']) ? (array)$users_response['org'] : [];
+        $org_name = !empty($org['company_name']) ? $org['company_name'] : 'Workspace #' . $org_id;
+
+        $data['page']['title']    = 'Super Admin | ' . $org_name . ' Users';
+        $data['page']['heading']  = $org_name . ' — Users';
+        $data['page']['main_view']= 'admin/users';
+        $data['org_id']           = $org_id;
+        $data['org']              = $org;
+        $data['users']            = isset($users_response['data']) ? $users_response['data'] : [];
+
         $user_response = $this->curl->api_call('GET', 'me');
         if(isset($user_response['bool']) && $user_response['bool'] == true){
              $data['user_data'] = (array)$user_response['data'];
+             if(!isset($data['user_data']['permissions'])) $data['user_data']['permissions'] = [];
              $this->load->view('content', $data);
         } else {
             redirect('login');

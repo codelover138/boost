@@ -94,15 +94,10 @@ class Admin extends CI_Controller
     public function workspace_users($org_id)
     {
         $this->load->model('generic_model');
-        $this->load->library('db/switcher');
 
-        // 1. Get the organization to find its DB name (organisations live in main DB boost_api)
+        // 1. Get org from main DB (boost_api)
         $this->db->query('USE boost_api');
-
-        $org_params = array(
-            'table' => 'boost_organisations',
-            'entity' => 'organisation'
-        );
+        $org_params = array('table' => 'boost_organisations', 'entity' => 'organisation');
         $org = $this->generic_model->read($org_params, $org_id, 'single');
 
         if (!$org) {
@@ -111,40 +106,34 @@ class Admin extends CI_Controller
             die();
         }
 
-        // 2. Switch to that DB
-        // The switcher usually works by account name, let's use the explicit db name from org record if possible
-        // But switcher library seems to want account_name.
-        // Let's see if we can use the `account_db` property of org if exist, or just use account_name with switcher.
-        
-        $this->switcher->check_sub_status($org->account_name); // This sets up the context if we needed it, but we need to actually switch DB connection.
-        
-        // Actually, Switcher::account_db() uses $this->account_id etc.
-        // Let's manually switch using the DB name stored in org.
-        
-        if(isset($org->account_db) && !empty($org->account_db)) {
-             $this->db->query('use ' . $org->account_db);
-        } else {
-            // Fallback: try to derive or fail
-             $this->regular->header_(400);
-             $this->regular->respond(['status' => 'ERROR', 'message' => ['Organization DB not found']]);
-             die();
+        if (empty($org->account_db)) {
+            $this->regular->header_(400);
+            $this->regular->respond(['status' => 'ERROR', 'message' => ['Organization DB not found']]);
+            die();
         }
 
-        // 3. Get users from that DB
+        // 2. Switch to the tenant's own DB and fetch users
+        $this->db->query('USE ' . $org->account_db);
         $user_params = array(
-            'table' => $this->config->item('db_table_prefix') . 'users',
+            'table'  => $this->config->item('db_table_prefix') . 'users',
             'entity' => 'user'
         );
         $users = $this->generic_model->read($user_params);
 
-        // 4. Respond
-        $this->regular->respond(['status' => 'OK', 'data' => $users]);
+        // 3. Respond with org info + users
+        $this->regular->respond([
+            'status' => 'OK',
+            'org'    => $org,
+            'data'   => $users
+        ]);
     }
 
     public function toggle_user_status($org_id, $user_id, $status)
     {
-        // 1. Get Org to switch DB
+        // 1. Get Org to switch DB — organisations live in boost_api
         $this->load->model('generic_model');
+        $this->db->query('USE boost_api');
+
         $org_params = array('table' => 'boost_organisations', 'entity' => 'organisation');
         $org = $this->generic_model->read($org_params, $org_id, 'single');
 
@@ -154,11 +143,11 @@ class Admin extends CI_Controller
             die();
         }
 
-        // 2. Switch DB
+        // 2. Switch to the tenant's own DB
         $this->db->query('use ' . $org->account_db);
 
-        // 3. Update User
-        $update_data = ['is_active' => $status];
+        // 3. Update User is_active
+        $update_data = ['is_active' => (int)$status];
         $user_params = array(
             'table' => $this->config->item('db_table_prefix') . 'users',
             'entity' => 'user'
