@@ -7,13 +7,13 @@ class Admin extends CI_Controller
     {
         parent::__construct();
         $this->load->library('userhandler');
-        
+
         // Security Check: Only allow "Super Admin"
         // For Proof of Concept, we check a specific email or use a hardcoded token mechanism
         // In production, this should be a specific permission/role check
-        
+
         $user_data = $this->userhandler->determine_user();
-        if(!$user_data['bool']) {
+        if (!$user_data['bool']) {
             $this->regular->header_(401);
             $this->regular->respond(['status' => 'ERROR', 'message' => ['Unauthorized']]);
             die();
@@ -21,10 +21,10 @@ class Admin extends CI_Controller
 
         // Hardcoded Owner Email check for safety in this demo
         // Replace 'owner@boostaccounting.com' with the actual owner email from the DB or a config
-        if($user_data['data']->email !== 'babu313136@gmail.com' && $user_data['data']->email !== 'admin@boostaccounting.com') {
-             $this->regular->header_(403);
-             $this->regular->respond(['status' => 'ERROR', 'message' => ['Forbidden: Super Admin Access Only']]);
-             die();
+        if ($user_data['data']->email !== 'babu313136@gmail.com' && $user_data['data']->email !== 'admin@boostaccounting.com') {
+            $this->regular->header_(403);
+            $this->regular->respond(['status' => 'ERROR', 'message' => ['Forbidden: Super Admin Access Only']]);
+            die();
         }
     }
 
@@ -40,10 +40,14 @@ class Admin extends CI_Controller
             'entity' => 'organisations'
         );
 
-        if($id) {
+        // Exclude the 'admin' workspace
+        $params['where']['account_name !='] = 'admin';
+
+        if ($id) {
             $result = $this->generic_model->read($params, $id, 'single');
-        } else {
-             $result = $this->generic_model->read($params);
+        }
+        else {
+            $result = $this->generic_model->read($params);
         }
 
         $this->regular->respond(['status' => 'OK', 'data' => $result]);
@@ -66,7 +70,8 @@ class Admin extends CI_Controller
         // Curl library sends data as a raw JSON body, not form-encoded POST
         // so we must read it from php://input and decode it
         $post = json_decode(file_get_contents('php://input'), true);
-        if (!is_array($post)) $post = [];
+        if (!is_array($post))
+            $post = [];
 
         // Organisations table lives in the main DB (boost_api)
         $this->db->query('USE boost_api');
@@ -82,12 +87,13 @@ class Admin extends CI_Controller
         );
 
         $result = $this->generic_model->update($params, $id, $update_data);
-        
-        if($result['bool']) {
-             $this->regular->respond(['status' => 'OK', 'message' => ['Workspace updated']]);
-        } else {
-             $this->regular->header_(500);
-             $this->regular->respond(['status' => 'ERROR', 'message' => ['Update failed']]);
+
+        if ($result['bool']) {
+            $this->regular->respond(['status' => 'OK', 'message' => ['Workspace updated']]);
+        }
+        else {
+            $this->regular->header_(500);
+            $this->regular->respond(['status' => 'ERROR', 'message' => ['Update failed']]);
         }
     }
 
@@ -115,7 +121,7 @@ class Admin extends CI_Controller
         // 2. Switch to the tenant's own DB and fetch users
         $this->db->query('USE ' . $org->account_db);
         $user_params = array(
-            'table'  => $this->config->item('db_table_prefix') . 'users',
+            'table' => $this->config->item('db_table_prefix') . 'users',
             'entity' => 'user'
         );
         $users = $this->generic_model->read($user_params);
@@ -123,8 +129,8 @@ class Admin extends CI_Controller
         // 3. Respond with org info + users
         $this->regular->respond([
             'status' => 'OK',
-            'org'    => $org,
-            'data'   => $users
+            'org' => $org,
+            'data' => $users
         ]);
     }
 
@@ -155,11 +161,12 @@ class Admin extends CI_Controller
 
         $result = $this->generic_model->update($user_params, $user_id, $update_data);
 
-        if($result['bool']) {
-             $this->regular->respond(['status' => 'OK', 'message' => ['User status updated']]);
-        } else {
-             $this->regular->header_(500);
-             $this->regular->respond(['status' => 'ERROR', 'message' => ['Update failed']]);
+        if ($result['bool']) {
+            $this->regular->respond(['status' => 'OK', 'message' => ['User status updated']]);
+        }
+        else {
+            $this->regular->header_(500);
+            $this->regular->respond(['status' => 'ERROR', 'message' => ['Update failed']]);
         }
     }
 }

@@ -36,30 +36,27 @@
                         <a aria-expanded="false" role="button" aria-haspopup="true" data-toggle="dropdown"
                             class="dropdown-toggle profile-icon-link" href="#">
                             Hello,
-                            <?php 
-				//print_r($user_data);
-				if(isset($user_data['first_name']) && @$user_data['first_name'] != ''){
-					echo ucwords($user_data['first_name']);
-				}else{
-					echo ucwords($user_data['company_name']);
-				}
-				
-				
-				?> &nbsp;<span class="caret"></span>
+                            <?php
+//print_r($user_data);
+if (isset($user_data['first_name']) && @$user_data['first_name'] != '') {
+    echo ucwords($user_data['first_name']);
+}
+else {
+    echo ucwords($user_data['company_name']);
+}
+
+
+?> &nbsp;<span class="caret"></span>
                         </a>
                         <ul role="menu" class="dropdown-menu">
                             <!--<li role="presentation"><a href="#" role="menuitem">My Profile</a></li>-->
-                            <?php if(in_array('account_settings',$user_data['permissions'])){ ?>
+                            <?php if (in_array('account_settings', $user_data['permissions'])) { ?>
                             <li role="presentation"><a href="<?php echo base_url('settings'); ?>"
                                     role="menuitem">Account Settings</a></li>
                             <li role="separator" class="divider"></li>
-                            <?php } ?>
+                            <?php
+}?>
 
-                            <?php if(isset($user_data['email']) && ($user_data['email'] == 'babu313136@gmail.com' || $user_data['email'] == 'admin@boostaccounting.com')): ?>
-                            <li role="presentation"><a href="<?php echo base_url('admin/workspaces'); ?>"
-                                    role="menuitem">Super Admin</a></li>
-                            <li role="separator" class="divider"></li>
-                            <?php endif; ?>
 
                             <li role="presentation"><a href="javascript:boostLogout();" class="logout_button"
                                     role="menuitem">Logout</a></li>
@@ -68,56 +65,77 @@
                     </li>
                 </ul>
                 <ul class="nav navbar-nav main_menu_navigation">
+                    <?php
+$is_super_admin = (isset($user_data['email']) && ($user_data['email'] == 'babu313136@gmail.com' || $user_data['email'] == 'admin@boostaccounting.com'));
+?>
+
+                    <?php if (!$is_super_admin): ?>
                     <li class="dropdown">
                         <a href="<?php echo base_url('welcome/dashboard'); ?>">
                             Dashboard
                         </a>
                     </li>
+                    <?php
+else: ?>
+                    <li class="dropdown">
+                        <a href="<?php echo base_url('admin/workspaces'); ?>">
+                            Workspace
+                        </a>
+                    </li>
+                    <?php
+endif; ?>
 
-                    <?php 
-			//additional modules must be added to this array as they are developed.
-			//This so that accounts menu item does not show if its child permissions are not available
-			if(array_intersect(array('invoices','credit_notes'),$user_data['permissions'])){ 
-			?>
+                    <?php
+//additional modules must be added to this array as they are developed.
+//This so that accounts menu item does not show if its child permissions are not available
+if (array_intersect(array('invoices', 'credit_notes'), $user_data['permissions']) && !$is_super_admin) {
+?>
                     <li class="dropdown">
                         <a aria-expanded="false" role="button" aria-haspopup="true" data-toggle="dropdown"
                             class="dropdown-toggle" href="#">
                             Accounts
                         </a>
                         <ul role="menu" class="dropdown-menu">
-                            <?php if(in_array('invoices',$user_data['permissions'])){ ?>
+                            <?php if (in_array('invoices', $user_data['permissions'])) { ?>
                             <li role="presentation"><a href="<?php echo base_url('invoices'); ?>"
                                     role="menuitem">Invoicing</a></li>
-                            <?php } ?>
-                            <?php if(in_array('credit_notes',$user_data['permissions'])){ ?>
+                            <?php
+    }?>
+                            <?php if (in_array('credit_notes', $user_data['permissions'])) { ?>
                             <li role="presentation"><a href="<?php echo base_url('credit_notes'); ?>"
                                     role="menuitem">Credit Notes</a></li>
-                            <?php } ?>
+                            <?php
+    }?>
                             <!--
-                <?php if(in_array('supplier_invoices',$user_data['permissions'])){ ?>          	 
+                <?php if (in_array('supplier_invoices', $user_data['permissions'])) { ?>          	 
                  	<li role="presentation"><a href="#" role="menuitem">Supplier Invoice</a></li>
-                <?php } ?>
+                <?php
+    }?>
                 -->
-                            <?php if(in_array('expenses',$user_data['permissions'])){ ?>
+                            <?php if (in_array('expenses', $user_data['permissions'])) { ?>
                             <li role="presentation"><a href="<?php echo base_url('expenses'); ?>"
                                     role="menuitem">Expenses</a></li>
-                            <?php } ?>
+                            <?php
+    }?>
                             <!--
-                <?php if(in_array('travel_tracker',$user_data['permissions'])){ ?>
+                <?php if (in_array('travel_tracker', $user_data['permissions'])) { ?>
                 	<li role="presentation"><a href="#" role="menuitem">Travel Tracker</a></li>                 
-                <?php } ?>
+                <?php
+    }?>
                 -->
                         </ul>
                     </li>
-                    <?php } ?>
-                    <?php if(in_array('estimates',$user_data['permissions'])){ ?>
+                    <?php
+}?>
+                    <?php if (in_array('estimates', $user_data['permissions']) && !$is_super_admin) { ?>
                     <li>
                         <a href="<?php echo base_url('estimates'); ?>">
                             Estimates
                         </a>
                     </li>
-                    <?php } ?>
-                    <?php if(in_array('time_tracking',$user_data['permissions'])){ ?>
+                    <?php
+}?>
+                    <?php if (in_array('time_tracking', $user_data['permissions'])) { ?>
                     <!-- <li class="dropdown">
               <a aria-expanded="false" role="button" aria-haspopup="true" data-toggle="dropdown" class="dropdown-toggle" href="#">
                 Time Tracking                  
@@ -128,8 +146,9 @@
                 <li role="presentation"><a href="#" role="menuitem">Tasks</a></li>
               </ul>
             </li>-->
-                    <?php } ?>
-                    <?php if(in_array('reports',$user_data['permissions'])){ ?>
+                    <?php
+}?>
+                    <?php if (in_array('reports', $user_data['permissions']) && !$is_super_admin) { ?>
                     <li class="dropdown">
                         <a aria-expanded="false" role="button" aria-haspopup="true" data-toggle="dropdown"
                             class="dropdown-toggle" href="#">
@@ -145,14 +164,16 @@
                             <!-- <li role="presentation"><a href="#" role="menuitem">Tax Summary</a></li> -->
                         </ul>
                     </li>
-                    <?php } ?>
-                    <?php if(in_array('contacts',$user_data['permissions'])){ ?>
+                    <?php
+}?>
+                    <?php if (in_array('contacts', $user_data['permissions']) && !$is_super_admin) { ?>
                     <li>
                         <a href="<?php echo base_url('contacts'); ?>">
                             Contacts
                         </a>
                     </li>
-                    <?php } ?>
+                    <?php
+}?>
                 </ul>
 
             </div><!-- /.nav-collapse -->
@@ -168,11 +189,11 @@
                 </ul>
             </span>
 
-            <?php 
-			 	if(isset($page['header_button_view'])){
-			 		$this->load->view($page['header_button_view']); //include modal HTML 
-				}
-			 ?>
+            <?php
+if (isset($page['header_button_view'])) {
+    $this->load->view($page['header_button_view']); //include modal HTML 
+}
+?>
 
         </div>
     </div>

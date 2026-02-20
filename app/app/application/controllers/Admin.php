@@ -35,7 +35,7 @@ class Admin extends CI_Controller {
             // 2. Fetch Workspaces
             $workspaces_response = $this->curl->api_call('GET', 'admin/workspaces');
 
-            $data['page']['title'] = 'Super Admin | Workspaces';
+            $data['page']['title'] = 'Admin | Workspaces';
             $data['page']['heading'] = 'Workspaces';
             $data['page']['main_view'] = 'admin/workspaces';
             
@@ -89,7 +89,7 @@ class Admin extends CI_Controller {
         $org = isset($users_response['org']) ? (array)$users_response['org'] : [];
         $org_name = !empty($org['company_name']) ? $org['company_name'] : 'Workspace #' . $org_id;
 
-        $data['page']['title']    = 'Super Admin | ' . $org_name . ' Users';
+        $data['page']['title']    = 'Admin | ' . $org_name . ' Users';
         $data['page']['heading']  = $org_name . ' — Users';
         $data['page']['main_view']= 'admin/users';
         $data['org_id']           = $org_id;

@@ -7,15 +7,27 @@ $settings_data = $request['data'];
 <!-- content area -->
     <form action="testForm.php"  autocomplete="off"> 
     <div class="container-fluid">
+        <?php
+$is_super_admin = (isset($user_data['email']) && ($user_data['email'] == 'babu313136@gmail.com' || $user_data['email'] == 'admin@boostaccounting.com'));
+?>
         <ul class="nav nav-tabs" role="tablist">
+            <?php if (!$is_super_admin): ?>
             <li role="presentation"><a href="<?php echo base_url('settings/organization'); ?>">Business Setup</a></li>
             <li role="presentation"><a href="<?php echo base_url('settings/taxes'); ?>">Taxes</a></li>
+            <?php
+endif; ?>
             <li role="presentation"><a href="<?php echo base_url('settings/theme'); ?>">Theme and Logo</a></li>
+            <?php if (!$is_super_admin): ?>
             <li role="presentation"><a href="<?php echo base_url('settings/templates'); ?>">Templates</a></li>
+            <?php
+endif; ?>
             <li role="presentation" class="active"><a href="<?php echo base_url('settings/users'); ?>">Users</a></li>
             <li role="presentation"><a href="<?php echo base_url('settings/roles'); ?>">Roles</a></li>
+            <?php if (!$is_super_admin): ?>
             <li role="presentation"><a href="<?php echo base_url('settings/items'); ?>">Items</a></li>
             <li role="presentation"><a href="<?php echo base_url('settings/emails'); ?>">Emails</a></li>
+            <?php
+endif; ?>
         </ul>
     </div>
     <div class="container-fluid bg-white doc-spaced">
@@ -37,23 +49,23 @@ $settings_data = $request['data'];
                 <td></td>
               </tr>
              <?php
-			  
-			  $count = 1;
-			  foreach($settings_data as $user_key => $user_data ){
-				  
-			  ?>
+
+$count = 1;
+foreach ($settings_data as $user_key => $user_data) {
+
+?>
              <tr>                         	
                 <td><?php echo $count; ?>.</td>
-                <td><?php echo ucwords($user_data['first_name'].' '.$user_data['last_name']); ?>
-                     <div class="listHoverOptions hidden-xs"><a class="open-modal" href="<?php echo base_url('settings/modal/users/edit/'.$user_data['id']); ?>">Edit</a>|<a  class="open-modal" href="<?php echo base_url('settings/modal/users/delete/'.$user_data['id']); ?>">Trash</a></div>
+                <td><?php echo ucwords($user_data['first_name'] . ' ' . $user_data['last_name']); ?>
+                     <div class="listHoverOptions hidden-xs"><a class="open-modal" href="<?php echo base_url('settings/modal/users/edit/' . $user_data['id']); ?>">Edit</a>|<a  class="open-modal" href="<?php echo base_url('settings/modal/users/delete/' . $user_data['id']); ?>">Trash</a></div>
                      <div class="visible-xs-block list-small-top-margin"><a class="greyLink smallGreyLightened" href="mailto:<?php echo $user_data['email']; ?>"><?php echo $user_data['email']; ?></a></div>
                 </td>
                 <td class="hidden-xs">
                     <span class="listDateItalic">
-					<?php 
-						$dt = new DateTime($user_data['last_activity']);
-						echo $dt->format("M d, g:i a"); 					
-					?>
+					<?php
+    $dt = new DateTime($user_data['last_activity']);
+    echo $dt->format("M d, g:i a");
+?>
                     </span>
                 </td>
                 <td>
@@ -68,16 +80,16 @@ $settings_data = $request['data'];
                     <div style="position:relative;" class="nav nav-pills pull-right">
                         <button  role="button" aria-haspopup="true" data-toggle="dropdown" type="button" class="btn btn-info btn-xs"> <span class="caret"></span> </button>
                        <ul class="dropdown-menu">
-                          <li><a class="open-modal" href="<?php echo base_url('settings/modal/users/edit/'.$user_data['id']); ?>">Edit</a></li>
-                          <li><a class="open-modal" href="<?php echo base_url('settings/modal/users/delete/'.$user_data['id']); ?>">Trash</a></li>
+                          <li><a class="open-modal" href="<?php echo base_url('settings/modal/users/edit/' . $user_data['id']); ?>">Edit</a></li>
+                          <li><a class="open-modal" href="<?php echo base_url('settings/modal/users/delete/' . $user_data['id']); ?>">Trash</a></li>
                        </ul>
                     </div>
                 </td>
               </tr> 
               <?php
-			  		$count++;
-			  }
-			  ?>                    
+    $count++;
+}
+?>                    
             </table>
 
        <!--  </div> -->

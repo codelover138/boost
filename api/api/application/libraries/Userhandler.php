@@ -6,7 +6,7 @@ class Userhandler
 
     public function __construct()
     {
-        $this->CI =& get_instance();
+        $this->CI = & get_instance();
         $this->table_prefix = $this->CI->config->item('db_table_prefix');
 
         $this->user_tokens_params = array(
@@ -19,13 +19,13 @@ class Userhandler
 
     public function validate_login_input($input)
     {
-       
+
         $compuslory_items = array('account_name', 'email', 'password');
 
         $response = array('status' => 'ERROR');
 
-        foreach ($compuslory_items as $compuslory_item) :
-            if (!array_key_exists($compuslory_item, $input)) :
+        foreach ($compuslory_items as $compuslory_item):
+            if (!array_key_exists($compuslory_item, $input)):
                 $response['validation_results'][$compuslory_item] = 'Please add ' . $compuslory_item;
             endif;
         endforeach;
@@ -35,7 +35,8 @@ class Userhandler
 
             $this->CI->regular->respond($response);
             die();
-        } else {
+        }
+        else {
             return true;
         }
     }
@@ -46,16 +47,30 @@ class Userhandler
         $this->validate_login_input($input);
 
         $this->CI->load->library('db/switcher', array('account_name' => $input['account_name']));
+
+        $account_details = $this->CI->switcher->check_sub_status($input['account_name']);
+
+        if ($account_details && isset($account_details->is_manual_blocked) && $account_details->is_manual_blocked == 1) {
+            $return = array(
+                'status' => 'ERROR',
+                'message' => array('Account is manually blocked. Reason: ' . ($account_details->manual_block_reason ? $account_details->manual_block_reason : 'Contact Support'))
+            );
+            $this->CI->regular->header_(403);
+            $this->CI->regular->respond($return);
+            die();
+        }
+
         $this->CI->switcher->account_db();
 
         log_message('error', 'Userhandler::login using account: ' . $input['account_name'] . ' and email: ' . $input['email'] . ' on db: ' . $this->CI->db->database);
-        
+
         $email = $input['email'];
         $password = $input['password'];
-        
+
 
         $session_id = null;
-        if (isset($input['session_id'])) $session_id = $input['session_id'];
+        if (isset($input['session_id']))
+            $session_id = $input['session_id'];
 
 
         # return array for holding results to be issued
@@ -64,7 +79,7 @@ class Userhandler
             'message' => array('Invalid login details')
         );
 
-        if (is_null($session_id)) :
+        if (is_null($session_id)):
             $session_id = $this->generate_session_id();
         endif;
 
@@ -86,10 +101,16 @@ class Userhandler
             # Success indicator and user data holder
             $user_id = null;
             $user_data = null;
-            
+
             # loop through results to find matching password
             foreach ($result as $res) {
                 if ($res->password == md5($password)) {
+                    if (isset($res->is_active) && $res->is_active == 0) {
+                        $return['message'][0] = 'User account is inactive';
+                        $this->CI->regular->header_(403);
+                        $this->CI->regular->respond($return);
+                        die();
+                    }
                     $user_id = $res->id;
                     $user_data = $res;
                     break;
@@ -119,7 +140,8 @@ class Userhandler
 
                 unset($params['where']);
                 $this->CI->generic_model->update($params, $user_id, $update_post);
-            } else {
+            }
+            else {
                 # Update failed attempts for first user found with this email
                 $first_user = $result[0];
                 $this->CI->generic_model->update($params, $first_user->id, array('failed_attempts' => $first_user->failed_attempts + 1));
@@ -142,12 +164,10 @@ class Userhandler
 
         $headers = $this->CI->regular->get_request_headers();
 
-        if(!isset($headers['Account-Name']))
-        {
+        if (!isset($headers['Account-Name'])) {
             $return['message'][0] = 'Account-Name header not found';
         }
-        else
-        {
+        else {
             if (!in_array(strtolower($headers['Account-Name']), ['app', 'api', 'www', 'boostaccounting', 'admin'])) {
                 $this->CI->load->library('db/switcher', array('account_name' => $headers['Account-Name']));
                 $this->CI->switcher->account_db();
@@ -167,7 +187,7 @@ class Userhandler
 
                 $delete = $this->CI->generic_model->delete($this->user_tokens_params, $token_id);
 
-                if ($delete['bool']) :
+                if ($delete['bool']):
                     $return['status'] = 'OK';
                     $return['message'] = array('user has been logged out');
                 endif;
@@ -179,7 +199,7 @@ class Userhandler
 
     public function validate_token($token, $session_id)
     {
-        if (is_null($session_id)) :
+        if (is_null($session_id)):
             $session_id = $this->generate_session_id();
         endif;
 
@@ -200,8 +220,7 @@ class Userhandler
 
         $result = $this->CI->generic_model->read($params, null, 'single');
 
-        if (!empty($result))
-        {
+        if (!empty($result)) {
             $http_code = 200;
             $return['status'] = 'OK';
             $return['message'][0] = 'Valid token';
@@ -222,9 +241,9 @@ class Userhandler
     {
         $headers = $this->CI->regular->get_request_headers();
         $response = array('status' => 'ERROR');
-        
+
         $account_name = isset($headers['Account-Name']) ? $headers['Account-Name'] : null;
-        
+
         // 1. If we have an account name, check if it's a system account
         if ($account_name && in_array(strtolower($account_name), ['app', 'api', 'www', 'boostaccounting', 'admin'])) {
             return true;
@@ -234,11 +253,11 @@ class Userhandler
         if (!$account_name) {
             $requested_resource = $this->CI->regular->requested_resource();
             // Allow bypass for these resources if no account name is provided (Super Admin flow)
-            $bypass_resources = array('admin', 'me', 'api', 'login'); 
+            $bypass_resources = array('admin', 'me', 'api', 'login');
             if (in_array($requested_resource, $bypass_resources)) {
                 return true;
             }
-            
+
             $response['message'][] = 'Account-Name header not found';
             $this->CI->regular->header_(401);
             $this->CI->regular->respond($response);
@@ -249,7 +268,7 @@ class Userhandler
         $this->CI->load->library('db/switcher', array('account_name' => $account_name));
         $switch = $this->CI->switcher->account_db();
 
-        if (!$switch) :
+        if (!$switch):
             $response['message'][0] = 'Account does not exist';
             $this->CI->regular->header_(401);
             $this->CI->regular->respond($response);
@@ -272,7 +291,7 @@ class Userhandler
             // 2. Subscription / Trial Logic
             $uri_string = ltrim(uri_string(), '/');
             $allowed_routes = array(
-                'api/logout','api/login', 'api/settings', 'api/users', 'api/roles', 
+                'api/logout', 'api/login', 'api/settings', 'api/users', 'api/roles',
                 'api/permissions', 'api/billing', 'api/subscription', 'api/organisations'
             );
 
@@ -283,7 +302,7 @@ class Userhandler
                     break;
                 }
             }
-            
+
             if (!$is_allowed_route) {
                 $status = isset($account_details->subscription_status) ? $account_details->subscription_status : 'trial';
                 $access_denied = false;
@@ -295,20 +314,23 @@ class Userhandler
                         $access_denied = true;
                         $msg = 'Trial expired. Please upgrade to continue.';
                     }
-                } elseif ($status == 'cancelled' || $status == 'expired' || $status == 'past_due') {
-                     if (isset($account_details->paid_until) && strtotime($account_details->paid_until) > time()) {
-                         // Allowed
-                     } else {
-                         if ($status == 'past_due' || $status == 'grace_period') {
-                             if (isset($account_details->grace_period_ends_at) && strtotime($account_details->grace_period_ends_at) < time()) {
-                                 $access_denied = true;
-                                 $msg = 'Subscription past due. Please update payment method.';
-                             }
-                         } else {
-                             $access_denied = true;
-                             $msg = 'Subscription inactive. Please reactivate.';
-                         }
-                     }
+                }
+                elseif ($status == 'cancelled' || $status == 'expired' || $status == 'past_due') {
+                    if (isset($account_details->paid_until) && strtotime($account_details->paid_until) > time()) {
+                    // Allowed
+                    }
+                    else {
+                        if ($status == 'past_due' || $status == 'grace_period') {
+                            if (isset($account_details->grace_period_ends_at) && strtotime($account_details->grace_period_ends_at) < time()) {
+                                $access_denied = true;
+                                $msg = 'Subscription past due. Please update payment method.';
+                            }
+                        }
+                        else {
+                            $access_denied = true;
+                            $msg = 'Subscription inactive. Please reactivate.';
+                        }
+                    }
                 }
 
                 if ($access_denied) {
@@ -370,9 +392,9 @@ class Userhandler
                 $session_id = $headers['Session'];
                 $result = $this->validate_token($token, $session_id);
 
-                if ($result['status'] == 'OK') :
+                if ($result['status'] == 'OK'):
                     return true;
-                else :
+                else:
                     //redirect('error');
                     $this->CI->regular->respond(array(
                         'status' => 'ERROR',
@@ -381,7 +403,8 @@ class Userhandler
                     $this->CI->regular->header_(498);
                     die();
                 endif;
-            } else {
+            }
+            else {
                 $this->CI->regular->respond(array(
                     'status' => 'ERROR',
                     'message' => array('Session header not found')
@@ -389,7 +412,8 @@ class Userhandler
                 $this->CI->regular->header_(401);
                 die();
             }
-        } else {
+        }
+        else {
             $this->CI->regular->respond(array(
                 'status' => 'ERROR',
                 'message' => array('Auth header not found')
@@ -405,16 +429,16 @@ class Userhandler
 
         # generate token
         $token_data['token'] = bin2hex(openssl_random_pseudo_bytes(16));
-        $token_data['token_expire'] = date('Y-m-d H:i:s', strtotime('+1 hour'));//the expiration date will be in eight hours from the current moment
+        $token_data['token_expire'] = date('Y-m-d H:i:s', strtotime('+1 hour')); //the expiration date will be in eight hours from the current moment
 
-        if (!is_null($session_id)) :
+        if (!is_null($session_id)):
             $token_data['session_id'] = $session_id;
-        else :
+        else:
             $token_data['session_id'] = $this->generate_session_id(); # adding session id as one of the things to be saved
         endif;
 
         $save_token = $this->save_token_data($token_data, $session_id);
-        
+
 
         $return = array_merge($token_data, $save_token);
 
@@ -437,9 +461,9 @@ class Userhandler
 
         $user_token_data = $this->CI->generic_model->exists($params, true);
 
-        if (!is_null($session_id) && $user_token_data) :
+        if (!is_null($session_id) && $user_token_data):
             $result = $this->update_token_data($token_data, $session_id);
-        else :
+        else:
             $result = $this->CI->generic_model->create($this->user_tokens_params, $token_data);
         endif;
 
@@ -454,9 +478,9 @@ class Userhandler
         $user_token_data = $this->CI->generic_model->exists($params, true);
 
         # update relevant user tokens row
-        if ($user_token_data) :
+        if ($user_token_data):
             $update = $this->CI->generic_model->update($params, $user_token_data->id, $token_data);
-        else :
+        else:
             $update = false;
         endif;
         return $update;
@@ -468,15 +492,15 @@ class Userhandler
         $permissions = $this->CI->generic_model->get_role_permissions();
         $uri_string = ltrim(uri_string(), '/');
 
-        if(isset($uri)) :
+        if (isset($uri)):
             $uri_string = $uri;
         endif;
 
         $alt = $this->CI->uri->segment(1) . '/' . $this->CI->uri->segment(2);
 
-        if (in_array($uri_string, $permissions) || in_array($alt, $permissions)) :
+        if (in_array($uri_string, $permissions) || in_array($alt, $permissions)):
             return true;
-        else :
+        else:
             return false;
         endif;
     }
@@ -485,14 +509,12 @@ class Userhandler
     {
         $headers = $this->CI->regular->get_request_headers();
 
-        $return = array('bool'=>false);
+        $return = array('bool' => false);
 
-        if(!isset($headers['Auth']))
-        {
+        if (!isset($headers['Auth'])) {
             $return['message'][] = 'Auth header not found';
         }
-        else
-        {
+        else {
             if (isset($headers['Account-Name'])) {
                 $this->CI->load->library('db/switcher', array('account_name' => $headers['Account-Name']));
                 $this->CI->switcher->account_db();
@@ -507,9 +529,8 @@ class Userhandler
             );
 
             $token_data = $this->CI->generic_model->read($user_tokens_params, null, 'single');
-        
-            if(!empty($token_data))
-            {
+
+            if (!empty($token_data)) {
                 # Get relevant user data
                 $user_params = array(
                     'table' => $this->table_prefix . 'users',
@@ -519,8 +540,7 @@ class Userhandler
                 $this->CI->load->model('users_model');
                 $user_data = $this->CI->users_model->read($user_params, $token_data->user_id, 'single');
 
-                if(!empty($user_data))
-                {
+                if (!empty($user_data)) {
                     $user_data->token = $token_data;
 
                     $return['bool'] = true;
@@ -534,13 +554,11 @@ class Userhandler
                     $org_data = $this->CI->generic_model->read($org_params, 1, 'single');
                     $return['data']->company_name = $org_data->company_name;
                 }
-                else
-                {
+                else {
                     $return['message'][] = 'User data not found';
                 }
             }
-            else
-            {
+            else {
                 $return['message'][] = 'Token data not found';
             }
         }

@@ -1,23 +1,35 @@
  <?php
- 
- $roles = $request['piggyback']['roles'];
- $permissions = $request['piggyback']['permissions'];
- $role_permissions = $request['data'];
- // var_dump($permissions);
- ?>
+
+$roles = $request['piggyback']['roles'];
+$permissions = $request['piggyback']['permissions'];
+$role_permissions = $request['data'];
+// var_dump($permissions);
+?>
  
  <!-- content area -->
     <form method="post" action="<?php echo base_api_url('role_permissions'); ?>"  autocomplete="off"> 
     <div class="container-fluid">
-       <ul class="nav nav-tabs" role="tablist">
+        <?php
+$is_super_admin = (isset($user_data['email']) && ($user_data['email'] == 'babu313136@gmail.com' || $user_data['email'] == 'admin@boostaccounting.com'));
+?>
+        <ul class="nav nav-tabs" role="tablist">
+            <?php if (!$is_super_admin): ?>
             <li role="presentation"><a href="<?php echo base_url('settings/organization'); ?>">Business Setup</a></li>
             <li role="presentation"><a href="<?php echo base_url('settings/taxes'); ?>">Taxes</a></li>
+            <?php
+endif; ?>
             <li role="presentation"><a href="<?php echo base_url('settings/theme'); ?>">Theme and Logo</a></li>
+            <?php if (!$is_super_admin): ?>
             <li role="presentation"><a href="<?php echo base_url('settings/templates'); ?>">Templates</a></li>
+            <?php
+endif; ?>
             <li role="presentation"><a href="<?php echo base_url('settings/users'); ?>">Users</a></li>
             <li role="presentation" class="active"><a href="<?php echo base_url('settings/roles'); ?>">Roles</a></li>
+            <?php if (!$is_super_admin): ?>
             <li role="presentation"><a href="<?php echo base_url('settings/items'); ?>">Items</a></li>
             <li role="presentation"><a href="<?php echo base_url('settings/emails'); ?>">Emails</a></li>
+            <?php
+endif; ?>
         </ul>
     </div>
     <div class="container-fluid bg-white doc-spaced">
@@ -26,55 +38,57 @@
          </div>                       
          <div class="form_section">
          
-         	<?php 
-				foreach($roles as $role_data){
-					$role_id = $role_data['id'];					
-			?>
+         	<?php
+foreach ($roles as $role_data) {
+    $role_id = $role_data['id'];
+?>
                <div class="container-fluid">
                   <h4><?php echo $role_data['role_name']; ?></h4>
                   <div class="clearfix grey-border-bottom form-group formSpacer"></div> 
                </div> 
                <div class="form-group container-fluid">
-               		<?php 
-						foreach($permissions['default'] as $permission_data){
-							$current_role_permissions = @$role_permissions[$role_id]['permissions'];
-							if(@array_key_exists(@$permission_data['id'] ,@$current_role_permissions)){
-								$checked_html = 'checked="checked"';
-							}else{
-								$checked_html = '';
-							}
-					?>
+               		<?php
+    foreach ($permissions['default'] as $permission_data) {
+        $current_role_permissions = @$role_permissions[$role_id]['permissions'];
+        if (@array_key_exists(@$permission_data['id'], @$current_role_permissions)) {
+            $checked_html = 'checked="checked"';
+        }
+        else {
+            $checked_html = '';
+        }
+?>
                         <div class="security-role-item">
-                            <input <?php echo $checked_html; ?> name="role_data['<?php echo $role_data['id']; ?>']['<?php echo $permission_data['id']; ?>']" id="<?php echo $role_data['role_name'].'_'.$permission_data['id']; ?>" type="checkbox" value="yes">
-                            <label for="<?php echo $role_data['role_name'].'_'.$permission_data['id']; ?>" class="control-label"><?php echo $permission_data['permission']; ?></label>                                   
+                            <input <?php echo $checked_html; ?> name="role_data['<?php echo $role_data['id']; ?>']['<?php echo $permission_data['id']; ?>']" id="<?php echo $role_data['role_name'] . '_' . $permission_data['id']; ?>" type="checkbox" value="yes">
+                            <label for="<?php echo $role_data['role_name'] . '_' . $permission_data['id']; ?>" class="control-label"><?php echo $permission_data['permission']; ?></label>                                   
                         </div>
-                    <?php 
-						}
-					?>                                     
+                    <?php
+    }
+?>                                     
               </div> 
               
               <div class="form-group container-fluid">
-					<?php 
-                        foreach($permissions['alternative'] as $permission_data){
-                            $current_role_permissions = @$role_permissions[$role_id]['permissions'];
-                            if(@array_key_exists(@$permission_data['id'] ,@$current_role_permissions)){
-                                $checked_html = 'checked="checked"';
-                            }else{
-                                $checked_html = '';
-                            }
-                    ?>
+					<?php
+    foreach ($permissions['alternative'] as $permission_data) {
+        $current_role_permissions = @$role_permissions[$role_id]['permissions'];
+        if (@array_key_exists(@$permission_data['id'], @$current_role_permissions)) {
+            $checked_html = 'checked="checked"';
+        }
+        else {
+            $checked_html = '';
+        }
+?>
                             <div class="col-xs-12 form-group large-settings-item">
-                                <input <?php echo $checked_html; ?> name="role_data['<?php echo $role_data['id']; ?>']['<?php echo $permission_data['id']; ?>']" id="<?php echo $role_data['role_name'].'_'.$permission_data['id']; ?>" type="checkbox" value="yes">
-                                 <label for="<?php echo $role_data['role_name'].'_'.$permission_data['id']; ?>" class="control-label"><?php echo $permission_data['permission']; ?></label>
+                                <input <?php echo $checked_html; ?> name="role_data['<?php echo $role_data['id']; ?>']['<?php echo $permission_data['id']; ?>']" id="<?php echo $role_data['role_name'] . '_' . $permission_data['id']; ?>" type="checkbox" value="yes">
+                                 <label for="<?php echo $role_data['role_name'] . '_' . $permission_data['id']; ?>" class="control-label"><?php echo $permission_data['permission']; ?></label>
                                 <p><?php echo $permission_data['description']; ?></p>
                             </div>                          
-                    <?php 
-						}
-				   ?>
+                    <?php
+    }
+?>
               </div>  
-              <?php 
-				}
-			   ?>
+              <?php
+}
+?>
               
               
               
