@@ -4,6 +4,29 @@
 //var_dump($user_data);
 ?>
 <header>
+    <?php
+$is_super_admin = (isset($user_data['email']) && ($user_data['email'] == 'babu313136@gmail.com' || $user_data['email'] == 'admin@boostaccounting.com'));
+
+// Fetch and display trial banner if user is not super admin
+if (!$is_super_admin) {
+    $sub_req = $this->curl->rest_api_call('GET', 'subscription/status');
+    
+    if (isset($sub_req['status']) && $sub_req['status'] == 'OK' && isset($sub_req['data'])) {
+        $sub_data = $sub_req['data'];
+        if (isset($sub_data['status']) && $sub_data['status'] == 'trial' && isset($sub_data['trial_days_left']) && $sub_data['trial_days_left'] <= 5) {
+?>
+    <div
+        style="background-color: #ffeeb2; color: #8a6d3b; padding: 12px; text-align: center; border-bottom: 1px solid #e5c158; font-family: inherit; font-size: 14px; position: relative; z-index: 1050;">
+        <strong>Notice:</strong> Your free trial expires in <?php echo $sub_data['trial_days_left']; ?> day(s).
+        <a href="<?php echo base_url('settings'); ?>"
+            style="color: #66512c; text-decoration: underline; font-weight: bold; margin-left: 10px;">Upgrade Now</a> to
+        keep your access.
+    </div>
+    <?php
+        }
+    }
+}
+?>
     <nav class="navbar navbar-default navbar-static" id="navbar-example">
         <div class="max-width-1200">
             <div class="navbar-header">

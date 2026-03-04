@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 class Api extends CI_Controller
 {
     public function __construct()
@@ -9,25 +9,25 @@ class Api extends CI_Controller
         $this->regular->set_response_headers();
 
         set_time_limit(0);
-		ini_set('memory_limit', '256M');
+        ini_set('memory_limit', '256M');
 
         $requested_resource = $this->regular->requested_resource();
 
-        $dont_validate_account = array('registrations', 'login', 'export', 'download', 'checks', 'documents', 'statuses','statement_url');
-        $dont_validate_token = array('login', 'registrations', 'export', 'download', 'checks', 'documents', 'statuses', 'passwords','statement_url');
+        $dont_validate_account = array('registrations', 'login', 'export', 'download', 'checks', 'documents', 'statuses', 'statement_url');
+        $dont_validate_token = array('login', 'registrations', 'export', 'download', 'checks', 'documents', 'statuses', 'passwords', 'statement_url');
 
-        if (!in_array($requested_resource, $dont_validate_account)) :
+        if (!in_array($requested_resource, $dont_validate_account)):
             $this->userhandler->confirm_account();
         endif;
 
-        if (!in_array($requested_resource, $dont_validate_token)) :
+        if (!in_array($requested_resource, $dont_validate_token)):
             $this->userhandler->valid_token();
-			//$this->userhandler->valid_permission();
+        //$this->userhandler->valid_permission();
         endif;
-		
-		
-		
-		
+
+
+
+
     }
 
     public function index($string = null)
@@ -70,7 +70,7 @@ class Api extends CI_Controller
 
     public function login()
     {
-        
+
         $this->load->library('resources/generic');
         $this->generic->entry('login');
     }
@@ -84,8 +84,8 @@ class Api extends CI_Controller
     public function taxes($id = null, $order = 'ASC', $limit = null, $offset = null)
     {
         $params = array(
-            'table'=>'boost_taxes',
-            'entity'=>'tax'
+            'table' => 'boost_taxes',
+            'entity' => 'tax'
         );
 
         $this->load->library('resources/generic', $params);
@@ -95,9 +95,9 @@ class Api extends CI_Controller
     public function contacts($id = null, $order = 'ASC', $limit = null, $offset = null)
     {
         $params = array(
-            'table'=>'boost_contacts',
-            'entity'=>'contact',
-            'model'=>'contacts_model'
+            'table' => 'boost_contacts',
+            'entity' => 'contact',
+            'model' => 'contacts_model'
         );
 
         $this->load->library('resources/generic', $params);
@@ -143,8 +143,8 @@ class Api extends CI_Controller
     public function items($id = null, $order = 'ASC', $limit = null, $offset = null)
     {
         $params = array(
-            'table'=>'boost_items',
-            'entity'=>'item'
+            'table' => 'boost_items',
+            'entity' => 'item'
         );
 
         $this->load->library('resources/generic', $params);
@@ -154,8 +154,8 @@ class Api extends CI_Controller
     public function countries($id = null, $order = 'ASC', $limit = null, $offset = null)
     {
         $params = array(
-            'table'=>'boost_countries',
-            'entity'=>'country'
+            'table' => 'boost_countries',
+            'entity' => 'country'
         );
 
         $this->load->library('resources/generic', $params);
@@ -165,8 +165,8 @@ class Api extends CI_Controller
     public function currencies($id = null, $order = 'ASC', $limit = null, $offset = null)
     {
         $params = array(
-            'table'=>'boost_currencies',
-            'entity'=>'currency'
+            'table' => 'boost_currencies',
+            'entity' => 'currency'
         );
 
         $this->load->library('resources/generic', $params);
@@ -176,10 +176,10 @@ class Api extends CI_Controller
     public function invoices($id = null, $order = 'ASC', $limit = null, $offset = null)
     {
         $params = array(
-            'table'=>'boost_invoices',
-            'entity'=>'invoice',
-            'model'=>'template_model',
-            'items_table'=>'boost_invoice_items'
+            'table' => 'boost_invoices',
+            'entity' => 'invoice',
+            'model' => 'template_model',
+            'items_table' => 'boost_invoice_items'
         );
 
         $this->load->library('resources/generic', $params);
@@ -189,10 +189,10 @@ class Api extends CI_Controller
     public function estimates($id = null, $order = 'ASC', $limit = null, $offset = null)
     {
         $params = array(
-            'table'=>'boost_estimates',
+            'table' => 'boost_estimates',
             'entity' => 'estimate',
-            'model'=>'template_model',
-            'items_table'=>'boost_estimate_items'
+            'model' => 'template_model',
+            'items_table' => 'boost_estimate_items'
         );
 
         $this->load->library('resources/generic', $params);
@@ -202,11 +202,11 @@ class Api extends CI_Controller
     public function credit_notes($id = null, $order = 'ASC', $limit = null, $offset = null)
     {
         $params = array(
-            'table'=>'boost_credit_notes',
+            'table' => 'boost_credit_notes',
             'entity' => 'credit_note',
-            'model'=>'credit_notes_model',
-            'items_table'=>'boost_credit_note_items',
-            'join_invoice_table'=>true
+            'model' => 'credit_notes_model',
+            'items_table' => 'boost_credit_note_items',
+            'join_invoice_table' => true
         );
 
         $this->load->library('resources/generic', $params);
@@ -228,24 +228,24 @@ class Api extends CI_Controller
     public function organisations($field = null, $value = null)
     {
         $params = array(
-            'table'=>'boost_organisations',
+            'table' => 'boost_organisations',
             'entity' => 'organisation',
             'model' => 'organisations_model'
         );
 
         $id = null;
-        if ($this->regular->request_method() == 'PUT' || $this->regular->request_method() == 'DELETE') :
+        if ($this->regular->request_method() == 'PUT' || $this->regular->request_method() == 'DELETE'):
             $id = 1;
         endif;
         $order = 'ASC';
         $limit = null;
         $offset = null;
 
-        if(!is_null($field)) :
+        if (!is_null($field)):
             $order = $field;
         endif;
 
-        if(!is_null($value)) :
+        if (!is_null($value)):
             $limit = $value;
         endif;
 
@@ -289,18 +289,18 @@ class Api extends CI_Controller
         );
 
         $id = null;
-        if ($this->regular->request_method() == 'PUT' || $this->regular->request_method() == 'DELETE') :
+        if ($this->regular->request_method() == 'PUT' || $this->regular->request_method() == 'DELETE'):
             $id = 1;
         endif;
         $order = 'ASC';
         $limit = null;
         $offset = null;
 
-        if (!is_null($field)) :
+        if (!is_null($field)):
             $order = $field;
         endif;
 
-        if (!is_null($value)) :
+        if (!is_null($value)):
             $limit = $value;
         endif;
 
@@ -311,30 +311,25 @@ class Api extends CI_Controller
     public function payments($id = null, $order = 'ASC', $limit = null, $offset = null)
     {
         /*$post = $this->regular->decode();
-
-        $db_table_prefix = $this->config->item('db_table_prefix');
-
-        $invoice_params = array(
-            'table'=>$db_table_prefix.'invoices',
-            'fields'=>'bi.id, contact_id',
-            'entity'=>'invoice',
-            'items_table'=>$db_table_prefix.'invoice_items'
-        );
-
-        $this->load->model('template_model');
-        $invoice_data = $this->template_model->read($invoice_params, $post['invoice_id'])[0];
-
-        $this->load->library('finance');
-        $finance = $this->finance->contact_finances($invoice_data->contact_id);
-
-        $post['paid'] = $finance['paid'];
-        $post['outstanding'] = $finance['outstanding'];
-        $post['contact_id'] = $invoice_data->contact_id;*/
+         $db_table_prefix = $this->config->item('db_table_prefix');
+         $invoice_params = array(
+         'table'=>$db_table_prefix.'invoices',
+         'fields'=>'bi.id, contact_id',
+         'entity'=>'invoice',
+         'items_table'=>$db_table_prefix.'invoice_items'
+         );
+         $this->load->model('template_model');
+         $invoice_data = $this->template_model->read($invoice_params, $post['invoice_id'])[0];
+         $this->load->library('finance');
+         $finance = $this->finance->contact_finances($invoice_data->contact_id);
+         $post['paid'] = $finance['paid'];
+         $post['outstanding'] = $finance['outstanding'];
+         $post['contact_id'] = $invoice_data->contact_id;*/
 
         $params = array(
-            'table'=>'boost_invoice_payments',
-            'entity'=>'payment',
-            'model'=>'payments_model'
+            'table' => 'boost_invoice_payments',
+            'entity' => 'payment',
+            'model' => 'payments_model'
         );
 
         $this->load->library('resources/generic', $params);
@@ -355,8 +350,8 @@ class Api extends CI_Controller
     public function search($string = '', $table = null, $field = null)
     {
         $params = array(
-            'table'=>$table,
-            'entity'=>'search'
+            'table' => $table,
+            'entity' => 'search'
         );
 
         $this->load->library('resources/search', $params);
@@ -370,7 +365,7 @@ class Api extends CI_Controller
             'entity' => 'template'
         );
 
-        if ($this->regular->request_method() == 'PUT' || $this->regular->request_method() == 'DELETE') :
+        if ($this->regular->request_method() == 'PUT' || $this->regular->request_method() == 'DELETE'):
             $id = 1;
         endif;
 
@@ -385,14 +380,14 @@ class Api extends CI_Controller
             'entity' => 'email settings'
         );
 
-        if ($this->regular->request_method() == 'PUT' || $this->regular->request_method() == 'DELETE') :
+        if ($this->regular->request_method() == 'PUT' || $this->regular->request_method() == 'DELETE'):
             $id = 1;
         endif;
 
         /*$id = null;
-        $order = 'ASC';
-        $limit = null;
-        $offset = null;*/
+         $order = 'ASC';
+         $limit = null;
+         $offset = null;*/
 
         $this->load->library('resources/generic', $params);
         $this->generic->entry($id, $order, $limit, $offset);
@@ -465,13 +460,12 @@ class Api extends CI_Controller
 
     public function pdf($resource, $id = null)
     {
-        $this->load->library('pdf/'.$resource);
+        $this->load->library('pdf/' . $resource);
 
         $post_vars = $this->regular->decode();
 
-        if(is_null($id))
-        {
-            if(isset($post_vars['data']) && !empty($post_vars['data'])) :
+        if (is_null($id)) {
+            if (isset($post_vars['data']) && !empty($post_vars['data'])):
                 $id = $post_vars['data'];
             endif;
         }
@@ -496,8 +490,8 @@ class Api extends CI_Controller
         $this->load->library('resources/statements');
         $this->statements->entry($contact_id);
     }
-	
-	public function statement_url($contact_id)
+
+    public function statement_url($contact_id)
     {
         $this->load->library('resources/statement_url');
         $this->statement_url->entry($contact_id);
@@ -520,19 +514,19 @@ class Api extends CI_Controller
         $this->load->library('resources/documents');
         $this->documents->entry($string);
     }
-	
-	public function expenses($id = null, $order = 'ASC', $limit = null, $offset = null)
+
+    public function expenses($id = null, $order = 'ASC', $limit = null, $offset = null)
     {
         $params = array(
-            'table'=>'boost_expenses',
-            'entity'=>'expense',
-            'model'=>'expenses_model'
+            'table' => 'boost_expenses',
+            'entity' => 'expense',
+            'model' => 'expenses_model'
         );
 
         $this->load->library('resources/generic', $params);
         $this->generic->entry($id, $order, $limit, $offset);
     }
-	
+
     public function expenses_categories($id = null, $order = 'ASC', $limit = null, $offset = null)
     {
         $params = array(
@@ -550,5 +544,42 @@ class Api extends CI_Controller
         $user_data = $this->userhandler->determine_user();
         $this->regular->respond($user_data);
     }
-		
+
+    public function subscription($action = null)
+    {
+        if ($action == 'status') {
+            $headers = $this->regular->get_request_headers();
+            $account_name = isset($headers['Account-Name']) ? $headers['Account-Name'] : '';
+
+            if (empty($account_name)) {
+                $this->regular->header_(404);
+                $this->regular->respond(['status' => 'ERROR', 'message' => ['Account name missing']]);
+                return;
+            }
+
+            $this->load->library('db/switcher', array('account_name' => $account_name));
+            $status_data = $this->switcher->check_sub_status($account_name);
+
+            if ($status_data && isset($status_data->subscription_status)) {
+                $trial_ends = strtotime($status_data->trial_ends_at);
+                $days_left = ceil(($trial_ends - time()) / 86400);
+
+                $response = [
+                    'status' => $status_data->subscription_status,
+                    'trial_ends_at' => $status_data->trial_ends_at,
+                    'trial_days_left' => $days_left > 0 ? $days_left : 0,
+                    'is_blocked' => $status_data->is_manual_blocked,
+                    'paid_until' => $status_data->paid_until
+                ];
+
+                $this->regular->respond(['status' => 'OK', 'data' => $response]);
+            }
+            else {
+                $this->regular->header_(404);
+                $this->regular->respond(['status' => 'ERROR', 'message' => ['Account not found']]);
+            }
+        }
+    }
+
+
 }
