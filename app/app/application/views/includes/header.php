@@ -18,7 +18,7 @@ if (!$is_super_admin) {
     <div
         style="background-color: #ffeeb2; color: #8a6d3b; padding: 12px; text-align: center; border-bottom: 1px solid #e5c158; font-family: inherit; font-size: 14px; position: relative; z-index: 1050;">
         <strong>Notice:</strong> Your free trial expires in <?php echo $sub_data['trial_days_left']; ?> day(s).
-        <a href="<?php echo base_url('settings'); ?>"
+        <a href="<?php echo base_url('billing'); ?>"
             style="color: #66512c; text-decoration: underline; font-weight: bold; margin-left: 10px;">Upgrade Now</a> to
         keep your access.
     </div>
@@ -76,6 +76,8 @@ else {
                             <?php if (in_array('account_settings', $user_data['permissions'])) { ?>
                             <li role="presentation"><a href="<?php echo base_url('settings'); ?>"
                                     role="menuitem">Account Settings</a></li>
+                            <li role="presentation"><a href="<?php echo base_url('billing'); ?>"
+                                    role="menuitem">Billing</a></li>
                             <li role="separator" class="divider"></li>
                             <?php
 }?>

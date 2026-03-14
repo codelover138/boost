@@ -537,6 +537,60 @@ class Db_setup
         $this->CI->dbforge->create_table($table_prefix . 'organisations', TRUE);
         /**************************************************************************************************/
 
+        /* SUBSCRIPTION PAYMENTS
+         **************************************************************************************************/
+        $subscription_payments = array(
+            'id' => array('type' => 'INT', 'constraint' => 11, 'auto_increment' => true),
+            'organisation_id' => array('type' => 'INT', 'constraint' => 11),
+            'user_id' => array('type' => 'INT', 'constraint' => 11, 'null' => TRUE),
+            'account_name' => array('type' => 'VARCHAR', 'constraint' => 50),
+            'plan_code' => array('type' => 'VARCHAR', 'constraint' => 50),
+            'item_name' => array('type' => 'VARCHAR', 'constraint' => 150),
+            'merchant_reference' => array('type' => 'VARCHAR', 'constraint' => 100),
+            'payment_status' => array('type' => 'VARCHAR', 'constraint' => 20, 'default' => 'pending'),
+            'amount_gross' => array('type' => 'DECIMAL', 'constraint' => '10,2'),
+            'amount_fee' => array('type' => 'DECIMAL', 'constraint' => '10,2', 'null' => TRUE),
+            'amount_net' => array('type' => 'DECIMAL', 'constraint' => '10,2', 'null' => TRUE),
+            'billing_date_from' => array('type' => 'DATETIME', 'null' => TRUE),
+            'billing_date_to' => array('type' => 'DATETIME', 'null' => TRUE),
+            'payfast_payment_id' => array('type' => 'VARCHAR', 'constraint' => 100, 'null' => TRUE),
+            'payfast_reference' => array('type' => 'VARCHAR', 'constraint' => 100, 'null' => TRUE),
+            'payment_method' => array('type' => 'VARCHAR', 'constraint' => 50, 'null' => TRUE),
+            'signature' => array('type' => 'VARCHAR', 'constraint' => 255, 'null' => TRUE),
+            'itn_verified' => array('type' => 'TINYINT', 'constraint' => 1, 'default' => 0),
+            'raw_request_data' => array('type' => 'LONGTEXT', 'null' => TRUE),
+            'raw_itn_data' => array('type' => 'LONGTEXT', 'null' => TRUE),
+            'failure_reason' => array('type' => 'VARCHAR', 'constraint' => 255, 'null' => TRUE),
+            'confirmed_at' => array('type' => 'DATETIME', 'null' => TRUE),
+            'itn_received_at' => array('type' => 'DATETIME', 'null' => TRUE)
+        );
+
+        $this->CI->dbforge->add_field($subscription_payments);
+        $this->CI->dbforge->add_field('date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP');
+        $this->CI->dbforge->add_field('date_modified TIMESTAMP NOT NULL DEFAULT "0000-00-00 00:00:00"');
+
+        $this->CI->dbforge->add_key('id', TRUE);
+        $this->CI->dbforge->create_table($table_prefix . 'subscription_payments', TRUE);
+        /**************************************************************************************************/
+
+        /* SUBSCRIPTION EVENTS
+         **************************************************************************************************/
+        $subscription_events = array(
+            'id' => array('type' => 'INT', 'constraint' => 11, 'auto_increment' => true),
+            'organisation_id' => array('type' => 'INT', 'constraint' => 11),
+            'payment_id' => array('type' => 'INT', 'constraint' => 11, 'null' => TRUE),
+            'event_type' => array('type' => 'VARCHAR', 'constraint' => 50),
+            'message' => array('type' => 'VARCHAR', 'constraint' => 255, 'null' => TRUE),
+            'payload' => array('type' => 'LONGTEXT', 'null' => TRUE)
+        );
+
+        $this->CI->dbforge->add_field($subscription_events);
+        $this->CI->dbforge->add_field('date_created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP');
+
+        $this->CI->dbforge->add_key('id', TRUE);
+        $this->CI->dbforge->create_table($table_prefix . 'subscription_events', TRUE);
+        /**************************************************************************************************/
+
         /* ROLE PERMISSIONS
          **************************************************************************************************/
         $role_permissions = array(

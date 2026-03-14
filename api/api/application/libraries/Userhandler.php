@@ -291,7 +291,9 @@ class Userhandler
             // 2. Subscription / Trial Logic
             $uri_string = ltrim(uri_string(), '/');
             $allowed_routes = array(
-                'api/logout', 'api/login', 'api/settings', 'api/users', 'api/roles',
+                'logout', 'login', 'me', 'settings', 'users', 'roles',
+                'permissions', 'billing', 'subscription', 'organisations',
+                'api/logout', 'api/login', 'api/me', 'api/settings', 'api/users', 'api/roles',
                 'api/permissions', 'api/billing', 'api/subscription', 'api/organisations'
             );
 

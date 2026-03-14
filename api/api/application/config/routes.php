@@ -9,6 +9,14 @@ $route['translate_uri_dashes'] = FALSE;
 $route['api/api_rest/dashboard'] = 'api_rest/dashboard_info';
 $route['api/api_rest/reports/(:any)'] = 'api_rest/report_info/$1';
 $route['(me|login|invoices|contacts|organisations|estimates|credit_notes|users|expenses|reports|taxes|items|countries|currencies|subscription)(/.*)?'] = 'api/$1$2';
+$route['api/billing'] = 'billing/index';
+$route['api/billing/(:any)'] = 'billing/$1';
+$route['api/billing/(:any)/(:any)'] = 'billing/$1/$2';
+$route['api/billing/(:any)/(:any)/(:any)'] = 'billing/$1/$2/$3';
+$route['billing'] = 'billing/index';
+$route['billing/(:any)'] = 'billing/$1';
+$route['billing/(:any)/(:any)'] = 'billing/$1/$2';
+$route['billing/(:any)/(:any)/(:any)'] = 'billing/$1/$2/$3';
 
 // Super Admin Routes
 // Super Admin Routes

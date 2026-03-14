@@ -76,6 +76,32 @@ $config['pass_max_length'] = 20;
  */
 $config['from_email'] = 'no-reply@boostaccounting.com';
 
+/*
+|--------------------------------------------------------------------------
+| PAYFAST BILLING
+|--------------------------------------------------------------------------
+*/
+$config['payfast_merchant_id'] = '10046720';
+$config['payfast_merchant_key'] = '3svxw4eas1vel';
+$config['payfast_passphrase'] = 'payfast';
+$config['payfast_test_mode'] = true;
+$config['payfast_debug_email'] = 'news@boostaccounting.com';
+$config['payfast_plan'] = array(
+    'code' => 'boost-monthly',
+    'name' => 'Boost Monthly Subscription',
+    'description' => 'Monthly access to Boost Cloud Accounting',
+    'amount' => '299.00',
+    'currency' => 'ZAR',
+    'cycle_days' => 30
+);
+$config['payfast_grace_period_days'] = 3;
+$config['payfast_itn_valid_hosts'] = array(
+    'www.payfast.co.za',
+    'sandbox.payfast.co.za',
+    'w1w.payfast.co.za',
+    'w2w.payfast.co.za'
+);
+
 
 /*
 |--------------------------------------------------------------------------
