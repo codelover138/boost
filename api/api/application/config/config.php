@@ -86,11 +86,29 @@ $config['payfast_merchant_key'] = '3svxw4eas1vel';
 $config['payfast_passphrase'] = 'payfast';
 $config['payfast_test_mode'] = true;
 $config['payfast_debug_email'] = 'news@boostaccounting.com';
+$config['payfast_plans'] = array(
+    'boost-monthly' => array(
+        'code' => 'boost-monthly',
+        'name' => 'Boost Monthly Subscription',
+        'description' => 'Monthly access to Boost Cloud Accounting',
+        'amount' => '60.00',
+        'currency' => 'ZAR',
+        'cycle_days' => 30
+    ),
+    'boost-yearly' => array(
+        'code' => 'boost-yearly',
+        'name' => 'Boost Yearly Subscription',
+        'description' => 'Yearly access to Boost Cloud Accounting',
+        'amount' => '600.00',
+        'currency' => 'ZAR',
+        'cycle_days' => 365
+    )
+);
 $config['payfast_plan'] = array(
     'code' => 'boost-monthly',
     'name' => 'Boost Monthly Subscription',
     'description' => 'Monthly access to Boost Cloud Accounting',
-    'amount' => '299.00',
+    'amount' => '60.00',
     'currency' => 'ZAR',
     'cycle_days' => 30
 );

@@ -32,7 +32,10 @@ class Billing extends CI_Controller
     {
         $this->regular->respond(array(
             'status' => 'OK',
-            'data' => $this->payfast_service->get_plan()
+            'data' => array(
+                'plan' => $this->payfast_service->get_plan(),
+                'plans' => $this->payfast_service->get_plans()
+            )
         ));
     }
 
@@ -43,6 +46,7 @@ class Billing extends CI_Controller
 
         $response = array(
             'plan' => $this->payfast_service->get_plan(),
+            'plans' => $this->payfast_service->get_plans(),
             'subscription' => array(
                 'status' => $org->subscription_status,
                 'trial_ends_at' => $org->trial_ends_at,
@@ -73,9 +77,22 @@ class Billing extends CI_Controller
             return;
         }
 
+        $request = $this->regular->decode('POST');
+        if (!is_array($request)) {
+            $request = array();
+        }
+
         $org = $this->get_current_organisation();
         $user_data = $this->userhandler->determine_user();
-        $plan = $this->payfast_service->get_plan();
+        $requested_plan_code = isset($request['plan_code']) ? trim((string)$request['plan_code']) : '';
+
+        if ($requested_plan_code !== '' && !$this->payfast_service->has_plan($requested_plan_code)) {
+            $this->regular->header_(400);
+            $this->regular->respond(array('status' => 'ERROR', 'message' => array('Invalid subscription plan selected')));
+            return;
+        }
+
+        $plan = $this->payfast_service->get_plan($requested_plan_code);
 
         if (!$this->config->item('payfast_merchant_id') || !$this->config->item('payfast_merchant_key')) {
             $this->regular->header_(500);
@@ -120,7 +137,7 @@ class Billing extends CI_Controller
         }
 
         $payment = $this->generic_model->read($params, $create['record_id'], 'single');
-        $fields = $this->payfast_service->build_payment_fields($payment, $org, $user);
+        $fields = $this->payfast_service->build_payment_fields($payment, $org, $user, $plan);
 
         $this->generic_model->update($params, $payment->id, array(
             'signature' => $fields['signature'],

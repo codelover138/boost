@@ -55,7 +55,17 @@ class Billing extends CI_Controller
 
     public function pay()
     {
-        $response = $this->curl->rest_api_call('POST', 'billing/initiate', array());
+        $plan_code = trim((string)$this->input->post('plan_code', true));
+        if ($plan_code === '') {
+            $plan_code = trim((string)$this->input->get('plan_code', true));
+        }
+
+        $payload = array();
+        if ($plan_code !== '') {
+            $payload['plan_code'] = $plan_code;
+        }
+
+        $response = $this->curl->rest_api_call('POST', 'billing/initiate', $payload);
 
         if (!isset($response['status']) || $response['status'] !== 'OK') {
             $message = 'Unable to start PayFast payment.';

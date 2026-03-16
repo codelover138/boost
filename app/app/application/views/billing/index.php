@@ -1,9 +1,13 @@
 <?php
 $billing_data = isset($billing['data']) ? $billing['data'] : array();
 $plan = isset($billing_data['plan']) ? $billing_data['plan'] : array();
+$plans = isset($billing_data['plans']) && is_array($billing_data['plans']) && !empty($billing_data['plans'])
+    ? array_values($billing_data['plans'])
+    : (!empty($plan) ? array($plan) : array());
 $subscription = isset($billing_data['subscription']) ? $billing_data['subscription'] : array();
 $history = isset($billing_data['history']) ? $billing_data['history'] : array();
 $status = isset($subscription['status']) ? ucfirst($subscription['status']) : 'Unknown';
+$featured_plan = !empty($plan) ? $plan : (!empty($plans) ? $plans[0] : array());
 ?>
 
 <style>
@@ -42,6 +46,60 @@ $status = isset($subscription['status']) ? ucfirst($subscription['status']) : 'U
     color: #203040;
     font-size: 20px;
     font-weight: 700;
+}
+
+.billing-plan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.billing-plan-option {
+    border: 1px solid #d9e2ec;
+    border-radius: 12px;
+    padding: 20px;
+    background: #f9fbfd;
+}
+
+.billing-plan-option.featured {
+    border-color: #16a34a;
+    box-shadow: 0 8px 24px rgba(22, 163, 74, 0.12);
+    background: #f6fff8;
+}
+
+.billing-plan-option h4 {
+    margin: 0 0 8px;
+    color: #203040;
+}
+
+.billing-plan-meta {
+    color: #607080;
+    font-size: 13px;
+    margin-bottom: 14px;
+}
+
+.billing-plan-price {
+    color: #203040;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.billing-plan-price small {
+    font-size: 14px;
+    color: #607080;
+    font-weight: 600;
+}
+
+.billing-plan-description {
+    color: #607080;
+    min-height: 40px;
+    margin-bottom: 16px;
+}
+
+.billing-plan-form {
+    margin: 0;
 }
 
 .billing-history-table {
@@ -105,15 +163,15 @@ $status = isset($subscription['status']) ? ucfirst($subscription['status']) : 'U
 <?php endif; ?>
 
 <div class="billing-card">
-    <h3 style="margin-top:0;"><?php echo isset($plan['name']) ? $plan['name'] : 'Subscription Plan'; ?></h3>
+    <h3 style="margin-top:0;"><?php echo isset($featured_plan['name']) ? $featured_plan['name'] : 'Subscription Plan'; ?></h3>
     <p style="color:#607080; margin-bottom:20px;">
-        <?php echo isset($plan['description']) ? $plan['description'] : 'Pay securely with PayFast and restore access immediately after payment confirmation.'; ?>
+        <?php echo isset($featured_plan['description']) ? $featured_plan['description'] : 'Pay securely with PayFast and restore access immediately after payment confirmation.'; ?>
     </p>
 
     <div class="billing-kpis">
         <div class="billing-kpi">
             <span class="label">Plan Price</span>
-            <span class="value">R <?php echo isset($plan['amount']) ? $plan['amount'] : '0.00'; ?></span>
+            <span class="value">R <?php echo isset($featured_plan['amount']) ? $featured_plan['amount'] : '0.00'; ?></span>
         </div>
         <div class="billing-kpi">
             <span class="label">Subscription Status</span>
@@ -131,7 +189,34 @@ $status = isset($subscription['status']) ? ucfirst($subscription['status']) : 'U
         </div>
     </div>
 
+    <?php if (!empty($plans)) : ?>
+    <div class="billing-plan-grid">
+        <?php foreach ($plans as $plan_option) : ?>
+        <?php
+            $plan_option = (array)$plan_option;
+            $is_featured = isset($featured_plan['code'], $plan_option['code']) && $featured_plan['code'] === $plan_option['code'];
+            $cycle_label = !empty($plan_option['billing_cycle_label']) ? $plan_option['billing_cycle_label'] : 'Subscription';
+        ?>
+        <div class="billing-plan-option <?php echo $is_featured ? 'featured' : ''; ?>">
+            <h4><?php echo htmlspecialchars($plan_option['name']); ?></h4>
+            <div class="billing-plan-meta"><?php echo htmlspecialchars($cycle_label); ?></div>
+            <div class="billing-plan-price">
+                R <?php echo htmlspecialchars($plan_option['amount']); ?>
+                <small>/ <?php echo strtolower(htmlspecialchars($cycle_label)); ?></small>
+            </div>
+            <p class="billing-plan-description">
+                <?php echo !empty($plan_option['description']) ? htmlspecialchars($plan_option['description']) : 'Boost subscription access'; ?>
+            </p>
+            <form class="billing-plan-form" method="post" action="<?php echo base_url('billing/pay'); ?>">
+                <input type="hidden" name="plan_code" value="<?php echo htmlspecialchars($plan_option['code']); ?>">
+                <button class="btn btn-success btn-lg" type="submit">Pay With PayFast</button>
+            </form>
+        </div>
+        <?php endforeach; ?>
+    </div>
+    <?php else : ?>
     <a class="btn btn-success btn-lg" href="<?php echo base_url('billing/pay'); ?>">Pay With PayFast</a>
+    <?php endif; ?>
 </div>
 
 <div class="billing-card">

@@ -14,18 +14,65 @@ class Payfast_service
             'merchant_key' => (string)$this->CI->config->item('payfast_merchant_key'),
             'passphrase' => (string)$this->CI->config->item('payfast_passphrase'),
             'test_mode' => (bool)$this->CI->config->item('payfast_test_mode'),
+            'plans' => (array)$this->CI->config->item('payfast_plans'),
             'plan' => (array)$this->CI->config->item('payfast_plan'),
             'valid_hosts' => (array)$this->CI->config->item('payfast_itn_valid_hosts')
         );
     }
 
-    public function get_plan()
+    public function get_plans()
     {
-        $plan = $this->config['plan'];
-        $plan['amount'] = number_format((float)$plan['amount'], 2, '.', '');
-        $plan['test_mode'] = $this->config['test_mode'];
+        $plans = array();
 
-        return $plan;
+        if (!empty($this->config['plans'])) {
+            foreach ($this->config['plans'] as $plan_code => $plan) {
+                if (!is_array($plan)) {
+                    continue;
+                }
+
+                $plans[] = $this->normalise_plan($plan, is_string($plan_code) ? $plan_code : null);
+            }
+        }
+
+        if (empty($plans) && !empty($this->config['plan'])) {
+            $plans[] = $this->normalise_plan($this->config['plan']);
+        }
+
+        return $plans;
+    }
+
+    public function get_plan($code = null)
+    {
+        $plans = $this->get_plans();
+
+        if ($code !== null && $code !== '') {
+            foreach ($plans as $plan) {
+                if (isset($plan['code']) && $plan['code'] === $code) {
+                    return $plan;
+                }
+            }
+        }
+
+        if (!empty($plans)) {
+            return $plans[0];
+        }
+
+        return $this->normalise_plan(array());
+    }
+
+    public function has_plan($code)
+    {
+        if ($code === null || $code === '') {
+            return false;
+        }
+
+        foreach ($this->get_plans() as $plan) {
+            if (isset($plan['code']) && $plan['code'] === $code) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function get_payfast_url()
@@ -59,7 +106,7 @@ class Payfast_service
         return md5(implode('&', $pairs));
     }
 
-    public function build_payment_fields($payment, $organisation, $user)
+    public function build_payment_fields($payment, $organisation, $user, $plan = array())
     {
         $full_name = trim((string)$user->first_name . ' ' . (string)$user->last_name);
         $names = preg_split('/\s+/', trim($full_name));
@@ -80,7 +127,7 @@ class Payfast_service
             'm_payment_id' => $payment->id,
             'amount' => number_format((float)$payment->amount_gross, 2, '.', ''),
             'item_name' => $payment->item_name,
-            'item_description' => $this->config['plan']['description'],
+            'item_description' => !empty($plan['description']) ? $plan['description'] : '',
             'custom_str1' => $payment->merchant_reference,
             'custom_str2' => $payment->account_name
         );
@@ -95,6 +142,23 @@ class Payfast_service
         $fields['signature'] = $this->generate_signature($fields);
 
         return $fields;
+    }
+
+    protected function normalise_plan($plan, $fallback_code = null)
+    {
+        $code = isset($plan['code']) && $plan['code'] !== '' ? $plan['code'] : $fallback_code;
+        $cycle_days = isset($plan['cycle_days']) ? (int)$plan['cycle_days'] : 30;
+
+        return array(
+            'code' => $code ? $code : 'boost-plan',
+            'name' => isset($plan['name']) ? $plan['name'] : 'Boost Subscription',
+            'description' => isset($plan['description']) ? $plan['description'] : 'Boost subscription access',
+            'amount' => number_format((float)(isset($plan['amount']) ? $plan['amount'] : 0), 2, '.', ''),
+            'currency' => isset($plan['currency']) ? $plan['currency'] : 'ZAR',
+            'cycle_days' => $cycle_days,
+            'billing_cycle_label' => $cycle_days >= 365 ? 'Yearly' : 'Monthly',
+            'test_mode' => $this->config['test_mode']
+        );
     }
 
     public function validate_signature($data)
