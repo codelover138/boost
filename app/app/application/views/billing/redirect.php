@@ -10,7 +10,7 @@
                 <div class="login_form_container" style="padding:20px;">
                     <h3>Redirecting To PayFast</h3>
                     <p>Please wait while we send you to PayFast to complete your subscription payment.</p>
-                    <form id="payfast_redirect_form" method="post" action="<?php echo $payment_url; ?>">
+                    <form id="payfast_redirect_form" method="post" action="<?php echo $payment_url; ?>" data-native-submit="true">
                         <?php foreach ($fields as $key => $value) : ?>
                             <input type="hidden" name="<?php echo htmlspecialchars($key); ?>" value="<?php echo htmlspecialchars($value); ?>">
                         <?php endforeach; ?>

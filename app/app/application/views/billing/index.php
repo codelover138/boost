@@ -207,7 +207,7 @@ $featured_plan = !empty($plan) ? $plan : (!empty($plans) ? $plans[0] : array());
             <p class="billing-plan-description">
                 <?php echo !empty($plan_option['description']) ? htmlspecialchars($plan_option['description']) : 'Boost subscription access'; ?>
             </p>
-            <form class="billing-plan-form" method="post" action="<?php echo base_url('billing/pay'); ?>">
+            <form class="billing-plan-form" method="post" action="<?php echo base_url('billing/pay'); ?>" data-native-submit="true">
                 <input type="hidden" name="plan_code" value="<?php echo htmlspecialchars($plan_option['code']); ?>">
                 <button class="btn btn-success btn-lg" type="submit">Pay With PayFast</button>
             </form>

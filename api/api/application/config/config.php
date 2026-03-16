@@ -83,7 +83,7 @@ $config['from_email'] = 'no-reply@boostaccounting.com';
 */
 $config['payfast_merchant_id'] = '10046720';
 $config['payfast_merchant_key'] = '3svxw4eas1vel';
-$config['payfast_passphrase'] = 'payfast';
+$config['payfast_passphrase'] = 'boostaccounting';
 $config['payfast_test_mode'] = true;
 $config['payfast_debug_email'] = 'news@boostaccounting.com';
 $config['payfast_plans'] = array(

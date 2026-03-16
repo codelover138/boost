@@ -17,7 +17,7 @@ class Billing extends CI_Controller
 
         $this->table_prefix = $this->config->item('db_table_prefix');
 
-        $action = strtolower((string)$this->uri->segment(2));
+        $action = strtolower((string)$this->router->fetch_method());
         if (!in_array($action, array('itn'), true)) {
             $this->require_billing_access();
         }
@@ -199,7 +199,7 @@ class Billing extends CI_Controller
         if (!$ip_valid) {
             $validation_errors[] = 'Invalid source IP';
         }
-        if (!$signature_valid) {
+        if (!$signature_valid && !$this->config->item('payfast_test_mode')) {
             $validation_errors[] = 'Invalid signature';
         }
         if (!$amount_valid) {

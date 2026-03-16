@@ -144,7 +144,7 @@ function initFunctions() {
         t.preventDefault(),
         markDocStatus(t, this)
     }),
-    $(document).on("submit", "form:not(#dateFilter, .login_form, .forgot_pass_form, .send_forgot_pass_form, #signup_form, #verification_form)", function(t) {
+    $(document).on("submit", "form:not(#dateFilter, .login_form, .forgot_pass_form, .send_forgot_pass_form, #signup_form, #verification_form, [data-native-submit='true'])", function(t) {
         t.preventDefault(),
         saveFormData($(this))
     }),
