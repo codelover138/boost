@@ -18,6 +18,11 @@ class Passwords
         $this->CI->load->library('encrypt');
 
         $this->headers = $headers = $this->CI->regular->get_request_headers();
+
+        if (isset($headers['Account-Name']) && $headers['Account-Name'] !== '') {
+            $this->CI->load->library('db/switcher', array('account_name' => $headers['Account-Name']));
+            $this->CI->switcher->account_db();
+        }
     }
 
     public function entry($email)

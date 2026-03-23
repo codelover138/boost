@@ -10,6 +10,7 @@ class Accounts
     {
         $this->CI =& get_instance();
         $this->CI->load->library('db/db_update');
+        $this->CI->load->library('payment_settings');
 		$this->account_prefix = $this->CI->config->item('db_account_prefix');
         $this->table_prefix = $this->CI->config->item('db_table_prefix');
         $this->table = $this->table_prefix . 'organisations';
@@ -43,7 +44,8 @@ class Accounts
 			$org_details['bool'] = false;
 		}else{
 			# Set trial and subscription status
-			$post['trial_ends_at'] = date('Y-m-d H:i:s', strtotime('+45 days'));
+            $trial_days = $this->CI->payment_settings->get_trial_days();
+			$post['trial_ends_at'] = date('Y-m-d H:i:s', strtotime('+' . $trial_days . ' days'));
 			$post['subscription_status'] = 'trial';
 			$post['is_manual_blocked'] = 0;
 

@@ -1000,7 +1000,13 @@ function saveFormData(form) {
             "undefined" == typeof switchSubDomain && initFormResponseModal(form, id, data)
         } else if ($(".error").remove(),
         $(".input-danger").removeClass("input-danger"),
-        "below" == form.data("validationPlacement"))
+        !data.validation_results)
+            modalData = {},
+            modalData.modalUrl = base_url + "modal/error",
+            modalData.modalHeading = "Error",
+            modalData.modalBody = data.message ? data.message : ["An unexpected response was returned. Please refresh the page and try again."],
+            openModal(e = document, modalData);
+        else if ("below" == form.data("validationPlacement"))
             if ($.each(data.validation_results, function(t, e) {
                 form.find('[name="' + t + '"]').each(function() {
                     "none" == $(this).css("display") ? ($(this).parent().find(".bootstrap-select .btn").addClass("input-danger"),

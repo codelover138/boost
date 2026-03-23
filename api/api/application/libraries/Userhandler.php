@@ -310,6 +310,19 @@ class Userhandler
                 $access_denied = false;
                 $msg = '';
 
+                $this->CI->load->library('payment_settings');
+                $grace_days = $this->CI->payment_settings->get_grace_period_days();
+                $paid_until_ts = isset($account_details->paid_until) && !empty($account_details->paid_until)
+                    ? strtotime($account_details->paid_until)
+                    : false;
+                $grace_end_ts = isset($account_details->grace_period_ends_at) && !empty($account_details->grace_period_ends_at)
+                    ? strtotime($account_details->grace_period_ends_at)
+                    : false;
+
+                if ($paid_until_ts && !$grace_end_ts) {
+                    $grace_end_ts = strtotime('+' . $grace_days . ' days', $paid_until_ts);
+                }
+
                 if ($status == 'trial') {
                     $trial_ends = strtotime($account_details->trial_ends_at);
                     if ($trial_ends < time()) {
@@ -317,13 +330,19 @@ class Userhandler
                         $msg = 'Trial expired. Please upgrade to continue.';
                     }
                 }
+                elseif ($status == 'active') {
+                    if ($paid_until_ts && $paid_until_ts < time() && (!$grace_end_ts || $grace_end_ts < time())) {
+                        $access_denied = true;
+                        $msg = 'Subscription expired. Please renew to continue.';
+                    }
+                }
                 elseif ($status == 'cancelled' || $status == 'expired' || $status == 'past_due') {
-                    if (isset($account_details->paid_until) && strtotime($account_details->paid_until) > time()) {
+                    if ($paid_until_ts && $paid_until_ts > time()) {
                     // Allowed
                     }
                     else {
                         if ($status == 'past_due' || $status == 'grace_period') {
-                            if (isset($account_details->grace_period_ends_at) && strtotime($account_details->grace_period_ends_at) < time()) {
+                            if ($grace_end_ts && $grace_end_ts < time()) {
                                 $access_denied = true;
                                 $msg = 'Subscription past due. Please update payment method.';
                             }
@@ -332,6 +351,12 @@ class Userhandler
                             $access_denied = true;
                             $msg = 'Subscription inactive. Please reactivate.';
                         }
+                    }
+                }
+                elseif ($status == 'grace_period') {
+                    if ($grace_end_ts && $grace_end_ts < time()) {
+                        $access_denied = true;
+                        $msg = 'Grace period ended. Please renew your subscription to continue.';
                     }
                 }
 

@@ -106,6 +106,56 @@ class Admin extends CI_Controller {
         }
     }
 
+    public function payment_settings()
+    {
+        if(!$this->check_auth()) return;
+
+        if (strtoupper($this->input->method()) === 'POST') {
+            $payload = $this->input->post(NULL, true);
+            $response = $this->curl->api_call('POST', 'admin/payment_settings', $payload);
+
+            if (isset($response['status']) && $response['status'] === 'OK') {
+                $this->session->set_flashdata('admin_payment_flash_type', 'success');
+                $this->session->set_flashdata('admin_payment_flash_message', 'Payment settings updated successfully.');
+                redirect('admin/payment-settings?saved=1');
+            } else {
+                $message = 'Unable to update payment settings.';
+                if (isset($response['message']) && is_array($response['message'])) {
+                    $message = implode(' ', $response['message']);
+                }
+                $this->session->set_flashdata('admin_payment_flash_type', 'danger');
+                $this->session->set_flashdata('admin_payment_flash_message', $message);
+                redirect('admin/payment-settings?error=1');
+            }
+            return;
+        }
+
+        $settings_response = $this->curl->api_call('GET', 'admin/payment_settings');
+        $user_response = $this->curl->api_call('GET', 'me');
+
+        if(isset($user_response['bool']) && $user_response['bool'] == true){
+            $data['page']['title'] = 'Admin | Payment Settings';
+            $data['page']['heading'] = 'Payment Settings';
+            $data['page']['main_view'] = 'admin/payment_settings';
+            $data['user_data'] = (array)$user_response['data'];
+            if(!isset($data['user_data']['permissions'])) $data['user_data']['permissions'] = [];
+            $data['payment_settings'] = isset($settings_response['data']) ? $settings_response['data'] : [];
+            $data['flash_type'] = $this->session->flashdata('admin_payment_flash_type');
+            $data['flash_message'] = $this->session->flashdata('admin_payment_flash_message');
+            if (empty($data['flash_message']) && $this->input->get('saved')) {
+                $data['flash_type'] = 'success';
+                $data['flash_message'] = 'Payment settings updated successfully.';
+            }
+            if (empty($data['flash_message']) && $this->input->get('error')) {
+                $data['flash_type'] = 'danger';
+                $data['flash_message'] = 'Unable to update payment settings.';
+            }
+            $this->load->view('content', $data);
+        } else {
+            redirect('login');
+        }
+    }
+
     public function block_user($org_id, $user_id)
     {
         if(!$this->check_auth()) return;

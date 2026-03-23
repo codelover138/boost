@@ -11,6 +11,7 @@ class Billing extends CI_Controller
 
         $this->regular->set_response_headers();
         $this->load->library('payfast_service');
+        $this->load->library('payment_settings');
         $this->load->library('userhandler');
         $this->load->model('generic_model');
         $this->load->library('email');
@@ -43,16 +44,20 @@ class Billing extends CI_Controller
     {
         $org = $this->get_current_organisation();
         $latest_payment = $this->get_latest_payment($org->id);
+        $summary = $this->build_subscription_summary($org);
 
         $response = array(
             'plan' => $this->payfast_service->get_plan(),
             'plans' => $this->payfast_service->get_plans(),
             'subscription' => array(
-                'status' => $org->subscription_status,
+                'status' => $summary['status'],
                 'trial_ends_at' => $org->trial_ends_at,
                 'paid_until' => $org->paid_until,
-                'grace_period_ends_at' => $org->grace_period_ends_at,
-                'is_manual_blocked' => (int)$org->is_manual_blocked
+                'grace_period_ends_at' => $summary['grace_period_ends_at'],
+                'is_manual_blocked' => (int)$org->is_manual_blocked,
+                'can_pay' => $summary['can_pay'],
+                'has_paid_access' => $summary['has_paid_access'],
+                'access_message' => $summary['access_message']
             ),
             'latest_payment' => $latest_payment,
             'history' => $this->get_payment_history($org->id, 10)
@@ -67,6 +72,33 @@ class Billing extends CI_Controller
         $history = $this->get_payment_history($org->id, 25);
 
         $this->regular->respond(array('status' => 'OK', 'data' => $history));
+    }
+
+    public function invoice($payment_id = null)
+    {
+        if (empty($payment_id) || !is_numeric($payment_id)) {
+            $this->regular->header_(400);
+            $this->regular->respond(array('status' => 'ERROR', 'message' => array('Invalid payment selected')));
+            return;
+        }
+
+        $org = $this->get_current_organisation();
+        $payment = $this->get_payment_by_id((int)$payment_id);
+
+        if (!$payment || (int)$payment->organisation_id !== (int)$org->id) {
+            $this->regular->header_(404);
+            $this->regular->respond(array('status' => 'ERROR', 'message' => array('Payment invoice not found')));
+            return;
+        }
+
+        $this->regular->respond(array(
+            'status' => 'OK',
+            'data' => array(
+                'payment' => $payment,
+                'organisation' => $org,
+                'plan' => $this->payfast_service->get_plan(isset($payment->plan_code) ? $payment->plan_code : null)
+            )
+        ));
     }
 
     public function initiate()
@@ -94,7 +126,7 @@ class Billing extends CI_Controller
 
         $plan = $this->payfast_service->get_plan($requested_plan_code);
 
-        if (!$this->config->item('payfast_merchant_id') || !$this->config->item('payfast_merchant_key')) {
+        if (!$this->payfast_service->get_setting('merchant_id') || !$this->payfast_service->get_setting('merchant_key')) {
             $this->regular->header_(500);
             $this->regular->respond(array('status' => 'ERROR', 'message' => array('PayFast merchant credentials are not configured')));
             return;
@@ -163,19 +195,33 @@ class Billing extends CI_Controller
             $post = $this->regular->decode('POST');
         }
 
+        $this->log_itn_audit('received', array(
+            'method' => $this->regular->request_method(),
+            'ip' => $this->input->ip_address(),
+            'payload' => $post
+        ));
+
         if (empty($post) || !isset($post['m_payment_id'])) {
+            $this->log_itn_audit('rejected_invalid_payload', array('payload' => $post));
             $this->output_itn_response(400, 'Invalid ITN payload');
             return;
         }
 
         $payment = $this->get_payment_by_id((int)$post['m_payment_id']);
         if (!$payment) {
+            $this->log_itn_audit('rejected_payment_not_found', array(
+                'payment_id' => isset($post['m_payment_id']) ? $post['m_payment_id'] : null
+            ));
             $this->output_itn_response(404, 'Payment not found');
             return;
         }
 
         $org = $this->get_organisation_by_id($payment->organisation_id);
         if (!$org) {
+            $this->log_itn_audit('rejected_organisation_not_found', array(
+                'payment_id' => $payment->id,
+                'organisation_id' => $payment->organisation_id
+            ));
             $this->output_itn_response(404, 'Organisation not found');
             return;
         }
@@ -188,7 +234,7 @@ class Billing extends CI_Controller
         $amount_valid = isset($post['amount_gross']) &&
             number_format((float)$post['amount_gross'], 2, '.', '') === number_format((float)$payment->amount_gross, 2, '.', '');
         $merchant_valid = isset($post['merchant_id']) &&
-            (string)$post['merchant_id'] === (string)$this->config->item('payfast_merchant_id');
+            (string)$post['merchant_id'] === (string)$this->payfast_service->get_setting('merchant_id');
         $reference_valid = isset($post['custom_str1']) &&
             (string)$post['custom_str1'] === (string)$payment->merchant_reference;
 
@@ -199,7 +245,7 @@ class Billing extends CI_Controller
         if (!$ip_valid) {
             $validation_errors[] = 'Invalid source IP';
         }
-        if (!$signature_valid && !$this->config->item('payfast_test_mode')) {
+        if (!$signature_valid && !$this->payfast_service->get_setting('test_mode')) {
             $validation_errors[] = 'Invalid signature';
         }
         if (!$amount_valid) {
@@ -214,6 +260,23 @@ class Billing extends CI_Controller
         if (!$confirm['bool']) {
             $validation_errors[] = 'PayFast confirmation failed: ' . $confirm['message'];
         }
+
+        $this->log_itn_audit('validation', array(
+            'payment_id' => $payment->id,
+            'organisation_id' => $org->id,
+            'status_from_payfast' => isset($post['payment_status']) ? $post['payment_status'] : null,
+            'normalised_status' => $normalised_status,
+            'checks' => array(
+                'ip_valid' => $ip_valid,
+                'signature_valid' => $signature_valid,
+                'amount_valid' => $amount_valid,
+                'merchant_valid' => $merchant_valid,
+                'reference_valid' => $reference_valid,
+                'confirm_valid' => $confirm['bool']
+            ),
+            'confirm_message' => $confirm['message'],
+            'validation_errors' => $validation_errors
+        ));
 
         $update_post = array(
             'payment_status' => !empty($validation_errors) ? 'invalid' : $normalised_status,
@@ -238,12 +301,23 @@ class Billing extends CI_Controller
         );
         $this->generic_model->update($params, $payment->id, $update_post, false);
 
+        $this->log_itn_audit('payment_updated', array(
+            'payment_id' => $payment->id,
+            'organisation_id' => $org->id,
+            'update' => $update_post
+        ));
+
         if (!empty($validation_errors)) {
             $this->create_event($org->id, $payment->id, 'payment_invalid', 'PayFast ITN rejected', array(
                 'errors' => $validation_errors,
                 'payload' => $post
             ));
             $this->send_payment_failure_email($org, $payment, implode('; ', $validation_errors));
+            $this->log_itn_audit('rejected_validation', array(
+                'payment_id' => $payment->id,
+                'organisation_id' => $org->id,
+                'validation_errors' => $validation_errors
+            ));
             $this->output_itn_response(200, 'ITN rejected');
             return;
         }
@@ -253,12 +327,22 @@ class Billing extends CI_Controller
                 $this->activate_subscription($org, $payment);
                 $this->create_event($org->id, $payment->id, 'payment_completed', 'PayFast payment confirmed', $post);
                 $this->send_payment_success_email($org, $payment);
+                $this->log_itn_audit('subscription_activated', array(
+                    'payment_id' => $payment->id,
+                    'organisation_id' => $org->id,
+                    'paid_until' => $payment->billing_date_to
+                ));
             }
             $this->output_itn_response(200, 'Payment processed');
             return;
         }
 
         $this->mark_payment_failed($org, $payment, $normalised_status, $post);
+        $this->log_itn_audit('payment_not_complete', array(
+            'payment_id' => $payment->id,
+            'organisation_id' => $org->id,
+            'normalised_status' => $normalised_status
+        ));
         $this->output_itn_response(200, 'Payment state recorded');
     }
 
@@ -387,7 +471,7 @@ class Billing extends CI_Controller
 
     protected function mark_payment_failed($org, $payment, $status, $payload)
     {
-        $grace_days = (int)$this->config->item('payfast_grace_period_days');
+        $grace_days = $this->payment_settings->get_grace_period_days();
         $grace_ends = date('Y-m-d H:i:s', strtotime('+' . $grace_days . ' days'));
         $sub_status = strtotime((string)$org->paid_until) > time() ? $org->subscription_status : 'past_due';
 
@@ -491,5 +575,52 @@ class Billing extends CI_Controller
 
         $this->load->library('db/switcher', array('account_name' => $account_name));
         $this->switcher->main_db();
+    }
+
+    protected function build_subscription_summary($org)
+    {
+        $now = time();
+        $paid_until_ts = !empty($org->paid_until) ? strtotime($org->paid_until) : false;
+        $grace_end_ts = !empty($org->grace_period_ends_at) ? strtotime($org->grace_period_ends_at) : false;
+        $grace_days = $this->payment_settings->get_grace_period_days();
+        $status = isset($org->subscription_status) ? $org->subscription_status : 'trial';
+
+        if ($paid_until_ts && !$grace_end_ts) {
+            $grace_end_ts = strtotime('+' . $grace_days . ' days', $paid_until_ts);
+        }
+
+        $has_paid_access = $paid_until_ts && $paid_until_ts > $now;
+        $in_grace_period = !$has_paid_access && $grace_end_ts && $grace_end_ts > $now;
+
+        if ($has_paid_access) {
+            $status = 'active';
+        } elseif ($in_grace_period) {
+            $status = 'grace_period';
+        } elseif ($paid_until_ts && $paid_until_ts <= $now) {
+            $status = 'expired';
+        }
+
+        $message = 'Subscription payment is available.';
+        if ($has_paid_access) {
+            $message = 'Your subscription is active. Payment will be available again after the current paid period ends.';
+        } elseif ($in_grace_period) {
+            $message = 'Your subscription has ended. You are currently in the grace period and can renew at any time.';
+        } elseif ($status === 'expired') {
+            $message = 'Your subscription and grace period have ended. Renew now to restore full access.';
+        }
+
+        return array(
+            'status' => $status,
+            'grace_period_ends_at' => $grace_end_ts ? date('Y-m-d H:i:s', $grace_end_ts) : null,
+            'can_pay' => !$has_paid_access,
+            'has_paid_access' => (bool)$has_paid_access,
+            'access_message' => $message
+        );
+    }
+
+    protected function log_itn_audit($stage, $context = array())
+    {
+        $prefix = $this->payfast_service->get_setting('test_mode') ? 'PAYFAST_SANDBOX_ITN' : 'PAYFAST_PROD_ITN';
+        log_message('error', $prefix . ' ' . $stage . ' ' . json_encode($context));
     }
 }

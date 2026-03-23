@@ -9,15 +9,25 @@ class Payfast_service
     public function __construct()
     {
         $this->CI = &get_instance();
+        $this->CI->load->library('payment_settings');
+        $settings = $this->CI->payment_settings->get();
         $this->config = array(
-            'merchant_id' => (string)$this->CI->config->item('payfast_merchant_id'),
-            'merchant_key' => (string)$this->CI->config->item('payfast_merchant_key'),
-            'passphrase' => (string)$this->CI->config->item('payfast_passphrase'),
-            'test_mode' => (bool)$this->CI->config->item('payfast_test_mode'),
-            'plans' => (array)$this->CI->config->item('payfast_plans'),
-            'plan' => (array)$this->CI->config->item('payfast_plan'),
-            'valid_hosts' => (array)$this->CI->config->item('payfast_itn_valid_hosts')
+            'merchant_id' => (string)$settings['merchant_id'],
+            'merchant_key' => (string)$settings['merchant_key'],
+            'passphrase' => (string)$settings['passphrase'],
+            'test_mode' => (bool)$settings['test_mode'],
+            'debug_email' => (string)$settings['debug_email'],
+            'plans' => (array)$settings['plans'],
+            'plan' => isset($settings['default_plan_code'], $settings['plans'][$settings['default_plan_code']])
+                ? (array)$settings['plans'][$settings['default_plan_code']]
+                : array(),
+            'valid_hosts' => (array)$settings['itn_valid_hosts']
         );
+    }
+
+    public function get_setting($key, $default = null)
+    {
+        return array_key_exists($key, $this->config) ? $this->config[$key] : $default;
     }
 
     public function get_plans()
@@ -134,8 +144,8 @@ class Payfast_service
 
         if ($this->config['test_mode']) {
             $fields['email_confirmation'] = 1;
-            if ($this->CI->config->item('payfast_debug_email')) {
-                $fields['confirmation_address'] = $this->CI->config->item('payfast_debug_email');
+            if (!empty($this->config['debug_email'])) {
+                $fields['confirmation_address'] = $this->config['debug_email'];
             }
         }
 

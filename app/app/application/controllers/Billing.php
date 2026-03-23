@@ -106,4 +106,34 @@ class Billing extends CI_Controller
 
         redirect('billing');
     }
+
+    public function invoice($payment_id = null)
+    {
+        if (empty($payment_id) || !is_numeric($payment_id)) {
+            $this->session->set_flashdata('billing_flash_type', 'danger');
+            $this->session->set_flashdata('billing_flash_message', 'Invalid payment invoice requested.');
+            redirect('billing');
+            return;
+        }
+
+        $response = $this->curl->rest_api_call('GET', 'billing/invoice/' . (int)$payment_id);
+        if (!isset($response['status']) || $response['status'] !== 'OK' || empty($response['data']['payment'])) {
+            $message = 'Unable to download payment invoice.';
+            if (isset($response['message']) && is_array($response['message'])) {
+                $message = implode(' ', $response['message']);
+            }
+
+            $this->session->set_flashdata('billing_flash_type', 'danger');
+            $this->session->set_flashdata('billing_flash_message', $message);
+            redirect('billing');
+            return;
+        }
+
+        $data = $response['data'];
+        $html = $this->load->view('billing/invoice_pdf', $data, true);
+
+        $filename = 'payment-invoice-' . (!empty($data['payment']['merchant_reference']) ? $data['payment']['merchant_reference'] : $payment_id) . '.pdf';
+        $this->load->library('pdf');
+        $this->pdf->create($html, $filename);
+    }
 }

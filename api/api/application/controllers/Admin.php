@@ -7,6 +7,7 @@ class Admin extends CI_Controller
     {
         parent::__construct();
         $this->load->library('userhandler');
+        $this->load->library('payment_settings');
 
         // Security Check: Only allow "Super Admin"
         // For Proof of Concept, we check a specific email or use a hardcoded token mechanism
@@ -21,7 +22,11 @@ class Admin extends CI_Controller
 
         // Hardcoded Owner Email check for safety in this demo
         // Replace 'owner@boostaccounting.com' with the actual owner email from the DB or a config
-        if ($user_data['data']->email !== 'babu313136@gmail.com' && $user_data['data']->email !== 'admin@boostaccounting.com') {
+        if (
+            $user_data['data']->email !== 'babu313137@gmail.com' &&
+            $user_data['data']->email !== 'babu313136@gmail.com' &&
+            $user_data['data']->email !== 'admin@boostaccounting.com'
+        ) {
             $this->regular->header_(403);
             $this->regular->respond(['status' => 'ERROR', 'message' => ['Forbidden: Super Admin Access Only']]);
             die();
@@ -168,5 +173,42 @@ class Admin extends CI_Controller
             $this->regular->header_(500);
             $this->regular->respond(['status' => 'ERROR', 'message' => ['Update failed']]);
         }
+    }
+
+    public function payment_settings()
+    {
+        $method = strtoupper($this->regular->request_method());
+
+        if ($method === 'GET') {
+            $this->regular->respond(array(
+                'status' => 'OK',
+                'data' => $this->payment_settings->get()
+            ));
+            return;
+        }
+
+        if ($method === 'POST' || $method === 'PUT') {
+            $payload = $this->regular->decode($method);
+            if (!is_array($payload) || empty($payload)) {
+                $payload = $this->input->post(NULL, true);
+            }
+            if (!is_array($payload)) {
+                $payload = json_decode(file_get_contents('php://input'), true);
+            }
+            if (!is_array($payload)) {
+                $payload = array();
+            }
+
+            $saved = $this->payment_settings->save($payload);
+            $this->regular->respond(array(
+                'status' => 'OK',
+                'message' => array('Payment settings updated successfully'),
+                'data' => $saved
+            ));
+            return;
+        }
+
+        $this->regular->header_(405);
+        $this->regular->respond(array('status' => 'ERROR', 'message' => array('Method not allowed')));
     }
 }

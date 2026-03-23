@@ -86,6 +86,7 @@ $config['payfast_merchant_key'] = '3svxw4eas1vel';
 $config['payfast_passphrase'] = 'boostaccounting';
 $config['payfast_test_mode'] = true;
 $config['payfast_debug_email'] = 'news@boostaccounting.com';
+$config['payfast_trial_days'] = 45;
 $config['payfast_plans'] = array(
     'boost-monthly' => array(
         'code' => 'boost-monthly',
@@ -112,7 +113,7 @@ $config['payfast_plan'] = array(
     'currency' => 'ZAR',
     'cycle_days' => 30
 );
-$config['payfast_grace_period_days'] = 3;
+$config['payfast_grace_period_days'] = 7;
 $config['payfast_itn_valid_hosts'] = array(
     'www.payfast.co.za',
     'sandbox.payfast.co.za',

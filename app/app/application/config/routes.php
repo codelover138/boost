@@ -60,11 +60,13 @@ $route['contacts/(:num)'] = "contacts/preview/$1";
 $route['documents/(:any)'] = "documents/index/$1";
 $route['billing'] = "billing/index";
 $route['billing/pay'] = "billing/pay";
+$route['billing/invoice/(:num)'] = "billing/invoice/$1";
 $route['billing/complete/(:any)/(:num)'] = "billing/complete/$1/$2";
 $route['reports/download/excel'] = 'reports/download_excel';
 $route['reports/download/pdf'] = 'reports/download_pdf';
 
 $route['admin/workspaces'] = 'Admin/workspaces';
+$route['admin/payment-settings'] = 'Admin/payment_settings';
 $route['admin/users/(:num)'] = 'Admin/users/$1';
 $route['admin/block/(:num)'] = 'Admin/block/$1';
 $route['admin/unblock/(:num)'] = 'Admin/unblock/$1';

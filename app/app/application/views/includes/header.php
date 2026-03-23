@@ -107,6 +107,11 @@ else: ?>
                             Workspace
                         </a>
                     </li>
+                    <li class="dropdown">
+                        <a href="<?php echo base_url('admin/payment-settings'); ?>">
+                            Payment Settings
+                        </a>
+                    </li>
                     <?php
 endif; ?>
 
