@@ -308,6 +308,10 @@ function initImageModal(t) {
         $("#image_modal .modal-body").html('<img class="modal_preview_image" src="' + e.src + '"/>')
     }
     ,
+    e.onerror = function() {
+        $("#image_modal .modal-body").html('<p class="text-muted">Unable to load attachment.</p>')
+    }
+    ,
     e.src = $(t.currentTarget).data("base64_data") ? $(t.currentTarget).data("base64_data") : t.currentTarget.href
 }
 function ajaxErrorActions(t, e, i, n) {
@@ -900,6 +904,13 @@ function setReminderValues(t) {
 }
 function saveFormData(form) {
     $(form).find("saveFormData").attr("disabled", "disabled");
+    if (form.length && form[0] && typeof form[0].checkValidity === "function" && !form[0].checkValidity()) {
+        $(form).find(".saveFormData").removeAttr("disabled");
+        $(form).find(".saveFormData").removeClass("loader");
+        if (typeof form[0].reportValidity === "function")
+            form[0].reportValidity();
+        return;
+    }
     var url = form.attr("action")
       , method = form.attr("method")
       , inputsObj = JSON.stringify(convertInputsToObject(form));

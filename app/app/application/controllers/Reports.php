@@ -43,6 +43,7 @@ class Reports extends CI_Controller{
 		$data['activity']['heading'] = 'Business Report';
 		if(empty($month)) $month = $this->input->get('month');
        if(empty($year))  $year = $this->input->get('year');
+		if(empty($month) && empty($year)) $month = date('Y-m');
 		$query=!empty($month) ? $month :$year;
 		$result = $this->curl->rest_api_call('GET', 'api_rest/reports/'.$query);
 		

@@ -2,6 +2,7 @@
 $start_date = date("Y-m-d",strtotime($request['filters']['formatted_start_date']));
 $end_date = date("Y-m-d",strtotime($request['filters']['formatted_end_date']));
 $totals = $request['statements']['totals'];
+$currency_symbol = $request['currency_symbol'];
 //var_dump($totals);
 ?>
 
@@ -226,17 +227,17 @@ $totals = $request['statements']['totals'];
                 <td></td>
                 <td></td>
                 <td></td>
-                <td><?php 
-					
-					if(($totals['invoices'] - $totals['payments'] - $totals['credit_note']) >=0){
-						echo $currency_symbol.number_format(($totals['invoices'] - $totals['payments'] - $totals['credit_note']),2,'.',','); 
+                <td><?php
+					$account_balance = isset($totals['account_balance']) ? $totals['account_balance'] : ($totals['invoices'] - $totals['payments'] - $totals['credit_note']);
+					if($account_balance >= 0){
+						echo $currency_symbol.number_format($account_balance,2,'.',',');
 					}else{
-						echo '('.$currency_symbol.number_format(($totals['invoices'] - $totals['payments'] - $totals['credit_note'])*-1,2,'.',',').')'; 
+						echo '('.$currency_symbol.number_format($account_balance*-1,2,'.',',').')';
 					}
 					//var_dump($totals);
 					?>
-                    
-                </td>                   
+
+                </td>
               </tr>
               <tr class="table_break">
                 <td colspan="5"></td>                 

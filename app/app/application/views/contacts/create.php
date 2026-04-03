@@ -37,7 +37,7 @@
               <div class="form-group col-xs-12 col-sm-6">
                 <label for="organisation" class="control-label pull-left-sm clear-left-sm">Company Name</label>
                 <div class="col-sm-9 pull-right-sm no-gutter-xs">
-                     <input type="text" class="form-control" name="organisation" id="organisation" placeholder="Company Name">
+                     <input type="text" class="form-control" name="organisation" id="organisation" placeholder="Company Name" required>
                 </div>
               </div>
               
@@ -102,7 +102,7 @@
             <div class="form-group col-xs-12 col-sm-6">
                 <label for="email" class="control-label pull-left-sm clear-left-sm">Email Address</label>
                 <div class="col-sm-9 pull-right-sm no-gutter-xs">
-                     <input type="text" class="form-control" name="email" id="email" placeholder="Email Address">
+                     <input type="email" class="form-control" name="email" id="email" placeholder="Email Address" required>
                 </div>
             </div>
               

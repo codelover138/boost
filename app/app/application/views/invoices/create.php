@@ -31,7 +31,7 @@ $base_currency_data = $request['data'][$base_currency_id];
           <div class="form-group col-xs-12 col-sm-6  pull-right-sm clear-right-sm">
             <label for="date" class="control-label pull-left-sm">Date</label>
             <div class="col-sm-9  pull-right-sm no-gutter-xs">
-                <input type="text" class="form-control datepicker" name="date" id="date" value="<?php echo date("d M Y"); ?>">
+                <input type="text" class="form-control datepicker" name="date" id="date" value="<?php echo date("Y-m-d"); ?>">
             </div>
           </div>  
                             
@@ -68,7 +68,7 @@ $base_currency_data = $request['data'][$base_currency_id];
           <div class="form-group col-xs-12 col-sm-6  pull-right-sm clear-right-sm">
             <label for="due_date" class="control-label pull-left-sm">Due Date</label>
             <div class="col-sm-9  pull-right-sm  no-gutter-xs">
-                <input type="text" class="form-control datepicker" name="due_date" id="due_date"  value="<?php echo date("d M Y",strtotime("+7 day")); ?>">
+                <input type="text" class="form-control datepicker" name="due_date" id="due_date"  value="<?php echo date("Y-m-d",strtotime("+7 day")); ?>">
             </div>
           </div>  
           

@@ -99,6 +99,13 @@ class Template_model extends CI_Model
             $params['where']['bi.id'] = $identifier;
         endif;*/
 
+        # merge any additional where conditions passed in (e.g. overdue date filter)
+        if (isset($local_params['where'])) :
+            foreach ($local_params['where'] as $key => $value) :
+                $params['where'][$key] = $value;
+            endforeach;
+        endif;
+
         # where in
         if (isset($local_params['where_in'])) :
             $params['where_in']['field'] = 'bi.' . $local_params['where_in']['field'];
@@ -207,6 +214,13 @@ class Template_model extends CI_Model
     {
         		
 		$return = array('bool'=>false);
+
+        $item_validation = $this->validate_items($post, $params['entity']);
+        if (!$item_validation['bool']) {
+            $return['message'] = $item_validation['message'];
+            $return['validation_results'] = $this->validation_results;
+            return $return;
+        }
 
         $this->load->library('finance');
         $calculated = $this->finance->calculate_amounts($post);
@@ -448,6 +462,48 @@ class Template_model extends CI_Model
         return $return_post;
     }
 
+    public function validate_items($post, $entity = 'document')
+    {
+        $result = array(
+            'bool' => true,
+            'message' => array()
+        );
+
+        if (!isset($post['items']) || !is_array($post['items']) || empty($post['items'])) {
+            $this->validation_results['items'] = 'Please add ' . $entity . ' items.';
+            $result['bool'] = false;
+            $result['message'][] = 'Please add at least one item.';
+            return $result;
+        }
+
+        foreach ($post['items'] as $index => $item) {
+            $item_name = isset($item['item_name']) ? trim((string)$item['item_name']) : '';
+            $description = isset($item['description']) ? trim((string)$item['description']) : '';
+            $quantity = isset($item['quantity']) ? trim((string)$item['quantity']) : '';
+            $rate = isset($item['rate']) ? trim((string)$item['rate']) : '';
+
+            if ($item_name === '' && $description === '' && $quantity === '0' && $rate === '0') {
+                continue;
+            }
+
+            if ($quantity === '' || !is_numeric($quantity) || (float)$quantity <= 0) {
+                $this->validation_results['items'][$index]['quantity'] = 'Quantity must be greater than 0.';
+                $result['bool'] = false;
+            }
+
+            if ($rate === '' || !is_numeric($rate) || (float)$rate < 0) {
+                $this->validation_results['items'][$index]['rate'] = 'Rate must be 0 or greater.';
+                $result['bool'] = false;
+            }
+        }
+
+        if (!$result['bool']) {
+            $result['message'][] = 'Please correct the invoice item quantities or rates.';
+        }
+
+        return $result;
+    }
+
     public function update($params, $id, $post)
     {
         $table = $params['table'];
@@ -479,6 +535,15 @@ class Template_model extends CI_Model
             {
                 $single_update = $post['single_update'];
                 unset($post['single_update']);
+            }
+
+            if (!$single_update) {
+                $item_validation = $this->validate_items($post, $params['entity']);
+                if (!$item_validation['bool']) {
+                    $result['message'] = $item_validation['message'];
+                    $result['validation_results'] = $this->validation_results;
+                    return $result;
+                }
             }
 
             $calculated = false;

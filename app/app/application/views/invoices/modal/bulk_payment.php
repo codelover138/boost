@@ -90,7 +90,7 @@
                                 <label for="data[<?php echo $count; ?>]['payment_date']" class="control-label">Date:</label>
                             </div>
                             <div class="col-sm-9 form-group">
-                               <input name="data[<?php echo $count; ?>]['payment_date']" class="form-control datepicker" id="data[<?php echo $count; ?>]['payment_date']" value="<?php echo date("d M Y"); ?>">        
+                               <input name="data[<?php echo $count; ?>]['payment_date']" class="form-control datepicker" id="data[<?php echo $count; ?>]['payment_date']" value="<?php echo date("Y-m-d"); ?>">        
                             </div>
                             
                             <div class="col-sm-3 form-group">

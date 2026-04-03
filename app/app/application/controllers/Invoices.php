@@ -76,14 +76,20 @@ class Invoices extends CI_Controller{
 		
 		$send_data = array();
 
+		$status_filter = $this->input->get('status');
+		if ($status_filter == 'overdue') {
+			$send_data['where_in'] = array('field' => 'status', 'values' => array('sent', 'viewed', 'partial'));
+			$send_data['where'] = array('bi.due_date <' => date('Y-m-d'));
+		}
+
 		$data['request'] = $this->curl->api_call('GET', 'invoices/'.$order_by.'/'.$direction.'/'.$results_per_page.'/'.$starting_record, $send_data);
 
-		//reformat pagination data		
+		//reformat pagination data
 		$data['pagination_data'] = $this->pagination_custom->reformat($data['request']['pagination']);
-		
+
 		//this define page data
-		$data['page']['title'] = 'Invoices';
-		$data['page']['heading'] = 'Invoices';
+		$data['page']['title'] = ($status_filter == 'overdue') ? 'Overdue Invoices' : 'Invoices';
+		$data['page']['heading'] = ($status_filter == 'overdue') ? 'Overdue Invoices' : 'Invoices';
 		$data['page']['main_view'] = 'invoices/list';
 		$data['page']['header_button_view'] = 'invoices/sub_header_buttons/list';
 		

@@ -263,7 +263,7 @@ for (let i = 11; i >= 0; i--) {
                 <i class="fa fa-exclamation-triangle text-red-500 fa-md"></i> <span><b> &nbsp; Overdue
                         Invoices</b></span>
 
-                <a href="<?php echo base_url('contacts'); ?>" class="mt-2">
+                <a href="<?php echo base_url('invoices?status=overdue'); ?>" class="mt-2">
                     <h2
                         class="mb-2 mt-4 text-4xl font-semibold tracking-tight text-gray-900 dark:text-white text-center">
                         <?php echo (isset($get_unpaid_invoices_count) ? $get_unpaid_invoices_count : 'Data not available'); ?>

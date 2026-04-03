@@ -141,6 +141,14 @@ class Statements
         $headers = $this->CI->regular->get_request_headers();
         if(isset($headers['Auth'])) $this->params['account_name'] = $headers['Account-Name'];
 
+        # Validate email address before attempting to send
+        $this->CI->load->helper('email');
+        $contact_email = isset($inputs['post']['contact_email']) ? $inputs['post']['contact_email'] : '';
+        if (!valid_email($contact_email)) {
+            $return['message'][] = 'A valid email address is required to send a statement.';
+            return $return;
+        }
+
         # Check for filters array
         $filters = array();
         if(isset($inputs['post']['filters'])) {
@@ -153,7 +161,7 @@ class Statements
         $this->params['entity'] = 'statement';
         $this->params['entity_id'] = $inputs['id'];
         $this->params['subject'] = $inputs['post']['subject'];
-        $this->params['contact_email'] = $inputs['post']['contact_email'];
+        $this->params['contact_email'] = $contact_email;
         $this->params['message_body'] = $inputs['post']['message_body'];
 
         $result = $this->CI->messaging->send_email2($this->params);

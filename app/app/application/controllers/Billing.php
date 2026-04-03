@@ -107,6 +107,52 @@ class Billing extends CI_Controller
         redirect('billing');
     }
 
+    public function change_plan()
+    {
+        $plan_code = trim((string)$this->input->post('plan_code', true));
+        if ($plan_code === '') {
+            $this->session->set_flashdata('billing_flash_type', 'danger');
+            $this->session->set_flashdata('billing_flash_message', 'Please choose a billing cycle first.');
+            redirect('billing');
+            return;
+        }
+
+        $response = $this->curl->rest_api_call('POST', 'billing/change_plan', array(
+            'plan_code' => $plan_code
+        ));
+
+        $flash_type = isset($response['status']) && $response['status'] === 'OK' ? 'success' : 'danger';
+        $message = isset($response['status']) && $response['status'] === 'OK'
+            ? 'Your plan change has been scheduled.'
+            : 'Unable to update your billing cycle.';
+
+        if (isset($response['message']) && is_array($response['message']) && !empty($response['message'])) {
+            $message = implode(' ', $response['message']);
+        }
+
+        $this->session->set_flashdata('billing_flash_type', $flash_type);
+        $this->session->set_flashdata('billing_flash_message', $message);
+        redirect('billing');
+    }
+
+    public function cancel_subscription()
+    {
+        $response = $this->curl->rest_api_call('POST', 'billing/cancel');
+
+        $flash_type = isset($response['status']) && $response['status'] === 'OK' ? 'success' : 'danger';
+        $message = isset($response['status']) && $response['status'] === 'OK'
+            ? 'Your subscription has been updated.'
+            : 'Unable to cancel your subscription.';
+
+        if (isset($response['message']) && is_array($response['message']) && !empty($response['message'])) {
+            $message = implode(' ', $response['message']);
+        }
+
+        $this->session->set_flashdata('billing_flash_type', $flash_type);
+        $this->session->set_flashdata('billing_flash_message', $message);
+        redirect('billing');
+    }
+
     public function invoice($payment_id = null)
     {
         if (empty($payment_id) || !is_numeric($payment_id)) {

@@ -9,10 +9,12 @@
         <button  aria-expanded="false" role="button" aria-haspopup="true" data-toggle="dropdown" class="btn btn-default btn-lg pull-right" type="button" href="#">
           Actions &nbsp; &nbsp; +
         </button>
-        <ul class="dropdown-menu right-aligned-arrow" role="menu">       	
-            <li><a href="<?php echo base_url('contacts/edit/'.$id); ?>">Edit</a></li>                      
+        <ul class="dropdown-menu right-aligned-arrow" role="menu">
+            <li><a href="<?php echo base_url('contacts/edit/'.$id); ?>">Edit</a></li>
+            <?php if ($instance_data['contact_type'] == 'client'): ?>
             <li><a href="<?php echo base_url('contacts/statements/'.$id); ?>">View Statement</a></li>
-            <li><a href="<?php echo base_url('contacts/modal/send/'.$id); ?>" class="open-modal" data-redirect-url="<?php echo base_url('invoices/'.$id); ?>"  data-redirect-without-id="true">Send Statement</a></li>             
+            <li><a href="<?php echo base_url('contacts/modal/send/'.$id); ?>" class="open-modal" data-redirect-url="<?php echo base_url('invoices/'.$id); ?>"  data-redirect-without-id="true">Send Statement</a></li>
+            <?php endif; ?>
         </ul>        
     </li>
    <?php 

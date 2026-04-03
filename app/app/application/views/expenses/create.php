@@ -21,7 +21,7 @@ $currency_data = $currencies[$currency_id];
             <label for="supplier_id" class="control-label pull-left-sm clear-left-sm">Vendor</label>
             <div class="col-sm-9 pull-right-sm no-gutter-xs">            
 				<?php 
-                 	$contact_data['contacts'] = $request['contact_types'][2];
+                 	$contact_data['contacts'] = $request['contact_types'][2] ?? [];
 					$contact_data['type'] = 'supplier';
 					//$contact_data['current_id'] = @$invoice_data['contact']['id'];
                     $this->load->view('global_snippets/select_contact',$contact_data);  
@@ -32,7 +32,7 @@ $currency_data = $currencies[$currency_id];
           <div class="form-group col-xs-12 col-sm-6  pull-right-sm clear-right-sm">
             <label for="date" class="control-label pull-left-sm">Date</label>
             <div class="col-sm-9  pull-right-sm no-gutter-xs">
-                <input type="text" class="form-control datepicker" name="date" id="date" value="<?php echo date("Y-m-d"); ?>">
+                <input type="text" class="form-control datepicker" name="date" id="date" value="<?php echo date("d M Y"); ?>">
             </div>
           </div>  
                             
@@ -89,7 +89,7 @@ $currency_data = $currencies[$currency_id];
             <label for="contact_id" class="control-label pull-left-sm clear-left-sm">Client</label>
             <div class="col-sm-9 pull-right-sm no-gutter-xs">            
 				<?php 
-                 	$contact_data['contacts'] = $request['contact_types'][1];
+                 	$contact_data['contacts'] = $request['contact_types'][1] ?? [];
 					$contact_data['type'] = 'client';
                     $this->load->view('global_snippets/select_contact',$contact_data);  
                 ?>
@@ -127,9 +127,6 @@ $currency_data = $currencies[$currency_id];
                     <input class="upload_button" id="recieptFile" type="file" name="file_name" size="40" >
                 </div>
                <div class="reciept_preview_container pull-left">
-                	<?php if($document_data['file_name']){  ?>
-                	 <a id="view_reciept" class="action_links openImageModal" href="<?php echo $document_data['file_name']; ?>" target="_blank">View</a> <span class="action_links" >|</span> <a id="remove_reciept" class="action_links" href="#">Remove</a>
-                	 <?php }  ?>
                 </div>
             </div>
           </div> 

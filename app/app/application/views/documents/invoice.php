@@ -9,6 +9,10 @@
 	$client_data = $data['contact'];
 	$items = $data['items'];
 	$protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"], 0, strpos($_SERVER["SERVER_PROTOCOL"], '/'))) . '://';
+    $amount_due = isset($data['amount_outstanding'])
+        ? (float)$data['amount_outstanding']
+        : max(0, (float)$data['total_amount'] - (float)$data['amount_paid'] - (float)$data['credit_notes_total']);
+    $amount_due = max(0, $amount_due);
 	
 	$temp_status = strtolower($data['status']);
 	
@@ -87,7 +91,7 @@
                     <div><strong>Invoice date: </strong><?php echo $data['date']; ?></div>
                     <div><strong>Due date: </strong><?php echo $data['due_date']; ?></div>
                     <div><strong>Reference: </strong><?php echo $data['reference']; ?></div>
-                    <div><strong>Amount due: </strong> <?php echo $data['currency_symbol']; ?><?php echo number_format($data['total_amount'],2,'.',','); ?></div>
+                    <div><strong>Amount due: </strong> <?php echo $data['currency_symbol']; ?><?php echo number_format($amount_due,2,'.',','); ?></div>
                </div>
        
       <div class="clearfix formSpacer"></div>

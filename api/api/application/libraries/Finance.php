@@ -338,21 +338,7 @@ class Finance
             $return['estimates'] = $overall_estimates;
         }
 
-        $credit_used_on_invoice = 0;
-        if (!is_null($invoice_id)) {
-            $credit_used_on_invoice = $this->calculate_credit($contact_id, $invoice_id, 'neg');
-        }
-
         $return['outstanding'] = ($overall_invoices - $overall_payments) - $overall_credit_notes;
-		//echo 'outstanding1='.$return['outstanding'];
-        # subtracts credit from oustanding amount only if the outastanding amount is positive
-        if ($return['outstanding'] >= 0) :
-            $return['outstanding'] += $credit_used_on_invoice;
-        endif;
-		
-		//echo 'outstanding2='.$return['outstanding'];
-		//echo 'credit_used_on_invoice='.$credit_used_on_invoice;
-		//exit;
 
         foreach ($return as $key => $value) :
             $return[$key] = round($value, 2);

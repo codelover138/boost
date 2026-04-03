@@ -217,22 +217,23 @@ class Statements_model extends CI_Model
 
     public function totals($contact_id, $filters = array())
     {
-        # All
-        $totals_to_date = $this->calculate_totals($contact_id, array('end_date'=>$filters['end_date']));
+        # All time up to end_date (for account balance and balance brought forward)
+        $end_date_filter = array('end_date' => isset($filters['end_date']) ? $filters['end_date'] : null);
+        $totals_to_date = $this->calculate_totals($contact_id, $end_date_filter);
         $total_to_date = $totals_to_date['invoices'] - $totals_to_date['payments'] - $totals_to_date['credit_note'];
-
-        $totals = $totals_to_date;
 
         /*-------------------------------------------------------------------*/
 
-        //if(isset($filters['start_date'])) unset($filters['start_date']);
         if(!isset($filters['end_date'])) $filters['end_date'] = current_datetime();
 
+        # Filtered period totals (for Invoiced Total and Paid Total rows)
         $filtered_totals = $this->calculate_totals($contact_id, $filters);
 
         $ft = $filtered_totals['invoices'] - $filtered_totals['payments'] - $filtered_totals['credit_note'];
 
+        $totals = $filtered_totals;
         $totals['balance_brought_forward'] = $total_to_date - $ft;
+        $totals['account_balance'] = $total_to_date;
 
         return $totals;
     }

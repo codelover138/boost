@@ -44,7 +44,7 @@ $currency_data = $currencies[$currency_id];
                 	<label for="expense_date" class="control-label">Date</label>
                 </div>
                 <div class="col-sm-8">
-                     <input name="date" class="form-control datepicker" id="expense_date" value="<?php echo date("d M Y"); ?>">
+                     <input name="date" class="form-control datepicker" id="expense_date" value="<?php echo date("Y-m-d"); ?>">
                 </div>
             </div>
             

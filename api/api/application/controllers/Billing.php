@@ -44,10 +44,12 @@ class Billing extends CI_Controller
     {
         $org = $this->get_current_organisation();
         $latest_payment = $this->get_latest_payment($org->id);
+        $latest_completed_payment = $this->get_latest_completed_payment($org->id);
+        $current_plan_code = $this->resolve_current_plan_code($org, $latest_completed_payment);
         $summary = $this->build_subscription_summary($org);
 
         $response = array(
-            'plan' => $this->payfast_service->get_plan(),
+            'plan' => $this->payfast_service->get_plan($current_plan_code),
             'plans' => $this->payfast_service->get_plans(),
             'subscription' => array(
                 'status' => $summary['status'],
@@ -56,8 +58,17 @@ class Billing extends CI_Controller
                 'grace_period_ends_at' => $summary['grace_period_ends_at'],
                 'is_manual_blocked' => (int)$org->is_manual_blocked,
                 'can_pay' => $summary['can_pay'],
+                'can_cancel' => $summary['can_cancel'],
+                'can_change_plan' => $summary['can_change_plan'],
                 'has_paid_access' => $summary['has_paid_access'],
-                'access_message' => $summary['access_message']
+                'access_message' => $summary['access_message'],
+                'current_plan_code' => $current_plan_code,
+                'current_plan' => $this->payfast_service->get_plan($current_plan_code),
+                'pending_plan_code' => !empty($org->pending_plan_code) ? $org->pending_plan_code : null,
+                'pending_plan' => !empty($org->pending_plan_code) ? $this->payfast_service->get_plan($org->pending_plan_code) : null,
+                'cancel_at_period_end' => !empty($org->cancel_at_period_end) ? 1 : 0,
+                'cancellation_requested_at' => !empty($org->cancellation_requested_at) ? $org->cancellation_requested_at : null,
+                'plan_change_effective_at' => $summary['plan_change_effective_at']
             ),
             'latest_payment' => $latest_payment,
             'history' => $this->get_payment_history($org->id, 10)
@@ -115,8 +126,18 @@ class Billing extends CI_Controller
         }
 
         $org = $this->get_current_organisation();
+        $summary = $this->build_subscription_summary($org);
         $user_data = $this->userhandler->determine_user();
         $requested_plan_code = isset($request['plan_code']) ? trim((string)$request['plan_code']) : '';
+
+        if ($summary['has_paid_access']) {
+            $this->regular->header_(409);
+            $this->regular->respond(array(
+                'status' => 'ERROR',
+                'message' => array('Your subscription is still active. Use the plan change action to switch billing cycles for the next renewal.')
+            ));
+            return;
+        }
 
         if ($requested_plan_code !== '' && !$this->payfast_service->has_plan($requested_plan_code)) {
             $this->regular->header_(400);
@@ -186,6 +207,155 @@ class Billing extends CI_Controller
                 'fields' => $fields
             )
         ));
+    }
+
+    public function change_plan()
+    {
+        if ($this->regular->request_method() !== 'POST') {
+            $this->regular->header_(405);
+            $this->regular->respond(array('status' => 'ERROR', 'message' => array('POST required')));
+            return;
+        }
+
+        $request = $this->regular->decode('POST');
+        if (!is_array($request)) {
+            $request = array();
+        }
+
+        $requested_plan_code = isset($request['plan_code']) ? trim((string)$request['plan_code']) : '';
+        if ($requested_plan_code === '' || !$this->payfast_service->has_plan($requested_plan_code)) {
+            $this->regular->header_(400);
+            $this->regular->respond(array('status' => 'ERROR', 'message' => array('Invalid subscription plan selected')));
+            return;
+        }
+
+        $org = $this->get_current_organisation();
+        $summary = $this->build_subscription_summary($org);
+        if (!$summary['has_paid_access']) {
+            $this->regular->header_(409);
+            $this->regular->respond(array(
+                'status' => 'ERROR',
+                'message' => array('There is no active paid subscription to change. Start a payment instead.')
+            ));
+            return;
+        }
+
+        $current_plan_code = $this->resolve_current_plan_code($org);
+        if ($requested_plan_code === $current_plan_code && empty($org->pending_plan_code)) {
+            $this->regular->header_(409);
+            $this->regular->respond(array(
+                'status' => 'ERROR',
+                'message' => array('This billing cycle is already active for your workspace.')
+            ));
+            return;
+        }
+
+        if (!empty($org->pending_plan_code) && $requested_plan_code === $org->pending_plan_code) {
+            $this->regular->header_(409);
+            $this->regular->respond(array(
+                'status' => 'ERROR',
+                'message' => array('This billing cycle is already scheduled for your next renewal.')
+            ));
+            return;
+        }
+
+        $this->switch_to_main_db($org->account_name);
+        $params = array(
+            'table' => $this->table_prefix . 'organisations',
+            'entity' => 'organisation'
+        );
+
+        $revert_to_current_plan = $requested_plan_code === $current_plan_code;
+
+        $update = array(
+            'pending_plan_code' => $revert_to_current_plan ? null : $requested_plan_code,
+            'cancel_at_period_end' => 0,
+            'cancellation_requested_at' => null
+        );
+
+        if (isset($org->subscription_status) && $org->subscription_status === 'cancelled') {
+            $update['subscription_status'] = 'active';
+        }
+
+        $this->generic_model->update($params, $org->id, $update, false);
+        if ($revert_to_current_plan) {
+            $this->create_event($org->id, null, 'plan_change_reverted', 'Scheduled plan change removed', array(
+                'plan_code' => $current_plan_code
+            ));
+
+            $current_plan = $this->payfast_service->get_plan($current_plan_code);
+            $this->regular->respond(array(
+                'status' => 'OK',
+                'message' => array(
+                    'Your subscription will stay on ' . $current_plan['name'] . ' for the next renewal.'
+                )
+            ));
+            return;
+        }
+
+        $this->create_event($org->id, null, 'plan_change_scheduled', 'Subscription plan change scheduled', array(
+            'from_plan_code' => $current_plan_code,
+            'to_plan_code' => $requested_plan_code,
+            'effective_at' => $org->paid_until
+        ));
+
+        $next_plan = $this->payfast_service->get_plan($requested_plan_code);
+        $this->regular->respond(array(
+            'status' => 'OK',
+            'message' => array(
+                'Your subscription will switch to ' . $next_plan['name'] . ' when the current paid term ends.'
+            )
+        ));
+    }
+
+    public function cancel()
+    {
+        if ($this->regular->request_method() !== 'POST') {
+            $this->regular->header_(405);
+            $this->regular->respond(array('status' => 'ERROR', 'message' => array('POST required')));
+            return;
+        }
+
+        $org = $this->get_current_organisation();
+        $summary = $this->build_subscription_summary($org);
+
+        if ($summary['has_paid_access'] && !empty($org->cancel_at_period_end)) {
+            $this->regular->header_(409);
+            $this->regular->respond(array(
+                'status' => 'ERROR',
+                'message' => array('Cancellation is already scheduled for the end of the current billing period.')
+            ));
+            return;
+        }
+
+        $this->switch_to_main_db($org->account_name);
+        $params = array(
+            'table' => $this->table_prefix . 'organisations',
+            'entity' => 'organisation'
+        );
+
+        $update = array(
+            'subscription_status' => 'cancelled',
+            'pending_plan_code' => null
+        );
+
+        if ($summary['has_paid_access']) {
+            $update['cancel_at_period_end'] = 1;
+            $update['cancellation_requested_at'] = date('Y-m-d H:i:s');
+            $message = 'Your subscription will stay active until the current paid term ends, then it will be cancelled.';
+        } else {
+            $update['cancel_at_period_end'] = 0;
+            $update['cancellation_requested_at'] = date('Y-m-d H:i:s');
+            $message = 'Your subscription has been cancelled.';
+        }
+
+        $this->generic_model->update($params, $org->id, $update, false);
+        $this->create_event($org->id, null, 'subscription_cancelled', 'Subscription cancellation requested', array(
+            'paid_until' => !empty($org->paid_until) ? $org->paid_until : null,
+            'cancel_at_period_end' => $summary['has_paid_access'] ? 1 : 0
+        ));
+
+        $this->regular->respond(array('status' => 'OK', 'message' => array($message)));
     }
 
     public function itn()
@@ -412,6 +582,25 @@ class Billing extends CI_Controller
         return !empty($history) ? $history[0] : null;
     }
 
+    protected function get_latest_completed_payment($organisation_id)
+    {
+        $account_name = $this->current_account_name();
+        $this->switch_to_main_db($account_name);
+        $params = array(
+            'table' => $this->table_prefix . 'subscription_payments',
+            'entity' => 'subscription payment',
+            'where' => array(
+                'organisation_id' => $organisation_id,
+                'payment_status' => 'complete'
+            ),
+            'order_by' => 'id DESC',
+            'limit' => 1
+        );
+
+        $history = array_values((array)$this->generic_model->read($params));
+        return !empty($history) ? $history[0] : null;
+    }
+
     protected function resolve_billing_start($org)
     {
         if (!empty($org->paid_until) && strtotime($org->paid_until) > time()) {
@@ -465,7 +654,11 @@ class Billing extends CI_Controller
         $this->generic_model->update($params, $org->id, array(
             'subscription_status' => 'active',
             'paid_until' => $payment->billing_date_to,
-            'grace_period_ends_at' => null
+            'grace_period_ends_at' => null,
+            'current_plan_code' => $payment->plan_code,
+            'pending_plan_code' => null,
+            'cancel_at_period_end' => 0,
+            'cancellation_requested_at' => null
         ), false);
     }
 
@@ -584,6 +777,8 @@ class Billing extends CI_Controller
         $grace_end_ts = !empty($org->grace_period_ends_at) ? strtotime($org->grace_period_ends_at) : false;
         $grace_days = $this->payment_settings->get_grace_period_days();
         $status = isset($org->subscription_status) ? $org->subscription_status : 'trial';
+        $cancel_at_period_end = !empty($org->cancel_at_period_end);
+        $pending_plan_code = !empty($org->pending_plan_code) ? $org->pending_plan_code : null;
 
         if ($paid_until_ts && !$grace_end_ts) {
             $grace_end_ts = strtotime('+' . $grace_days . ' days', $paid_until_ts);
@@ -593,7 +788,7 @@ class Billing extends CI_Controller
         $in_grace_period = !$has_paid_access && $grace_end_ts && $grace_end_ts > $now;
 
         if ($has_paid_access) {
-            $status = 'active';
+            $status = $cancel_at_period_end ? 'cancellation_scheduled' : 'active';
         } elseif ($in_grace_period) {
             $status = 'grace_period';
         } elseif ($paid_until_ts && $paid_until_ts <= $now) {
@@ -601,7 +796,12 @@ class Billing extends CI_Controller
         }
 
         $message = 'Subscription payment is available.';
-        if ($has_paid_access) {
+        if ($has_paid_access && $cancel_at_period_end) {
+            $message = 'Cancellation is scheduled. Your workspace will keep paid access until the current term ends.';
+        } elseif ($has_paid_access && $pending_plan_code) {
+            $next_plan = $this->payfast_service->get_plan($pending_plan_code);
+            $message = 'Your subscription is active. ' . $next_plan['name'] . ' is scheduled for your next renewal.';
+        } elseif ($has_paid_access) {
             $message = 'Your subscription is active. Payment will be available again after the current paid period ends.';
         } elseif ($in_grace_period) {
             $message = 'Your subscription has ended. You are currently in the grace period and can renew at any time.';
@@ -613,9 +813,26 @@ class Billing extends CI_Controller
             'status' => $status,
             'grace_period_ends_at' => $grace_end_ts ? date('Y-m-d H:i:s', $grace_end_ts) : null,
             'can_pay' => !$has_paid_access,
+            'can_cancel' => (bool)$has_paid_access,
+            'can_change_plan' => (bool)$has_paid_access,
             'has_paid_access' => (bool)$has_paid_access,
-            'access_message' => $message
+            'access_message' => $message,
+            'plan_change_effective_at' => $has_paid_access && $paid_until_ts ? date('Y-m-d H:i:s', $paid_until_ts) : null
         );
+    }
+
+    protected function resolve_current_plan_code($org, $latest_completed_payment = null)
+    {
+        if (!empty($org->current_plan_code) && $this->payfast_service->has_plan($org->current_plan_code)) {
+            return $org->current_plan_code;
+        }
+
+        if ($latest_completed_payment && !empty($latest_completed_payment->plan_code) && $this->payfast_service->has_plan($latest_completed_payment->plan_code)) {
+            return $latest_completed_payment->plan_code;
+        }
+
+        $default_plan = $this->payfast_service->get_plan();
+        return isset($default_plan['code']) ? $default_plan['code'] : null;
     }
 
     protected function log_itn_audit($stage, $context = array())

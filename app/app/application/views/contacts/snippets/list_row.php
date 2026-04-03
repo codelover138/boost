@@ -28,7 +28,7 @@
 			if(false){
 		?>| <a class="single_archive" href="<?php echo base_url('contacts/bulk/archive/'.$id); ?>">Archive</a><?php 
 		} 
-	    ?>| <a href="<?php echo base_url('contacts/statements/'.$id); ?>">Statements</a></div>
+	    ?><?php if($contact_type == 'client'): ?>| <a href="<?php echo base_url('contacts/statements/'.$id); ?>">Statements</a><?php endif; ?></div>
     
     </td>
     <td class="hidden-xs"><?php echo $contact_name; ?></td>
@@ -51,7 +51,9 @@
 				// end disabled
 				}
 				?> 
+                <?php if($contact_type == 'client'): ?>
                 <li><a href="<?php echo base_url('contacts/statements/'.$id); ?>">Statements</a></li>
+                <?php endif; ?>
            		<li><a href="<?php echo base_api_url('export/contacts/'.$id); ?>"  class="exportToPDF" data-modal-body="PDF successfully created." data-close-delay-seconds="1" data-modal-heading="Success" data-modal-url="<?php echo base_url('modal/notice'); ?>">Download as PDF</a></li>
             </ul>
         </div>

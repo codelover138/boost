@@ -37,7 +37,7 @@
             
             <div class="col-sm-12 form-group">
                 <label for="organisation" class="control-label">Business Details</label>
-                <input name="organisation" class="form-control" id="organisation" placeholder="Organisation Name">           
+                <input name="organisation" class="form-control" id="organisation" placeholder="Organisation Name" required>           
             </div>
             
             <div class="clearfix"></div>
@@ -81,7 +81,7 @@
             <div class="clearfix"></div>  
                       
             <div class="col-sm-12 form-group">                       
-                    <input type="email" class="form-control" name="email" id="email" placeholder="Email Address">           
+                    <input type="email" class="form-control" name="email" id="email" placeholder="Email Address" required>           
             </div>
                    
              <div class="col-sm-6 form-group">

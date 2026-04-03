@@ -3,7 +3,7 @@
 		$data['id'] = $current_item_count;
 		$data['item_name'] = '';
 		$data['description'] = '';
-		$data['quantity'] = 0;
+		$data['quantity'] = 1;
 		$data['rate'] = 0;
 		$data['tax'] = 0;
 	}	

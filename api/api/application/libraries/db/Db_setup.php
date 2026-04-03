@@ -524,6 +524,10 @@ class Db_setup
             'trial_ends_at' => array('type' => 'DATETIME', 'null' => TRUE),
             'subscription_status' => array('type' => 'VARCHAR', 'constraint' => 20, 'default' => 'trial'),
             'paid_until' => array('type' => 'DATETIME', 'null' => TRUE),
+            'current_plan_code' => array('type' => 'VARCHAR', 'constraint' => 50, 'null' => TRUE),
+            'pending_plan_code' => array('type' => 'VARCHAR', 'constraint' => 50, 'null' => TRUE),
+            'cancel_at_period_end' => array('type' => 'TINYINT', 'constraint' => 1, 'default' => 0),
+            'cancellation_requested_at' => array('type' => 'DATETIME', 'null' => TRUE),
             'manual_block_reason' => array('type' => 'VARCHAR', 'constraint' => 255, 'null' => TRUE),
             'is_manual_blocked' => array('type' => 'TINYINT', 'constraint' => 1, 'default' => 0),
             'grace_period_ends_at' => array('type' => 'DATETIME', 'null' => TRUE)

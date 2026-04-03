@@ -94,10 +94,20 @@ class Expenses_model extends CI_Model
 	    //return $request_data;
     }
 	
-	public function update($params = array(), $id, $post)
+    public function update($params = array(), $id, $post)
     {
-       
-	   $post['date'] = date('Y-m-d 00:00:00',strtotime($post['date']));
+       $date_validation = $this->normalise_expense_date(isset($post['date']) ? $post['date'] : null);
+       if (!$date_validation['bool']) {
+           return array(
+               'bool' => false,
+               'message' => $date_validation['message'],
+               'validation_results' => array(
+                   'date' => $date_validation['message'][0]
+               )
+           );
+       }
+
+	   $post['date'] = $date_validation['date'];
 	   	   
 	   if (isset($post['image_string'])) {
             if ($post['image_string'] != ''){
@@ -126,10 +136,20 @@ class Expenses_model extends CI_Model
        return $results;
     }
 	
-	public function create($params = array(), $post)
+    public function create($params = array(), $post)
     {
-      
-	  $post['date'] = date('Y-m-d 00:00:00',strtotime($post['date']));
+      $date_validation = $this->normalise_expense_date(isset($post['date']) ? $post['date'] : null);
+      if (!$date_validation['bool']) {
+          return array(
+              'bool' => false,
+              'message' => $date_validation['message'],
+              'validation_results' => array(
+                  'date' => $date_validation['message'][0]
+              )
+          );
+      }
+
+	  $post['date'] = $date_validation['date'];
 
 	  $results = $this->generic_model->create($params, $post);
 	  
@@ -186,6 +206,50 @@ class Expenses_model extends CI_Model
         endif;
 
         return $post;
+    }
+
+    protected function normalise_expense_date($raw_date)
+    {
+        $raw_date = trim((string)$raw_date);
+        if ($raw_date === '') {
+            return array(
+                'bool' => false,
+                'message' => array('Expense date is required.')
+            );
+        }
+
+        $formats = array(
+            'd M Y',
+            'j M Y',
+            'Y-m-d',
+            'Y-m-d H:i:s',
+            'd/m/Y',
+            'd-m-Y'
+        );
+
+        foreach ($formats as $format) {
+            $date = DateTime::createFromFormat($format, $raw_date);
+            $errors = DateTime::getLastErrors();
+            if ($date instanceof DateTime && empty($errors['warning_count']) && empty($errors['error_count'])) {
+                return array(
+                    'bool' => true,
+                    'date' => $date->format('Y-m-d 00:00:00')
+                );
+            }
+        }
+
+        $timestamp = strtotime($raw_date);
+        if ($timestamp !== false) {
+            return array(
+                'bool' => true,
+                'date' => date('Y-m-d 00:00:00', $timestamp)
+            );
+        }
+
+        return array(
+            'bool' => false,
+            'message' => array('Please enter a valid expense date.')
+        );
     }
 
 }

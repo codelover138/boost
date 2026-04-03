@@ -51,9 +51,12 @@ class Userhandler
         $account_details = $this->CI->switcher->check_sub_status($input['account_name']);
 
         if ($account_details && isset($account_details->is_manual_blocked) && $account_details->is_manual_blocked == 1) {
+            $block_reason = $account_details->manual_block_reason
+                ? ' Reason: ' . $account_details->manual_block_reason . '.'
+                : ' Please contact our support team for assistance.';
             $return = array(
                 'status' => 'ERROR',
-                'message' => array('Account is manually blocked. Reason: ' . ($account_details->manual_block_reason ? $account_details->manual_block_reason : 'Contact Support'))
+                'message' => array('Access to this workspace has been suspended.' . $block_reason)
             );
             $this->CI->regular->header_(403);
             $this->CI->regular->respond($return);
@@ -106,7 +109,7 @@ class Userhandler
             foreach ($result as $res) {
                 if ($res->password == md5($password)) {
                     if (isset($res->is_active) && $res->is_active == 0) {
-                        $return['message'][0] = 'User account is inactive';
+                        $return['message'][0] = 'Your account has been deactivated. Please contact your administrator for assistance.';
                         $this->CI->regular->header_(403);
                         $this->CI->regular->respond($return);
                         die();
@@ -281,8 +284,11 @@ class Userhandler
         if ($account_details) {
             // 1. Manual Block
             if (isset($account_details->is_manual_blocked) && $account_details->is_manual_blocked == 1) {
+                $block_reason = $account_details->manual_block_reason
+                    ? ' Reason: ' . $account_details->manual_block_reason . '.'
+                    : ' Please contact our support team for assistance.';
                 $response['status'] = 'ERROR';
-                $response['message'][0] = 'Account is manually blocked. Reason: ' . ($account_details->manual_block_reason ? $account_details->manual_block_reason : 'Contact Support');
+                $response['message'][0] = 'Access to this workspace has been suspended.' . $block_reason;
                 $this->CI->regular->header_(403);
                 $this->CI->regular->respond($response);
                 die();
@@ -290,12 +296,95 @@ class Userhandler
 
             // 2. Subscription / Trial Logic
             $uri_string = ltrim(uri_string(), '/');
-            $allowed_routes = array(
-                'logout', 'login', 'me', 'settings', 'users', 'roles',
-                'permissions', 'billing', 'subscription', 'organisations',
-                'api/logout', 'api/login', 'api/me', 'api/settings', 'api/users', 'api/roles',
-                'api/permissions', 'api/billing', 'api/subscription', 'api/organisations'
-            );
+
+            $status = isset($account_details->subscription_status) ? $account_details->subscription_status : 'trial';
+
+            $this->CI->load->library('payment_settings');
+            $grace_days = $this->CI->payment_settings->get_grace_period_days();
+            $paid_until_ts = isset($account_details->paid_until) && !empty($account_details->paid_until)
+                ? strtotime($account_details->paid_until)
+                : false;
+            $grace_end_ts = isset($account_details->grace_period_ends_at) && !empty($account_details->grace_period_ends_at)
+                ? strtotime($account_details->grace_period_ends_at)
+                : false;
+
+            if ($paid_until_ts && !$grace_end_ts) {
+                $grace_end_ts = strtotime('+' . $grace_days . ' days', $paid_until_ts);
+            }
+
+            // Determine whether subscription is critically expired (inactive AND grace period passed)
+            $critically_expired = false;
+            $access_denied = false;
+            $msg = '';
+
+            if ($status == 'trial') {
+                $trial_ends = strtotime($account_details->trial_ends_at);
+                if ($trial_ends < time()) {
+                    $critically_expired = true;
+                    $access_denied = true;
+                    $msg = 'Your free trial has ended. Please upgrade your subscription to continue using Boost.';
+                }
+            }
+            elseif ($status == 'active') {
+                if ($paid_until_ts && $paid_until_ts < time()) {
+                    if (!$grace_end_ts || $grace_end_ts < time()) {
+                        $critically_expired = true;
+                        $access_denied = true;
+                        $msg = 'Your subscription has expired. Please renew your plan to regain full access.';
+                    }
+                    else {
+                        $access_denied = true;
+                        $msg = 'Your subscription payment is overdue. Please renew to avoid service interruption.';
+                    }
+                }
+            }
+            elseif ($status == 'cancelled' || $status == 'expired' || $status == 'past_due') {
+                if ($paid_until_ts && $paid_until_ts > time()) {
+                    // Still within paid period — allow access
+                }
+                else {
+                    if ($status == 'past_due') {
+                        if ($grace_end_ts && $grace_end_ts < time()) {
+                            $critically_expired = true;
+                            $access_denied = true;
+                            $msg = 'Your payment is overdue and the grace period has ended. Please update your payment method to continue.';
+                        }
+                        elseif ($grace_end_ts) {
+                            $access_denied = true;
+                            $msg = 'Your payment is overdue. Please update your payment method to avoid service interruption.';
+                        }
+                    }
+                    else {
+                        $critically_expired = true;
+                        $access_denied = true;
+                        $msg = 'Your subscription is no longer active. Please reactivate your plan to continue.';
+                    }
+                }
+            }
+            elseif ($status == 'grace_period') {
+                if ($grace_end_ts && $grace_end_ts < time()) {
+                    $critically_expired = true;
+                    $access_denied = true;
+                    $msg = 'Your grace period has ended. Please renew your subscription to continue.';
+                }
+            }
+
+            // When subscription is critically expired, restrict to upgrade/billing routes only.
+            // When subscription is valid or in grace period, allow the broader set of non-data routes.
+            if ($critically_expired) {
+                $allowed_routes = array(
+                    'logout', 'login', 'me', 'billing', 'subscription',
+                    'api/logout', 'api/login', 'api/me', 'api/billing', 'api/subscription'
+                );
+            }
+            else {
+                $allowed_routes = array(
+                    'logout', 'login', 'me', 'settings', 'users', 'roles',
+                    'permissions', 'billing', 'subscription', 'organisations',
+                    'api/logout', 'api/login', 'api/me', 'api/settings', 'api/users', 'api/roles',
+                    'api/permissions', 'api/billing', 'api/subscription', 'api/organisations'
+                );
+            }
 
             $is_allowed_route = false;
             foreach ($allowed_routes as $route) {
@@ -305,69 +394,13 @@ class Userhandler
                 }
             }
 
-            if (!$is_allowed_route) {
-                $status = isset($account_details->subscription_status) ? $account_details->subscription_status : 'trial';
-                $access_denied = false;
-                $msg = '';
-
-                $this->CI->load->library('payment_settings');
-                $grace_days = $this->CI->payment_settings->get_grace_period_days();
-                $paid_until_ts = isset($account_details->paid_until) && !empty($account_details->paid_until)
-                    ? strtotime($account_details->paid_until)
-                    : false;
-                $grace_end_ts = isset($account_details->grace_period_ends_at) && !empty($account_details->grace_period_ends_at)
-                    ? strtotime($account_details->grace_period_ends_at)
-                    : false;
-
-                if ($paid_until_ts && !$grace_end_ts) {
-                    $grace_end_ts = strtotime('+' . $grace_days . ' days', $paid_until_ts);
-                }
-
-                if ($status == 'trial') {
-                    $trial_ends = strtotime($account_details->trial_ends_at);
-                    if ($trial_ends < time()) {
-                        $access_denied = true;
-                        $msg = 'Trial expired. Please upgrade to continue.';
-                    }
-                }
-                elseif ($status == 'active') {
-                    if ($paid_until_ts && $paid_until_ts < time() && (!$grace_end_ts || $grace_end_ts < time())) {
-                        $access_denied = true;
-                        $msg = 'Subscription expired. Please renew to continue.';
-                    }
-                }
-                elseif ($status == 'cancelled' || $status == 'expired' || $status == 'past_due') {
-                    if ($paid_until_ts && $paid_until_ts > time()) {
-                    // Allowed
-                    }
-                    else {
-                        if ($status == 'past_due' || $status == 'grace_period') {
-                            if ($grace_end_ts && $grace_end_ts < time()) {
-                                $access_denied = true;
-                                $msg = 'Subscription past due. Please update payment method.';
-                            }
-                        }
-                        else {
-                            $access_denied = true;
-                            $msg = 'Subscription inactive. Please reactivate.';
-                        }
-                    }
-                }
-                elseif ($status == 'grace_period') {
-                    if ($grace_end_ts && $grace_end_ts < time()) {
-                        $access_denied = true;
-                        $msg = 'Grace period ended. Please renew your subscription to continue.';
-                    }
-                }
-
-                if ($access_denied) {
-                    $response['status'] = 'ERROR';
-                    $response['message'][0] = $msg;
-                    $response['code'] = 'SUBSCRIPTION_RESTRICTED';
-                    $this->CI->regular->header_(403);
-                    $this->CI->regular->respond($response);
-                    die();
-                }
+            if (!$is_allowed_route && $access_denied) {
+                $response['status'] = 'ERROR';
+                $response['message'][0] = $msg;
+                $response['code'] = $critically_expired ? 'SUBSCRIPTION_UPGRADE_REQUIRED' : 'SUBSCRIPTION_RESTRICTED';
+                $this->CI->regular->header_(402);
+                $this->CI->regular->respond($response);
+                die();
             }
         }
     }

@@ -8,9 +8,17 @@ $subscription = isset($billing_data['subscription']) ? $billing_data['subscripti
 $history = isset($billing_data['history']) ? $billing_data['history'] : array();
 $status_key = isset($subscription['status']) ? strtolower($subscription['status']) : 'unknown';
 $status = ucfirst(str_replace('_', ' ', $status_key));
-$featured_plan = !empty($plan) ? $plan : (!empty($plans) ? $plans[0] : array());
+$current_plan = isset($subscription['current_plan']) && is_array($subscription['current_plan']) ? $subscription['current_plan'] : array();
+$current_plan_code = isset($subscription['current_plan_code']) ? $subscription['current_plan_code'] : '';
+$pending_plan = isset($subscription['pending_plan']) && is_array($subscription['pending_plan']) ? $subscription['pending_plan'] : array();
+$pending_plan_code = isset($subscription['pending_plan_code']) ? $subscription['pending_plan_code'] : '';
+$featured_plan = !empty($current_plan) ? $current_plan : (!empty($plan) ? $plan : (!empty($plans) ? $plans[0] : array()));
 $can_pay = isset($subscription['can_pay']) ? (bool)$subscription['can_pay'] : true;
+$can_cancel = isset($subscription['can_cancel']) ? (bool)$subscription['can_cancel'] : false;
+$can_change_plan = isset($subscription['can_change_plan']) ? (bool)$subscription['can_change_plan'] : false;
 $has_paid_access = isset($subscription['has_paid_access']) ? (bool)$subscription['has_paid_access'] : false;
+$cancel_at_period_end = isset($subscription['cancel_at_period_end']) ? (bool)$subscription['cancel_at_period_end'] : false;
+$plan_change_effective_at = !empty($subscription['plan_change_effective_at']) ? $subscription['plan_change_effective_at'] : null;
 $grace_period_ends_at = !empty($subscription['grace_period_ends_at']) ? $subscription['grace_period_ends_at'] : 'N/A';
 $access_message = !empty($subscription['access_message'])
     ? $subscription['access_message']
@@ -21,11 +29,13 @@ if ($status_key === 'trial') {
     $status_title = 'Trial Access In Progress';
 } elseif ($status_key === 'grace_period') {
     $status_title = 'Grace Period Active';
+} elseif ($status_key === 'cancellation_scheduled') {
+    $status_title = 'Cancellation Scheduled';
 } elseif ($can_pay) {
     $status_title = 'Renewal Ready';
 }
 
-$status_tone = $can_pay ? 'attention' : 'healthy';
+$status_tone = ($can_pay || $cancel_at_period_end) ? 'attention' : 'healthy';
 
 if (!function_exists('billing_display_datetime')) {
     function billing_display_datetime($value)
@@ -92,29 +102,46 @@ if (!function_exists('billing_cycle_label')) {
 
 .billing-hero {
     display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(320px, .9fr);
-    gap: 18px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
     align-items: stretch;
 }
 
 .billing-hero-main {
     overflow: hidden;
-    padding: 30px 32px;
+    padding: 34px 36px 30px;
     background:
-        radial-gradient(circle at top right, rgba(76, 201, 138, 0.18), transparent 28%),
-        linear-gradient(140deg, #11233a 0%, #17384c 55%, #1d544a 100%);
+        radial-gradient(circle at top right, rgba(113, 210, 171, 0.18), transparent 26%),
+        radial-gradient(circle at left center, rgba(255, 255, 255, 0.05), transparent 30%),
+        linear-gradient(135deg, #13273d 0%, #18344c 48%, #1d5b53 100%);
     color: #fff;
+}
+
+.billing-hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.billing-hero-content {
+    max-width: 840px;
+}
+
+.billing-hero-heading {
+    display: flex;
+    align-items: center;
+    gap: 18px;
 }
 
 .billing-eyebrow {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 16px;
-    padding: 8px 13px;
+    padding: 8px 14px;
     border-radius: 999px;
-    background: rgba(232, 247, 239, 0.12);
-    color: #e5f9ec;
+    background: rgba(255, 255, 255, 0.10);
+    color: #edf9f3;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: .08em;
@@ -131,40 +158,50 @@ if (!function_exists('billing_cycle_label')) {
 
 .billing-hero-title {
     margin: 0;
-    max-width: 760px;
     color: #fff;
-    font-size: 38px;
-    line-height: 1.06;
+    font-size: 34px;
+    line-height: 1.12;
     font-weight: 700;
+    letter-spacing: -.02em;
 }
 
 .billing-hero-copy {
-    max-width: 720px;
-    margin: 15px 0 0;
-    color: rgba(240, 247, 255, 0.82);
+    max-width: 700px;
+    margin: 12px 0 0;
+    color: rgba(236, 244, 252, 0.82);
     font-size: 15px;
-    line-height: 1.8;
+    line-height: 1.7;
+}
+
+.billing-hero-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    white-space: nowrap;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .billing-hero-meta {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
-    margin-top: 24px;
+    margin-top: 26px;
 }
 
 .billing-hero-stat {
-    padding: 16px 17px;
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-radius: 16px;
+    padding: 18px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
     background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(5px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(10px);
 }
 
 .billing-hero-stat-label {
     display: block;
-    margin-bottom: 6px;
-    color: rgba(235, 244, 255, 0.7);
+    margin-bottom: 8px;
+    color: rgba(235, 244, 255, 0.66);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: .08em;
@@ -173,31 +210,9 @@ if (!function_exists('billing_cycle_label')) {
 
 .billing-hero-stat-value {
     color: #fff;
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 700;
-}
-
-.billing-status-card {
-    padding: 24px;
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 250, 255, 0.96)),
-        #fff;
-}
-
-.billing-status-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 18px;
-}
-
-.billing-status-label {
-    color: #6d8091;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: .08em;
-    text-transform: uppercase;
+    line-height: 1.35;
 }
 
 .billing-status-pill {
@@ -228,7 +243,8 @@ if (!function_exists('billing_cycle_label')) {
 
 .billing-status-pill.trial,
 .billing-status-pill.pending,
-.billing-status-pill.grace_period {
+.billing-status-pill.grace_period,
+.billing-status-pill.cancellation_scheduled {
     background: #fff4cf;
     color: #9a6900;
 }
@@ -240,50 +256,6 @@ if (!function_exists('billing_cycle_label')) {
 .billing-status-pill.expired {
     background: #ffe2e2;
     color: #b42318;
-}
-
-.billing-status-headline {
-    margin: 0 0 10px;
-    color: #102033;
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1.2;
-}
-
-.billing-status-copy {
-    margin: 0;
-    color: #5f7285;
-    font-size: 14px;
-    line-height: 1.75;
-}
-
-.billing-status-grid {
-    display: grid;
-    gap: 12px;
-    margin-top: 22px;
-}
-
-.billing-status-detail {
-    padding: 15px 16px;
-    border: 1px solid #e5edf4;
-    border-radius: 16px;
-    background: #fbfdff;
-}
-
-.billing-status-detail-label {
-    display: block;
-    margin-bottom: 5px;
-    color: #738496;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-}
-
-.billing-status-detail-value {
-    color: #102033;
-    font-size: 16px;
-    font-weight: 700;
 }
 
 .billing-card {
@@ -465,6 +437,58 @@ if (!function_exists('billing_cycle_label')) {
     line-height: 1.6;
 }
 
+.billing-management-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+.billing-management-card {
+    padding: 22px 24px;
+    border: 1px solid #dde7f0;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #fff, #f8fbfe);
+}
+
+.billing-management-title {
+    margin: 0 0 8px;
+    color: #102033;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.billing-management-copy {
+    margin: 0 0 16px;
+    color: #607486;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.billing-management-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 180px;
+    padding: 12px 16px;
+    border: 1px solid #d7e2eb;
+    border-radius: 14px;
+    background: #fff;
+    color: #16324a;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.billing-management-button.danger {
+    border-color: #f0c8c8;
+    background: #fff5f5;
+    color: #b42318;
+}
+
+.billing-management-button[disabled] {
+    opacity: .7;
+    cursor: not-allowed;
+}
+
 .billing-history-shell {
     border: 1px solid #e5edf4;
     border-radius: 18px;
@@ -538,13 +562,23 @@ if (!function_exists('billing_cycle_label')) {
     font-weight: 700;
 }
 
-@media (max-width: 1120px) {
-    .billing-hero {
-        grid-template-columns: 1fr;
-    }
-}
-
 @media (max-width: 900px) {
+    .billing-hero-top {
+        display: block;
+    }
+
+    .billing-hero-heading {
+        display: block;
+    }
+
+    .billing-eyebrow {
+        margin-bottom: 14px;
+    }
+
+    .billing-hero-status {
+        margin-top: 16px;
+    }
+
     .billing-hero-meta {
         grid-template-columns: 1fr;
     }
@@ -557,18 +591,16 @@ if (!function_exists('billing_cycle_label')) {
     }
 
     .billing-hero-main,
-    .billing-status-card,
     .billing-card {
         padding: 22px 20px;
     }
 
     .billing-hero-title {
-        font-size: 31px;
+        font-size: 29px;
     }
 
     .billing-card-header,
-    .billing-plan-top,
-    .billing-status-top {
+    .billing-plan-top {
         display: block;
     }
 
@@ -599,13 +631,23 @@ if (!function_exists('billing_cycle_label')) {
 <div class="billing-shell">
     <div class="billing-section billing-hero">
         <div class="billing-panel billing-hero-main">
-            <span class="billing-eyebrow">Workspace Billing</span>
-            <h1 class="billing-hero-title">
-                <?php echo isset($featured_plan['name']) ? htmlspecialchars($featured_plan['name']) : 'Boost Subscription'; ?>
-            </h1>
-            <p class="billing-hero-copy">
-                <?php echo isset($featured_plan['description']) ? htmlspecialchars($featured_plan['description']) : 'Manage your subscription, keep access uninterrupted, and renew securely through PayFast when billing opens again.'; ?>
-            </p>
+            <div class="billing-hero-top">
+                <div class="billing-hero-content">
+                    <div class="billing-hero-heading">
+                        <span class="billing-eyebrow">Workspace Billing</span>
+                        <h1 class="billing-hero-title">
+                            <?php echo isset($featured_plan['name']) ? htmlspecialchars($featured_plan['name']) : 'Boost Subscription'; ?>
+                        </h1>
+                    </div>
+                    <p class="billing-hero-copy">
+                        <?php echo isset($featured_plan['description']) ? htmlspecialchars($featured_plan['description']) : 'Manage your subscription, keep access uninterrupted, and renew securely through PayFast when billing opens again.'; ?>
+                    </p>
+                </div>
+
+                <span class="billing-status-pill billing-hero-status <?php echo htmlspecialchars($status_key); ?>">
+                    <?php echo htmlspecialchars($status); ?>
+                </span>
+            </div>
 
             <div class="billing-hero-meta">
                 <div class="billing-hero-stat">
@@ -622,30 +664,6 @@ if (!function_exists('billing_cycle_label')) {
                     <span class="billing-hero-stat-label">Grace Ends</span>
                     <span
                         class="billing-hero-stat-value"><?php echo htmlspecialchars(billing_display_datetime($grace_period_ends_at)); ?></span>
-                </div>
-            </div>
-        </div>
-
-        <div class="billing-panel billing-status-card">
-            <div class="billing-status-top">
-                <span class="billing-status-label">Subscription Status</span>
-                <span
-                    class="billing-status-pill <?php echo htmlspecialchars($status_key); ?>"><?php echo htmlspecialchars($status); ?></span>
-            </div>
-
-            <h2 class="billing-status-headline"><?php echo htmlspecialchars($status_title); ?></h2>
-            <p class="billing-status-copy"><?php echo htmlspecialchars($access_message); ?></p>
-
-            <div class="billing-status-grid">
-                <div class="billing-status-detail">
-                    <span class="billing-status-detail-label">Trial Ends</span>
-                    <span
-                        class="billing-status-detail-value"><?php echo !empty($subscription['trial_ends_at']) ? billing_display_datetime($subscription['trial_ends_at']) : 'N/A'; ?></span>
-                </div>
-                <div class="billing-status-detail">
-                    <span class="billing-status-detail-label">Payment Availability</span>
-                    <span
-                        class="billing-status-detail-value"><?php echo $can_pay ? 'Available Now' : 'Opens When Current Term Ends'; ?></span>
                 </div>
             </div>
         </div>
@@ -670,13 +688,39 @@ if (!function_exists('billing_cycle_label')) {
             <?php
             $plan_option = (array)$plan_option;
             $is_featured = isset($featured_plan['code'], $plan_option['code']) && $featured_plan['code'] === $plan_option['code'];
+            $is_current_plan = $current_plan_code !== '' && isset($plan_option['code']) && $current_plan_code === $plan_option['code'];
+            $is_pending_plan = $pending_plan_code !== '' && isset($plan_option['code']) && $pending_plan_code === $plan_option['code'];
             $cycle_label = billing_cycle_label($plan_option);
             $cycle_days = isset($plan_option['cycle_days']) ? (int)$plan_option['cycle_days'] : 30;
+            $form_action = $has_paid_access && $can_change_plan ? base_url('billing/change-plan') : base_url('billing/pay');
+            $button_label = 'Continue To PayFast';
+            $button_disabled = false;
+            $note = '';
+
+            if ($has_paid_access && $can_change_plan) {
+                if ($is_pending_plan) {
+                    $button_label = 'Change Scheduled';
+                    $button_disabled = true;
+                    $note = 'This billing cycle will start when the current paid term ends.';
+                } elseif ($is_current_plan && empty($pending_plan_code)) {
+                    $button_label = 'Current Plan';
+                    $button_disabled = true;
+                } elseif ($is_current_plan && !empty($pending_plan_code)) {
+                    $button_label = 'Keep Current Plan';
+                    $note = 'Choose this to remove the scheduled billing cycle change.';
+                } else {
+                    $button_label = $cycle_days >= 365 ? 'Switch To Annual Billing' : 'Switch To Monthly Billing';
+                    $note = 'The change will take effect after your current paid term ends.';
+                }
+            } elseif (!$can_pay) {
+                $button_label = 'Subscription Active';
+                $button_disabled = true;
+            }
             ?>
             <div class="billing-plan-option <?php echo $is_featured ? 'featured' : ''; ?>">
                 <div class="billing-plan-top">
                     <span
-                        class="billing-plan-badge"><?php echo $is_featured ? 'Selected Plan' : 'Available Plan'; ?></span>
+                        class="billing-plan-badge"><?php echo $is_pending_plan ? 'Next Renewal' : ($is_current_plan ? 'Current Plan' : ($is_featured ? 'Selected Plan' : 'Available Plan')); ?></span>
                     <span class="billing-plan-cycle"><?php echo htmlspecialchars($cycle_label); ?></span>
                 </div>
 
@@ -689,20 +733,22 @@ if (!function_exists('billing_cycle_label')) {
                     <?php echo !empty($plan_option['description']) ? htmlspecialchars($plan_option['description']) : 'Secure subscription access for your Boost workspace.'; ?>
                 </p>
 
-                <div class="billing-plan-feature"><strong>Billing cadence:</strong> every <?php echo $cycle_days; ?>
+                <div class="billing-plan-feature"><strong>Renewal schedule:</strong> every <?php echo $cycle_days; ?>
                     day<?php echo $cycle_days === 1 ? '' : 's'; ?></div>
                 <div class="billing-plan-feature"><strong>Gateway:</strong> PayFast secure checkout</div>
 
-                <form class="billing-plan-form" method="post" action="<?php echo base_url('billing/pay'); ?>"
+                <form class="billing-plan-form" method="post" action="<?php echo $form_action; ?>"
                     data-native-submit="true">
                     <input type="hidden" name="plan_code" value="<?php echo htmlspecialchars($plan_option['code']); ?>">
                     <button class="billing-plan-button" type="submit"
-                        <?php echo !$can_pay ? 'disabled="disabled"' : ''; ?>>
-                        <?php echo !$can_pay ? 'Subscription Active' : 'Continue To PayFast'; ?>
+                        <?php echo $button_disabled ? 'disabled="disabled"' : ''; ?>>
+                        <?php echo htmlspecialchars($button_label); ?>
                     </button>
                 </form>
 
-                <?php if (!$can_pay && $has_paid_access) : ?>
+                <?php if ($note !== '') : ?>
+                <p class="billing-plan-note"><?php echo htmlspecialchars($note); ?></p>
+                <?php elseif (!$can_pay && $has_paid_access) : ?>
                 <p class="billing-plan-note">Renewal will become available again once the current paid coverage period
                     has ended.</p>
                 <?php endif; ?>
@@ -714,6 +760,57 @@ if (!function_exists('billing_cycle_label')) {
             No subscription plans are currently configured for this workspace.
         </div>
         <?php endif; ?>
+    </div>
+
+    <div class="billing-section billing-panel billing-card">
+        <div class="billing-card-header">
+            <div>
+                <h3 class="billing-card-title">Subscription Management</h3>
+                <p class="billing-card-copy">Manage what happens at the end of the current paid term. Billing cycle
+                    changes are scheduled for the next renewal, and cancellations keep access active until the current
+                    period finishes.</p>
+            </div>
+        </div>
+
+        <div class="billing-management-grid">
+            <div class="billing-management-card">
+                <h4 class="billing-management-title">Next Renewal</h4>
+                <p class="billing-management-copy">
+                    <?php if (!empty($pending_plan)) : ?>
+                    <?php echo htmlspecialchars($pending_plan['name']); ?> will take effect on
+                    <?php echo htmlspecialchars(billing_display_datetime($plan_change_effective_at)); ?>.
+                    <?php elseif ($has_paid_access) : ?>
+                    Your workspace will stay on <?php echo htmlspecialchars(isset($current_plan['name']) ? $current_plan['name'] : 'the current plan'); ?>
+                    unless you schedule a billing cycle change above.
+                    <?php else : ?>
+                    There is no active paid term yet. Start a payment above to begin billing.
+                    <?php endif; ?>
+                </p>
+            </div>
+
+            <div class="billing-management-card">
+                <h4 class="billing-management-title">Cancel Subscription</h4>
+                <p class="billing-management-copy">
+                    <?php if ($cancel_at_period_end) : ?>
+                    Cancellation is already scheduled. Access remains available until
+                    <?php echo htmlspecialchars(billing_display_datetime(isset($subscription['paid_until']) ? $subscription['paid_until'] : null)); ?>.
+                    <?php elseif ($can_cancel) : ?>
+                    Cancel now to stop renewal after the current paid term. Your workspace keeps access until
+                    <?php echo htmlspecialchars(billing_display_datetime(isset($subscription['paid_until']) ? $subscription['paid_until'] : null)); ?>.
+                    <?php else : ?>
+                    Cancellation becomes available once the workspace has an active paid subscription.
+                    <?php endif; ?>
+                </p>
+
+                <form method="post" action="<?php echo base_url('billing/cancel'); ?>" data-native-submit="true"
+                    onsubmit="return confirm('Cancel this subscription at the end of the current billing period?');">
+                    <button class="billing-management-button danger" type="submit"
+                        <?php echo (!$can_cancel || $cancel_at_period_end) ? 'disabled="disabled"' : ''; ?>>
+                        <?php echo $cancel_at_period_end ? 'Cancellation Scheduled' : 'Cancel Subscription'; ?>
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <div class="billing-section billing-panel billing-card">
