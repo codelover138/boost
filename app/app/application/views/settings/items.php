@@ -20,26 +20,31 @@ $settings_data = $request['data'];
     </div>
     <div class="container-fluid bg-white doc-spaced">
        <div class="col-xs-12">
-            <h3 class="pull-left-xs">Items</h3>
+            <h3 class="pull-left-xs">Items / Services / Products</h3>
              <button data-redirect-url="<?php echo base_url('settings/items'); ?>" class="btn btn-default pull-right-xs open-modal" href="<?php echo base_url('settings/modal/items/add'); ?>" type="button">Add New Item &nbsp; &nbsp; +</button>
        </div>
-       
+
       <div class="container-fluid">
-        
+
        <!-- <div class="table-responsive">-->
+            <?php if (empty($settings_data)): ?>
+            <div class="col-xs-12" style="padding: 30px 0; color: #888; text-align: center;">
+                <p style="font-size:15px; margin-bottom:6px;">No items added yet.</p>
+                <p style="font-size:13px;">Add the items, services, or products you sell so you can quickly select them when creating invoices and estimates.</p>
+                <p style="font-size:13px; margin-top:4px;"><em>Example: "Website Design" — hourly rate R450, or "Consulting" — flat fee R1 500.</em></p>
+            </div>
+            <?php else: ?>
             <table class="table listInvoiceTable" style="font-weight:bold;">
               <tr class="table_header">
                 <td>No.</td>
-                <td>Name</td>              
+                <td>Name</td>
                 <td>Description</td>
                 <td>Rate</td>
                 <td></td>
               </tr>
              <?php
-			  
 			  $count = 1;
 			  foreach($settings_data as $item_key => $item_data ){
-				  
 			  ?>
              <tr>                         	
                 <td><?php echo $count; ?>.</td>
@@ -70,8 +75,9 @@ $settings_data = $request['data'];
               <?php
 			  		$count++;
 			  }
-			  ?>                    
+			  ?>
             </table>
+            <?php endif; ?>
 
        <!--  </div> -->
     </div>

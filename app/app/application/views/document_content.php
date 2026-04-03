@@ -7,7 +7,7 @@
 <nav class="navbar navbar-default navbar-static" id="navbar-example">
   <div class="max-width-1200">
     <div class="navbar-header">
-      <a href="http://boostaccounting.com" class="navbar-brand logo_container"><img src="<?php echo base_url('images/boost_logo.png'); ?>" alt="BOOST" /></a>
+      <a href="http://boostaccounting.com" class="navbar-brand logo_container"><img src="<?php echo base_url('images/boost_logo_darkbg.svg'); ?>" alt="BOOST" /></a>
     </div>  
     <div class="navbar-collapse">
 		<ul class="nav navbar-nav ">

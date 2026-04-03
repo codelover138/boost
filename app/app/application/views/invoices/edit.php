@@ -1,8 +1,11 @@
 <?php
 	$invoice_data = array_values($request['data'])[0];
 	$organization_data =array_values($request['piggyback']['organisations'])[0];
-	$base_currency_id = $organization_data['currency_id'];
-	$base_currency_data = $request['piggyback']['currencies'][$base_currency_id];
+	$base_currency_id = !empty($organization_data['currency_id']) ? (int)$organization_data['currency_id'] : 1;
+	$base_currency_data = reset($request['piggyback']['currencies']);
+	foreach ($request['piggyback']['currencies'] as $c) {
+	    if ((int)$c['id'] === $base_currency_id) { $base_currency_data = $c; break; }
+	}
 	
 ?>
  <!-- content area -->

@@ -195,9 +195,8 @@ $settings_data = array_values($request['data'])[0];
                     <select id="currency_id" name="currency_id" class="selectpicker full-width">
                         <option>Choose a Currency</option>
                         <?php
-							
-							$curreny_found = false;
-						
+							$currency_found = false;
+
 							foreach($piggyback['currencies'] as $currencies_key => $currencies_data){
 								if($currencies_data['id'] == $settings_data['currency_id']){
 									echo '<option selected="selected" value="'.$currencies_data['id'].'">'.$currencies_data['currency_name'].'</option>';
@@ -206,8 +205,8 @@ $settings_data = array_values($request['data'])[0];
 									echo '<option value="'.$currencies_data['id'].'">'.$currencies_data['currency_name'].'</option>';
 								}
 							}
-							
-							if($currencies_found === false){
+
+							if($currency_found === false){
 								echo '<option disabled="disabled" selected="selected" value="0">Choose a Currency</option>';
 							}else{
 								echo '<option disabled="disabled" value="0">Choose a Currency</option>';

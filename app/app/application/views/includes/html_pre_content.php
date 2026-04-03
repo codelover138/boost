@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title><?php echo $page['title']; ?></title>
 
+<link rel="icon" type="image/svg+xml" href="<?php echo base_url('images/boost_icon.svg'); ?>">
+<link rel="apple-touch-icon" href="<?php echo base_url('images/boost_icon.svg'); ?>">
+
 <link rel="stylesheet" type="text/css" href="<?php echo base_url('css/bootstrap.css');?>"/>
 <link rel="stylesheet" type="text/css" href="<?php echo base_url('css/theme.css');?>"/>
 <link rel="stylesheet" type="text/css" href="<?php echo base_url('css/bootstrap-datepicker3.css');?>"/>

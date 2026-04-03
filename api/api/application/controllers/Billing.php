@@ -415,7 +415,7 @@ class Billing extends CI_Controller
         if (!$ip_valid) {
             $validation_errors[] = 'Invalid source IP';
         }
-        if (!$signature_valid && !$this->payfast_service->get_setting('test_mode')) {
+        if (!$signature_valid) {
             $validation_errors[] = 'Invalid signature';
         }
         if (!$amount_valid) {
@@ -448,17 +448,20 @@ class Billing extends CI_Controller
             'validation_errors' => $validation_errors
         ));
 
+        $payfast_token = isset($post['token']) ? trim((string)$post['token']) : null;
+
         $update_post = array(
-            'payment_status' => !empty($validation_errors) ? 'invalid' : $normalised_status,
+            'payment_status'    => !empty($validation_errors) ? 'invalid' : $normalised_status,
             'payfast_payment_id' => isset($post['pf_payment_id']) ? $post['pf_payment_id'] : null,
             'payfast_reference' => isset($post['payment_id']) ? $post['payment_id'] : null,
-            'payment_method' => isset($post['payment_method']) ? $post['payment_method'] : null,
-            'amount_fee' => isset($post['amount_fee']) ? $post['amount_fee'] : null,
-            'amount_net' => isset($post['amount_net']) ? $post['amount_net'] : null,
-            'itn_verified' => empty($validation_errors) ? 1 : 0,
-            'raw_itn_data' => json_encode($post),
-            'failure_reason' => empty($validation_errors) ? null : implode('; ', $validation_errors),
-            'itn_received_at' => date('Y-m-d H:i:s')
+            'payfast_token'     => $payfast_token,
+            'payment_method'    => isset($post['payment_method']) ? $post['payment_method'] : null,
+            'amount_fee'        => isset($post['amount_fee']) ? $post['amount_fee'] : null,
+            'amount_net'        => isset($post['amount_net']) ? $post['amount_net'] : null,
+            'itn_verified'      => empty($validation_errors) ? 1 : 0,
+            'raw_itn_data'      => json_encode($post),
+            'failure_reason'    => empty($validation_errors) ? null : implode('; ', $validation_errors),
+            'itn_received_at'   => date('Y-m-d H:i:s')
         );
 
         if (empty($validation_errors) && $normalised_status === 'complete') {
@@ -472,20 +475,20 @@ class Billing extends CI_Controller
         $this->generic_model->update($params, $payment->id, $update_post, false);
 
         $this->log_itn_audit('payment_updated', array(
-            'payment_id' => $payment->id,
+            'payment_id'      => $payment->id,
             'organisation_id' => $org->id,
-            'update' => $update_post
+            'update'          => $update_post
         ));
 
         if (!empty($validation_errors)) {
             $this->create_event($org->id, $payment->id, 'payment_invalid', 'PayFast ITN rejected', array(
-                'errors' => $validation_errors,
+                'errors'  => $validation_errors,
                 'payload' => $post
             ));
             $this->send_payment_failure_email($org, $payment, implode('; ', $validation_errors));
             $this->log_itn_audit('rejected_validation', array(
-                'payment_id' => $payment->id,
-                'organisation_id' => $org->id,
+                'payment_id'        => $payment->id,
+                'organisation_id'   => $org->id,
                 'validation_errors' => $validation_errors
             ));
             $this->output_itn_response(200, 'ITN rejected');
@@ -494,14 +497,19 @@ class Billing extends CI_Controller
 
         if ($normalised_status === 'complete') {
             if ($existing_status !== 'complete') {
-                $this->activate_subscription($org, $payment);
+                // Initial payment confirmation
+                $this->activate_subscription($org, $payment, $payfast_token);
                 $this->create_event($org->id, $payment->id, 'payment_completed', 'PayFast payment confirmed', $post);
                 $this->send_payment_success_email($org, $payment);
                 $this->log_itn_audit('subscription_activated', array(
-                    'payment_id' => $payment->id,
+                    'payment_id'      => $payment->id,
                     'organisation_id' => $org->id,
-                    'paid_until' => $payment->billing_date_to
+                    'paid_until'      => $payment->billing_date_to,
+                    'payfast_token'   => $payfast_token
                 ));
+            } elseif (!empty($payfast_token)) {
+                // Recurring auto-renewal from PayFast subscription
+                $this->process_recurring_renewal($org, $payment, $post, $payfast_token);
             }
             $this->output_itn_response(200, 'Payment processed');
             return;
@@ -509,7 +517,7 @@ class Billing extends CI_Controller
 
         $this->mark_payment_failed($org, $payment, $normalised_status, $post);
         $this->log_itn_audit('payment_not_complete', array(
-            'payment_id' => $payment->id,
+            'payment_id'      => $payment->id,
             'organisation_id' => $org->id,
             'normalised_status' => $normalised_status
         ));
@@ -643,7 +651,7 @@ class Billing extends CI_Controller
         return $this->generic_model->read($params, $organisation_id, 'single');
     }
 
-    protected function activate_subscription($org, $payment)
+    protected function activate_subscription($org, $payment, $payfast_token = null)
     {
         $this->switch_to_main_db($org->account_name);
         $params = array(
@@ -651,15 +659,78 @@ class Billing extends CI_Controller
             'entity' => 'organisation'
         );
 
-        $this->generic_model->update($params, $org->id, array(
-            'subscription_status' => 'active',
-            'paid_until' => $payment->billing_date_to,
-            'grace_period_ends_at' => null,
-            'current_plan_code' => $payment->plan_code,
-            'pending_plan_code' => null,
-            'cancel_at_period_end' => 0,
+        $update = array(
+            'subscription_status'    => 'active',
+            'paid_until'             => $payment->billing_date_to,
+            'grace_period_ends_at'   => null,
+            'current_plan_code'      => $payment->plan_code,
+            'pending_plan_code'      => null,
+            'cancel_at_period_end'   => 0,
             'cancellation_requested_at' => null
-        ), false);
+        );
+
+        if ($payfast_token !== null && $payfast_token !== '') {
+            $update['payfast_token'] = $payfast_token;
+        }
+
+        $this->generic_model->update($params, $org->id, $update, false);
+    }
+
+    protected function process_recurring_renewal($org, $original_payment, $post, $payfast_token)
+    {
+        $plan = $this->payfast_service->get_plan($original_payment->plan_code);
+        $billing_start = $original_payment->billing_date_to;
+        $billing_end   = date('Y-m-d H:i:s', strtotime('+' . (int)$plan['cycle_days'] . ' days', strtotime($billing_start)));
+
+        $renewal_data = array(
+            'organisation_id'  => $org->id,
+            'user_id'          => $original_payment->user_id,
+            'account_name'     => $original_payment->account_name,
+            'plan_code'        => $original_payment->plan_code,
+            'item_name'        => $original_payment->item_name,
+            'merchant_reference' => $this->generate_reference($org->id),
+            'payment_status'   => 'complete',
+            'amount_gross'     => $original_payment->amount_gross,
+            'billing_date_from' => $billing_start,
+            'billing_date_to'  => $billing_end,
+            'payfast_payment_id' => isset($post['pf_payment_id']) ? $post['pf_payment_id'] : null,
+            'payfast_token'    => $payfast_token,
+            'payment_method'   => isset($post['payment_method']) ? $post['payment_method'] : null,
+            'amount_fee'       => isset($post['amount_fee']) ? $post['amount_fee'] : null,
+            'amount_net'       => isset($post['amount_net']) ? $post['amount_net'] : null,
+            'itn_verified'     => 1,
+            'raw_itn_data'     => json_encode($post),
+            'itn_received_at'  => date('Y-m-d H:i:s'),
+            'confirmed_at'     => date('Y-m-d H:i:s')
+        );
+
+        $params = array(
+            'table'  => $this->table_prefix . 'subscription_payments',
+            'entity' => 'subscription payment'
+        );
+
+        $this->switch_to_main_db($org->account_name);
+        $create = $this->generic_model->create($params, $renewal_data);
+
+        if (!$create['bool']) {
+            $this->log_itn_audit('renewal_create_failed', array(
+                'organisation_id' => $org->id,
+                'payfast_token'   => $payfast_token,
+                'error'           => $create['message']
+            ));
+            return;
+        }
+
+        $renewal_payment = $this->generic_model->read($params, $create['record_id'], 'single');
+        $this->activate_subscription($org, $renewal_payment, $payfast_token);
+        $this->create_event($org->id, $renewal_payment->id, 'payment_completed', 'PayFast recurring auto-renewal confirmed', $post);
+        $this->send_payment_success_email($org, $renewal_payment);
+        $this->log_itn_audit('recurring_renewal_processed', array(
+            'organisation_id'  => $org->id,
+            'renewal_payment_id' => $renewal_payment->id,
+            'paid_until'       => $billing_end,
+            'payfast_token'    => $payfast_token
+        ));
     }
 
     protected function mark_payment_failed($org, $payment, $status, $payload)

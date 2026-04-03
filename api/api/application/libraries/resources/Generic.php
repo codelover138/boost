@@ -272,11 +272,11 @@ class Generic
             $return['status'] = 'ERROR';
         }
 
-        if(isset($result['validation_results'])) :
+        if (isset($result['validation_results'])) {
             $return['validation_results'] = $result['validation_results'];
-        endif;
+        }
 
-        $return['message'] = $result['message'];
+        $return['message'] = isset($result['message']) ? $result['message'] : array();
 
         return $return;
     }

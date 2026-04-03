@@ -1,9 +1,13 @@
 <?php
 
 $template_data = array_values($request['piggyback']['templates'])[0];
-$organization_data =array_values($request['piggyback']['organisations'])[0];
-$base_currency_id = $organization_data['currency_id'];
-$base_currency_data = $request['data'][$base_currency_id];
+$organization_data = array_values($request['piggyback']['organisations'])[0];
+$base_currency_id = !empty($organization_data['currency_id']) ? (int)$organization_data['currency_id'] : 1;
+// Find currency by its id field — do not use currency_id as an array index
+$base_currency_data = reset($request['data']); // ZAR fallback (first in list)
+foreach ($request['data'] as $c) {
+    if ((int)$c['id'] === $base_currency_id) { $base_currency_data = $c; break; }
+}
 
 ?>
 

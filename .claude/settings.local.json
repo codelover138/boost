@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep:*)",
+      "Bash(grep -E \"\\\\.\\(php|sql\\)$\")",
+      "Bash(find d:/setup/xammp/htdocs/boost -name \"*[Mm]odel*.php\" -exec grep -l \"tax\\\\|Tax\" {} \\\\;)",
+      "Bash(find d:/setup/xammp/htdocs/boost -name \"*[Cc]ontroller*.php\" -exec grep -l \"tax\\\\|Tax\" {} \\\\;)"
+    ]
+  }
+}

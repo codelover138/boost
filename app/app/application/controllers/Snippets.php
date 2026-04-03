@@ -24,7 +24,17 @@ class Snippets extends CI_Controller{
 		if($this->input->get('current_id')){
 			$tax_data['current_tax_id'] = $this->input->get('current_id');
 		}else{
-			$tax_data['current_tax_id'] = 0;
+			// Default to the No Tax (0%) entry so new line items carry no tax by default
+			$default_tax_id = 0;
+			if(!empty($data['data']) && is_array($data['data'])){
+				foreach($data['data'] as $t){
+					if(isset($t['percentage']) && (float)$t['percentage'] === 0.0){
+						$default_tax_id = $t['id'];
+						break;
+					}
+				}
+			}
+			$tax_data['current_tax_id'] = $default_tax_id;
 		}
 		
 		if($this->input->get('item_id')){

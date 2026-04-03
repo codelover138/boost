@@ -25,8 +25,30 @@ class Api extends CI_Controller
         //$this->userhandler->valid_permission();
         endif;
 
-
-
+        $dont_check_subscription = array_merge($dont_validate_token, array('subscription'));
+        if (!in_array($requested_resource, $dont_check_subscription)):
+            $headers = $this->regular->get_request_headers();
+            $account_name = isset($headers['Account-Name']) ? $headers['Account-Name'] : null;
+            if ($account_name) {
+                $this->load->library('db/switcher', array('account_name' => $account_name));
+                $org = $this->switcher->check_sub_status($account_name);
+                if ($org) {
+                    $blocked_statuses = array('expired', 'past_due', 'cancelled');
+                    $is_blocked = in_array($org->subscription_status, $blocked_statuses);
+                    if (!$is_blocked && $org->subscription_status === 'trial' && !empty($org->trial_ends_at)) {
+                        $is_blocked = strtotime($org->trial_ends_at) < time();
+                    }
+                    if ($is_blocked) {
+                        $this->regular->header_(402);
+                        $this->regular->respond(array(
+                            'status' => 'SUBSCRIPTION_REQUIRED',
+                            'message' => array('Your subscription has expired. Please renew to continue using Boost Accounting.')
+                        ));
+                        exit;
+                    }
+                }
+            }
+        endif;
 
     }
 

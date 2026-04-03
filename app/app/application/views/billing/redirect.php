@@ -5,7 +5,7 @@
         <div class="tableCell">
             <div class="login_container" style="max-width:520px;">
                 <div class="login_logo_container col-sm-12">
-                    <img src="<?php echo base_url('images/boost_medium_logo.png'); ?>" alt="Boost">
+                    <img src="<?php echo base_url('images/boost_logo_full.svg'); ?>" alt="Boost">
                 </div>
                 <div class="login_form_container" style="padding:20px;">
                     <h3>Redirecting To PayFast</h3>

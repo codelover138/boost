@@ -539,8 +539,7 @@ function boostRegister(t) {
             })
         })) : ($.each(e.validation_results, function(e, i) {
             $(t.currentTarget).find('[name="' + e + '"]').each(function() {
-                $(this).addClass("input-danger"),
-                $(this).after('<div class="error">' + i + "</div>")
+                $(this).addClass("input-danger")
             })
         }),
         $(".login_alert_container .alert strong").text(e.message[0]),

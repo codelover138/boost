@@ -125,21 +125,36 @@ class Payfast_service
 
         $base_app_url = rtrim(get_protocol() . $payment->account_name . '.' . $this->CI->config->item('domain'), '/');
 
+        // Determine recurring billing frequency from plan cycle_days
+        $cycle_days = !empty($plan['cycle_days']) ? (int)$plan['cycle_days'] : 30;
+        $payfast_frequency = $this->get_payfast_frequency($cycle_days);
+
+        // billing_date: when PayFast should begin the recurring charges after the initial payment
+        $billing_date = !empty($payment->billing_date_to)
+            ? date('Y-m-d', strtotime($payment->billing_date_to))
+            : date('Y-m-d', strtotime('+' . $cycle_days . ' days'));
+
         $fields = array(
-            'merchant_id' => $this->config['merchant_id'],
-            'merchant_key' => $this->config['merchant_key'],
-            'return_url' => $base_app_url . '/billing/complete/success/' . $payment->id,
-            'cancel_url' => $base_app_url . '/billing/complete/cancel/' . $payment->id,
-            'notify_url' => rtrim($this->CI->config->item('api_url'), '/') . '/billing/itn',
-            'name_first' => $first_name,
-            'name_last' => $last_name,
-            'email_address' => $organisation->email,
-            'm_payment_id' => $payment->id,
-            'amount' => number_format((float)$payment->amount_gross, 2, '.', ''),
-            'item_name' => $payment->item_name,
+            'merchant_id'      => $this->config['merchant_id'],
+            'merchant_key'     => $this->config['merchant_key'],
+            'return_url'       => $base_app_url . '/billing/complete/success/' . $payment->id,
+            'cancel_url'       => $base_app_url . '/billing/complete/cancel/' . $payment->id,
+            'notify_url'       => rtrim($this->CI->config->item('api_url'), '/') . '/billing/itn',
+            'name_first'       => $first_name,
+            'name_last'        => $last_name,
+            'email_address'    => $organisation->email,
+            'm_payment_id'     => $payment->id,
+            'amount'           => number_format((float)$payment->amount_gross, 2, '.', ''),
+            'item_name'        => $payment->item_name,
             'item_description' => !empty($plan['description']) ? $plan['description'] : '',
-            'custom_str1' => $payment->merchant_reference,
-            'custom_str2' => $payment->account_name
+            'custom_str1'      => $payment->merchant_reference,
+            'custom_str2'      => $payment->account_name,
+            // PayFast recurring subscription fields
+            'subscription_type' => 1,
+            'billing_date'      => $billing_date,
+            'recurring_amount'  => number_format((float)$payment->amount_gross, 2, '.', ''),
+            'frequency'         => $payfast_frequency,
+            'cycles'            => 0
         );
 
         if ($this->config['test_mode']) {
@@ -152,6 +167,33 @@ class Payfast_service
         $fields['signature'] = $this->generate_signature($fields);
 
         return $fields;
+    }
+
+    /**
+     * Map plan cycle_days to PayFast frequency value.
+     * 1=Daily, 2=Weekly, 3=Monthly, 4=Quarterly, 5=Biannual, 6=Annual
+     */
+    public function get_payfast_frequency($cycle_days)
+    {
+        $cycle_days = (int)$cycle_days;
+
+        if ($cycle_days <= 1) {
+            return 1; // Daily
+        }
+        if ($cycle_days <= 7) {
+            return 2; // Weekly
+        }
+        if ($cycle_days <= 31) {
+            return 3; // Monthly
+        }
+        if ($cycle_days <= 100) {
+            return 4; // Quarterly
+        }
+        if ($cycle_days <= 200) {
+            return 5; // Biannual
+        }
+
+        return 6; // Annual
     }
 
     protected function normalise_plan($plan, $fallback_code = null)

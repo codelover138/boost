@@ -12,7 +12,7 @@
             <form id="verification_form" class="autologin" method="post" action="<?php echo base_api_url('registrations'); ?>" autocomplete="on">
                 <div class="login_container">
                 	<div class="login_logo_container  col-sm-12">
-                    	<img src="<?php echo base_url('images/boost_medium_logo.png'); ?>" >
+                    	<img src="<?php echo base_url('images/boost_logo_full.svg'); ?>" >
                     </div>
                     <div class="col-sm-12 form-group loading_container input_group">
                         	<img alt="Loading ..." src="<?php echo base_url('images/account_create_loader.gif'); ?>"  />

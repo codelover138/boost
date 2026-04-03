@@ -1,14 +1,26 @@
 @font-face {
-  font-family: 'open_sansregular';
-  src: url('../fonts/opensans-regular-webfont.eot');
-  src: url('../fonts/opensans-regular-webfont.eot?#iefix') format('embedded-opentype'), url('../fonts/opensans-regular-webfont.woff') format('woff'), url('../fonts/opensans-regular-webfont.ttf') format('truetype'), url('../fonts/opensans-regular-webfont.svg#open_sansregular') format('svg');
+  font-family: "open_sansregular";
+  src: url("../fonts/opensans-regular-webfont.eot");
+  src:
+    url("../fonts/opensans-regular-webfont.eot?#iefix")
+      format("embedded-opentype"),
+    url("../fonts/opensans-regular-webfont.woff") format("woff"),
+    url("../fonts/opensans-regular-webfont.ttf") format("truetype"),
+    url("../fonts/opensans-regular-webfont.svg#open_sansregular") format("svg");
   font-weight: normal;
   font-style: normal;
 }
 @font-face {
-  font-family: 'open_sansregular';
-  src: url('../fonts/opensans-semibold-webfont.eot');
-  src: url('../fonts/opensans-semibold-webfont.eot?#iefix') format('embedded-opentype'), url('../fonts/opensans-semibold-webfont.woff2') format('woff2'), url('../fonts/opensans-semibold-webfont.woff') format('woff'), url('../fonts/opensans-semibold-webfont.ttf') format('truetype'), url('../fonts/opensans-semibold-webfont.svg#open_sanssemibold') format('svg');
+  font-family: "open_sansregular";
+  src: url("../fonts/opensans-semibold-webfont.eot");
+  src:
+    url("../fonts/opensans-semibold-webfont.eot?#iefix")
+      format("embedded-opentype"),
+    url("../fonts/opensans-semibold-webfont.woff2") format("woff2"),
+    url("../fonts/opensans-semibold-webfont.woff") format("woff"),
+    url("../fonts/opensans-semibold-webfont.ttf") format("truetype"),
+    url("../fonts/opensans-semibold-webfont.svg#open_sanssemibold")
+      format("svg");
   font-weight: bold;
   font-style: normal;
 }
@@ -41,7 +53,8 @@
   opacity: 0;
 }
 .outerContainer_table.login_table {
-  background-color: #1c2b36;
+  background-color: #454647;
+  /* background-color: #1c2b36; */
   height: 100%;
 }
 .outerContainer_table.login_table .tableCell {
@@ -105,11 +118,11 @@
   width: 15px;
   height: 3px;
   background: #c4cbd3;
-  -webkit-transition: all .3s ease;
-  -moz-transition: all .3s ease;
-  -ms-transition: all .3s ease;
-  -o-transition: all .3s ease;
-  transition: all .3s ease;
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
   border-radius: 3px;
 }
 .patty {
@@ -117,14 +130,14 @@
   position: relative;
 }
 .patty:before {
-  content: '';
+  content: "";
   display: block;
   position: absolute;
   z-index: -1;
   top: -5px;
 }
 .patty:after {
-  content: '';
+  content: "";
   top: 5px;
   display: block;
   position: absolute;
@@ -363,8 +376,12 @@
   }
 }
 .alert {
-  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 2px rgba(0, 0, 0, 0.05);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 2px rgba(0, 0, 0, 0.05);
+  -webkit-box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 1px 2px rgba(0, 0, 0, 0.05);
 }
 .alert h2 {
   margin-top: 0;
@@ -424,9 +441,36 @@
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffd9534f', endColorstr='#ffc9302c', GradientType=0);
 }
 .progress-bar-striped {
-  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
-  background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
-  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: -webkit-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-image: -o-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
 }
 .list-group {
   border-radius: 4px;
@@ -581,8 +625,12 @@
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffe8e8e8', endColorstr='#fff5f5f5', GradientType=0);
   border-color: #dcdcdc;
-  -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 0 rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 0 rgba(255, 255, 255, 0.1);
+  -webkit-box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.05),
+    0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.05),
+    0 1px 0 rgba(255, 255, 255, 0.1);
 }
 .contentMainLeft {
   line-height: 170%;
@@ -653,7 +701,9 @@ h1 {
 .bootstrap-select.btn-group .btn-default.input-danger,
 .input-danger {
   border: 1px solid #d9534f !important;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(213, 87, 79, 0.75);
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.075) inset,
+    0 0 8px rgba(213, 87, 79, 0.75);
 }
 input:focus,
 select:focus,
@@ -791,11 +841,11 @@ button:focus {
   border: none;
 }
 table .table_spacer.large td {
-  height: 40px ;
+  height: 40px;
   padding: 0 !important;
 }
 table .table_spacer td {
-  height: 16px ;
+  height: 16px;
   padding: 0 !important;
 }
 table .table_break {
@@ -804,7 +854,7 @@ table .table_break {
   border-collapse: separate !important;
 }
 table .table_break td {
-  height: 1px ;
+  height: 1px;
   padding: 0 !important;
 }
 .altTable tr td {
@@ -820,8 +870,8 @@ table .table_break td {
   opacity: 1;
 }
 .listInvoiceTable .listHoverOptions a {
-  font-size: 11px ;
-  color: #adc0cf ;
+  font-size: 11px;
+  color: #adc0cf;
   padding: 0 5px;
   text-decoration: none;
 }
@@ -865,7 +915,6 @@ table .table_break td {
   background-image: url(../images/activity-info-bullet.png);
 }
 .activityBar .activityBar_outer {
-
   position: absolute;
   top: 0;
   left: 0;
@@ -1049,7 +1098,7 @@ input.datepicker:focus {
   float: left;
   opacity: 0;
   -moz-transition: opacity 0.4s;
-  -MS-transition: opacity 0.4s;
+  -ms-transition: opacity 0.4s;
   -webkit-transition: opacity 0.4s;
   transition: opacity 0.4s;
 }
@@ -1473,13 +1522,22 @@ y-axis
   border-radius: 16px;
   text-align: center;
 }
-.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded .mCSB_dragger_bar,
-.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_dragger .mCSB_dragger_bar {
+.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  .mCSB_dragger_bar,
+.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_dragger
+  .mCSB_dragger_bar {
   width: 12px;
   /* auto-expanded scrollbar */
 }
-.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail,
-.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail {
+.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  + .mCSB_draggerRail,
+.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_draggerRail {
   width: 8px;
   /* auto-expanded scrollbar */
 }
@@ -1522,7 +1580,9 @@ x-axis
   left: 0;
 }
 .mCustomScrollBox + .mCSB_scrollTools.mCSB_scrollTools_horizontal,
-.mCustomScrollBox + .mCSB_scrollTools + .mCSB_scrollTools.mCSB_scrollTools_horizontal {
+.mCustomScrollBox
+  + .mCSB_scrollTools
+  + .mCSB_scrollTools.mCSB_scrollTools_horizontal {
   bottom: -26px;
 }
 /* scrollbar position: outside */
@@ -1545,14 +1605,23 @@ x-axis
   height: 4px;
   margin: 6px auto;
 }
-.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded .mCSB_dragger_bar,
-.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_dragger .mCSB_dragger_bar {
+.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  .mCSB_dragger_bar,
+.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_dragger
+  .mCSB_dragger_bar {
   height: 12px;
   /* auto-expanded scrollbar */
   margin: 2px auto;
 }
-.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail,
-.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail {
+.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  + .mCSB_draggerRail,
+.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_draggerRail {
   height: 8px;
   /* auto-expanded scrollbar */
   margin: 4px 0;
@@ -1602,20 +1671,31 @@ yx-axis
   right: 20px;
 }
 /* non-visible horizontal scrollbar */
-.mCSB_container_wrapper.mCS_no_scrollbar_x.mCS_x_hidden + .mCSB_scrollTools.mCSB_scrollTools_vertical {
+.mCSB_container_wrapper.mCS_no_scrollbar_x.mCS_x_hidden
+  + .mCSB_scrollTools.mCSB_scrollTools_vertical {
   bottom: 0;
 }
 /* non-visible vertical scrollbar/RTL direction/left-side scrollbar */
-.mCSB_container_wrapper.mCS_no_scrollbar_y.mCS_y_hidden + .mCSB_scrollTools ~ .mCSB_scrollTools.mCSB_scrollTools_horizontal,
-.mCS-dir-rtl > .mCustomScrollBox.mCSB_vertical_horizontal.mCSB_inside > .mCSB_scrollTools.mCSB_scrollTools_horizontal {
+.mCSB_container_wrapper.mCS_no_scrollbar_y.mCS_y_hidden
+  + .mCSB_scrollTools
+  ~ .mCSB_scrollTools.mCSB_scrollTools_horizontal,
+.mCS-dir-rtl
+  > .mCustomScrollBox.mCSB_vertical_horizontal.mCSB_inside
+  > .mCSB_scrollTools.mCSB_scrollTools_horizontal {
   right: 0;
 }
 /* RTL direction/left-side scrollbar */
-.mCS-dir-rtl > .mCustomScrollBox.mCSB_vertical_horizontal.mCSB_inside > .mCSB_scrollTools.mCSB_scrollTools_horizontal {
+.mCS-dir-rtl
+  > .mCustomScrollBox.mCSB_vertical_horizontal.mCSB_inside
+  > .mCSB_scrollTools.mCSB_scrollTools_horizontal {
   left: 20px;
 }
 /* non-visible scrollbar/RTL direction/left-side scrollbar */
-.mCS-dir-rtl > .mCustomScrollBox.mCSB_vertical_horizontal.mCSB_inside > .mCSB_container_wrapper.mCS_no_scrollbar_y.mCS_y_hidden + .mCSB_scrollTools ~ .mCSB_scrollTools.mCSB_scrollTools_horizontal {
+.mCS-dir-rtl
+  > .mCustomScrollBox.mCSB_vertical_horizontal.mCSB_inside
+  > .mCSB_container_wrapper.mCS_no_scrollbar_y.mCS_y_hidden
+  + .mCSB_scrollTools
+  ~ .mCSB_scrollTools.mCSB_scrollTools_horizontal {
   left: 0;
 }
 .mCS-dir-rtl > .mCSB_inside > .mCSB_container_wrapper {
@@ -1635,13 +1715,15 @@ yx-axis
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-.mCustomScrollBox.mCSB_vertical_horizontal.mCSB_inside > .mCSB_container_wrapper.mCS_no_scrollbar_y.mCS_y_hidden {
+.mCustomScrollBox.mCSB_vertical_horizontal.mCSB_inside
+  > .mCSB_container_wrapper.mCS_no_scrollbar_y.mCS_y_hidden {
   margin-right: 0;
   /* non-visible scrollbar */
   margin-left: 0;
 }
 /* non-visible horizontal scrollbar */
-.mCustomScrollBox.mCSB_vertical_horizontal.mCSB_inside > .mCSB_container_wrapper.mCS_no_scrollbar_x.mCS_x_hidden {
+.mCustomScrollBox.mCSB_vertical_horizontal.mCSB_inside
+  > .mCSB_container_wrapper.mCS_no_scrollbar_x.mCS_x_hidden {
   margin-bottom: 0;
 }
 /* 
@@ -1655,19 +1737,59 @@ yx-axis
 .mCSB_scrollTools .mCSB_buttonDown,
 .mCSB_scrollTools .mCSB_buttonLeft,
 .mCSB_scrollTools .mCSB_buttonRight {
-  -webkit-transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
-  -moz-transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
-  -o-transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
-  transition: opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  -webkit-transition:
+    opacity 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
+  -moz-transition:
+    opacity 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
+  -o-transition:
+    opacity 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
+  transition:
+    opacity 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
 }
 .mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger_bar,
 .mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerRail,
 .mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger_bar,
 .mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerRail {
-  -webkit-transition: width 0.2s ease-out 0.2s, height 0.2s ease-out 0.2s, margin-left 0.2s ease-out 0.2s, margin-right 0.2s ease-out 0.2s, margin-top 0.2s ease-out 0.2s, margin-bottom 0.2s ease-out 0.2s, opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
-  -moz-transition: width 0.2s ease-out 0.2s, height 0.2s ease-out 0.2s, margin-left 0.2s ease-out 0.2s, margin-right 0.2s ease-out 0.2s, margin-top 0.2s ease-out 0.2s, margin-bottom 0.2s ease-out 0.2s, opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
-  -o-transition: width 0.2s ease-out 0.2s, height 0.2s ease-out 0.2s, margin-left 0.2s ease-out 0.2s, margin-right 0.2s ease-out 0.2s, margin-top 0.2s ease-out 0.2s, margin-bottom 0.2s ease-out 0.2s, opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
-  transition: width 0.2s ease-out 0.2s, height 0.2s ease-out 0.2s, margin-left 0.2s ease-out 0.2s, margin-right 0.2s ease-out 0.2s, margin-top 0.2s ease-out 0.2s, margin-bottom 0.2s ease-out 0.2s, opacity 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  -webkit-transition:
+    width 0.2s ease-out 0.2s,
+    height 0.2s ease-out 0.2s,
+    margin-left 0.2s ease-out 0.2s,
+    margin-right 0.2s ease-out 0.2s,
+    margin-top 0.2s ease-out 0.2s,
+    margin-bottom 0.2s ease-out 0.2s,
+    opacity 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
+  -moz-transition:
+    width 0.2s ease-out 0.2s,
+    height 0.2s ease-out 0.2s,
+    margin-left 0.2s ease-out 0.2s,
+    margin-right 0.2s ease-out 0.2s,
+    margin-top 0.2s ease-out 0.2s,
+    margin-bottom 0.2s ease-out 0.2s,
+    opacity 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
+  -o-transition:
+    width 0.2s ease-out 0.2s,
+    height 0.2s ease-out 0.2s,
+    margin-left 0.2s ease-out 0.2s,
+    margin-right 0.2s ease-out 0.2s,
+    margin-top 0.2s ease-out 0.2s,
+    margin-bottom 0.2s ease-out 0.2s,
+    opacity 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
+  transition:
+    width 0.2s ease-out 0.2s,
+    height 0.2s ease-out 0.2s,
+    margin-left 0.2s ease-out 0.2s,
+    margin-right 0.2s ease-out 0.2s,
+    margin-top 0.2s ease-out 0.2s,
+    margin-bottom 0.2s ease-out 0.2s,
+    opacity 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
 }
 /* 
 ------------------------------------------------------------------------------------------------------------------------
@@ -1691,8 +1813,12 @@ yx-axis
   filter: "alpha(opacity=0)";
   -ms-filter: "alpha(opacity=0)";
 }
-.mCustomScrollbar > .mCustomScrollBox > .mCSB_scrollTools.mCSB_scrollTools_onDrag,
-.mCustomScrollbar > .mCustomScrollBox ~ .mCSB_scrollTools.mCSB_scrollTools_onDrag,
+.mCustomScrollbar
+  > .mCustomScrollBox
+  > .mCSB_scrollTools.mCSB_scrollTools_onDrag,
+.mCustomScrollbar
+  > .mCustomScrollBox
+  ~ .mCSB_scrollTools.mCSB_scrollTools_onDrag,
 .mCustomScrollBox:hover > .mCSB_scrollTools,
 .mCustomScrollBox:hover ~ .mCSB_scrollTools,
 .mCS-autoHide:hover > .mCustomScrollBox > .mCSB_scrollTools,
@@ -1843,7 +1969,9 @@ yx-axis
   background-color: rgba(255, 255, 255, 0.85);
 }
 .mCS-light-2.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-light-2.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+.mCS-light-2.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar {
   background-color: #fff;
   background-color: rgba(255, 255, 255, 0.9);
 }
@@ -1879,7 +2007,9 @@ yx-axis
   background-color: rgba(0, 0, 0, 0.85);
 }
 .mCS-dark-2.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-dark-2.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+.mCS-dark-2.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar {
   background-color: #000;
   background-color: rgba(0, 0, 0, 0.9);
 }
@@ -1932,7 +2062,9 @@ yx-axis
   background-color: rgba(255, 255, 255, 0.85);
 }
 .mCS-light-thick.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-light-thick.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+.mCS-light-thick.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar {
   background-color: #fff;
   background-color: rgba(255, 255, 255, 0.9);
 }
@@ -1968,7 +2100,9 @@ yx-axis
   background-color: rgba(0, 0, 0, 0.85);
 }
 .mCS-dark-thick.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-dark-thick.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+.mCS-dark-thick.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar {
   background-color: #000;
   background-color: rgba(0, 0, 0, 0.9);
 }
@@ -2018,7 +2152,9 @@ yx-axis
   background-color: rgba(0, 0, 0, 0.85);
 }
 .mCS-dark-thin.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-dark-thin.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+.mCS-dark-thin.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar {
   background-color: #000;
   background-color: rgba(0, 0, 0, 0.9);
 }
@@ -2062,39 +2198,77 @@ yx-axis
 .mCS-rounded.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar,
 .mCS-rounded-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar,
 .mCS-rounded-dots.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar,
-.mCS-rounded-dots-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar {
+.mCS-rounded-dots-dark.mCSB_scrollTools_horizontal
+  .mCSB_dragger
+  .mCSB_dragger_bar {
   height: 14px;
   margin: 1px 0;
 }
-.mCS-rounded.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded .mCSB_dragger_bar,
-.mCS-rounded.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_dragger .mCSB_dragger_bar,
-.mCS-rounded-dark.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded .mCSB_dragger_bar,
-.mCS-rounded-dark.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_dragger .mCSB_dragger_bar {
+.mCS-rounded.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  .mCSB_dragger_bar,
+.mCS-rounded.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_dragger
+  .mCSB_dragger_bar,
+.mCS-rounded-dark.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  .mCSB_dragger_bar,
+.mCS-rounded-dark.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_dragger
+  .mCSB_dragger_bar {
   width: 16px;
   /* auto-expanded scrollbar */
   height: 16px;
   margin: -1px 0;
 }
-.mCS-rounded.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail,
-.mCS-rounded.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail,
-.mCS-rounded-dark.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail,
-.mCS-rounded-dark.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail {
+.mCS-rounded.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  + .mCSB_draggerRail,
+.mCS-rounded.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_draggerRail,
+.mCS-rounded-dark.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  + .mCSB_draggerRail,
+.mCS-rounded-dark.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_draggerRail {
   width: 4px;
   /* auto-expanded scrollbar */
 }
-.mCS-rounded.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded .mCSB_dragger_bar,
-.mCS-rounded.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_dragger .mCSB_dragger_bar,
-.mCS-rounded-dark.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded .mCSB_dragger_bar,
-.mCS-rounded-dark.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_dragger .mCSB_dragger_bar {
+.mCS-rounded.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  .mCSB_dragger_bar,
+.mCS-rounded.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_dragger
+  .mCSB_dragger_bar,
+.mCS-rounded-dark.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  .mCSB_dragger_bar,
+.mCS-rounded-dark.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_dragger
+  .mCSB_dragger_bar {
   height: 16px;
   /* auto-expanded scrollbar */
   width: 16px;
   margin: 0 -1px;
 }
-.mCS-rounded.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail,
-.mCS-rounded.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail,
-.mCS-rounded-dark.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail,
-.mCS-rounded-dark.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail {
+.mCS-rounded.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  + .mCSB_draggerRail,
+.mCS-rounded.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_draggerRail,
+.mCS-rounded-dark.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  + .mCSB_draggerRail,
+.mCS-rounded-dark.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_draggerRail {
   height: 4px;
   /* auto-expanded scrollbar */
   margin: 6px 0;
@@ -2127,9 +2301,13 @@ yx-axis
   background-color: rgba(0, 0, 0, 0.85);
 }
 .mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-rounded-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar,
+.mCS-rounded-dark.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar,
 .mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-rounded-dots-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+.mCS-rounded-dots-dark.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar {
   background-color: #000;
   background-color: rgba(0, 0, 0, 0.9);
 }
@@ -2206,24 +2384,76 @@ yx-axis
 .mCS-3d-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar,
 .mCS-3d-thick-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
   background-repeat: repeat-y;
-  background-image: -moz-linear-gradient(left, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
-  background-image: -webkit-gradient(linear, left top, right top, color-stop(0%, rgba(255, 255, 255, 0.5)), color-stop(100%, rgba(255, 255, 255, 0)));
-  background-image: -webkit-linear-gradient(left, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
-  background-image: -o-linear-gradient(left, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
-  background-image: -ms-linear-gradient(left, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
+  background-image: -moz-linear-gradient(
+    left,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-image: -webkit-gradient(
+    linear,
+    left top,
+    right top,
+    color-stop(0%, rgba(255, 255, 255, 0.5)),
+    color-stop(100%, rgba(255, 255, 255, 0))
+  );
+  background-image: -webkit-linear-gradient(
+    left,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-image: -o-linear-gradient(
+    left,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-image: -ms-linear-gradient(
+    left,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-image: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 .mCS-3d.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar,
 .mCS-3d-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar,
 .mCS-3d-thick.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar,
 .mCS-3d-thick-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar {
   background-repeat: repeat-x;
-  background-image: -moz-linear-gradient(top, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(255, 255, 255, 0.5)), color-stop(100%, rgba(255, 255, 255, 0)));
-  background-image: -webkit-linear-gradient(top, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
-  background-image: -o-linear-gradient(top, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
-  background-image: -ms-linear-gradient(top, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
-  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
+  background-image: -moz-linear-gradient(
+    top,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-image: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    color-stop(0%, rgba(255, 255, 255, 0.5)),
+    color-stop(100%, rgba(255, 255, 255, 0))
+  );
+  background-image: -webkit-linear-gradient(
+    top,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-image: -o-linear-gradient(
+    top,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-image: -ms-linear-gradient(
+    top,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
 }
 /* theme "3d", "3d-dark" */
 .mCS-3d.mCSB_scrollTools_vertical .mCSB_dragger,
@@ -2253,7 +2483,9 @@ yx-axis
   width: 8px;
   background-color: #000;
   background-color: rgba(0, 0, 0, 0.2);
-  box-shadow: inset 1px 0 1px rgba(0, 0, 0, 0.5), inset -1px 0 1px rgba(255, 255, 255, 0.2);
+  box-shadow:
+    inset 1px 0 1px rgba(0, 0, 0, 0.5),
+    inset -1px 0 1px rgba(255, 255, 255, 0.2);
 }
 .mCS-3d.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar,
 .mCS-3d.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar,
@@ -2262,7 +2494,9 @@ yx-axis
 .mCS-3d-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar,
 .mCS-3d-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar,
 .mCS-3d-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-3d-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+.mCS-3d-dark.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar {
   background-color: #555;
 }
 .mCS-3d.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar,
@@ -2274,7 +2508,9 @@ yx-axis
   width: 100%;
   height: 8px;
   margin: 4px 0;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.5), inset 0 -1px 1px rgba(255, 255, 255, 0.2);
+  box-shadow:
+    inset 0 1px 1px rgba(0, 0, 0, 0.5),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.2);
 }
 .mCS-3d.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar,
 .mCS-3d-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar {
@@ -2343,12 +2579,16 @@ yx-axis
 }
 .mCS-3d-thick.mCSB_scrollTools_vertical,
 .mCS-3d-thick-dark.mCSB_scrollTools_vertical {
-  box-shadow: inset 1px 0 1px rgba(0, 0, 0, 0.1), inset 0 0 14px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    inset 1px 0 1px rgba(0, 0, 0, 0.1),
+    inset 0 0 14px rgba(0, 0, 0, 0.5);
 }
 .mCS-3d-thick.mCSB_scrollTools_horizontal,
 .mCS-3d-thick-dark.mCSB_scrollTools_horizontal {
   bottom: 1px;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1), inset 0 0 14px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    inset 0 1px 1px rgba(0, 0, 0, 0.1),
+    inset 0 0 14px rgba(0, 0, 0, 0.5);
 }
 .mCS-3d-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar,
 .mCS-3d-thick-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
@@ -2369,7 +2609,9 @@ yx-axis
 .mCS-3d-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar,
 .mCS-3d-thick.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar,
 .mCS-3d-thick.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-3d-thick.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+.mCS-3d-thick.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar {
   background-color: #555;
 }
 .mCS-3d-thick.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar,
@@ -2402,18 +2644,26 @@ yx-axis
   box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.2);
 }
 .mCS-3d-thick-dark.mCSB_scrollTools_horizontal {
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1), inset 0 0 14px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    inset 0 1px 1px rgba(0, 0, 0, 0.1),
+    inset 0 0 14px rgba(0, 0, 0, 0.2);
 }
 .mCS-3d-thick-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
-  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.4), inset -1px 0 0 rgba(0, 0, 0, 0.2);
+  box-shadow:
+    inset 1px 0 0 rgba(255, 255, 255, 0.4),
+    inset -1px 0 0 rgba(0, 0, 0, 0.2);
 }
 .mCS-3d-thick-dark.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
 }
 .mCS-3d-thick-dark.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar,
 .mCS-3d-thick-dark.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar,
 .mCS-3d-thick-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-3d-thick-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+.mCS-3d-thick-dark.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar {
   background-color: #777;
 }
 .mCS-3d-thick-dark.mCSB_scrollTools .mCSB_draggerContainer {
@@ -2444,9 +2694,14 @@ yx-axis
   margin: 12px 0;
 }
 .mCustomScrollBox.mCS-minimal + .mCSB_scrollTools.mCSB_scrollTools_horizontal,
-.mCustomScrollBox.mCS-minimal + .mCSB_scrollTools + .mCSB_scrollTools.mCSB_scrollTools_horizontal,
-.mCustomScrollBox.mCS-minimal-dark + .mCSB_scrollTools.mCSB_scrollTools_horizontal,
-.mCustomScrollBox.mCS-minimal-dark + .mCSB_scrollTools + .mCSB_scrollTools.mCSB_scrollTools_horizontal {
+.mCustomScrollBox.mCS-minimal
+  + .mCSB_scrollTools
+  + .mCSB_scrollTools.mCSB_scrollTools_horizontal,
+.mCustomScrollBox.mCS-minimal-dark
+  + .mCSB_scrollTools.mCSB_scrollTools_horizontal,
+.mCustomScrollBox.mCS-minimal-dark
+  + .mCSB_scrollTools
+  + .mCSB_scrollTools.mCSB_scrollTools_horizontal {
   bottom: 0;
   margin: 0 12px;
 }
@@ -2475,7 +2730,9 @@ yx-axis
   -ms-filter: "alpha(opacity=20)";
 }
 .mCS-minimal.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-minimal.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+.mCS-minimal.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar {
   background-color: #fff;
   background-color: rgba(255, 255, 255, 0.5);
   filter: "alpha(opacity=50)";
@@ -2489,7 +2746,9 @@ yx-axis
   -ms-filter: "alpha(opacity=20)";
 }
 .mCS-minimal-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-minimal-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+.mCS-minimal-dark.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar {
   background-color: #000;
   background-color: rgba(0, 0, 0, 0.5);
   filter: "alpha(opacity=50)";
@@ -2515,16 +2774,32 @@ yx-axis
   height: 6px;
   margin: 5px 0;
 }
-.mCS-light-3.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail,
-.mCS-light-3.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail,
-.mCS-dark-3.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail,
-.mCS-dark-3.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail {
+.mCS-light-3.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  + .mCSB_draggerRail,
+.mCS-light-3.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_draggerRail,
+.mCS-dark-3.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  + .mCSB_draggerRail,
+.mCS-dark-3.mCSB_scrollTools_vertical.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_draggerRail {
   width: 12px;
 }
-.mCS-light-3.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail,
-.mCS-light-3.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail,
-.mCS-dark-3.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_dragger.mCSB_dragger_onDrag_expanded + .mCSB_draggerRail,
-.mCS-dark-3.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand .mCSB_draggerContainer:hover .mCSB_draggerRail {
+.mCS-light-3.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  + .mCSB_draggerRail,
+.mCS-light-3.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_draggerRail,
+.mCS-dark-3.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_dragger.mCSB_dragger_onDrag_expanded
+  + .mCSB_draggerRail,
+.mCS-dark-3.mCSB_scrollTools_horizontal.mCSB_scrollTools_onDrag_expand
+  .mCSB_draggerContainer:hover
+  .mCSB_draggerRail {
   height: 12px;
   margin: 2px 0;
 }
@@ -2550,7 +2825,9 @@ yx-axis
   background-color: rgba(0, 0, 0, 0.85);
 }
 .mCS-dark-3.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-dark-3.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+.mCS-dark-3.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar {
   background-color: #000;
   background-color: rgba(0, 0, 0, 0.9);
 }
@@ -2656,11 +2933,17 @@ yx-axis
   background-color: rgba(0, 0, 0, 0.85);
 }
 .mCS-inset-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-inset-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar,
+.mCS-inset-dark.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar,
 .mCS-inset-2-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-inset-2-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar,
+.mCS-inset-2-dark.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar,
 .mCS-inset-3-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-inset-3-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+.mCS-inset-3-dark.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar {
   background-color: #000;
   background-color: rgba(0, 0, 0, 0.9);
 }
@@ -2724,7 +3007,9 @@ yx-axis
   background-color: rgba(0, 0, 0, 0.85);
 }
 .mCS-inset-3.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-inset-3.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+.mCS-inset-3.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar {
   background-color: #000;
   background-color: rgba(0, 0, 0, 0.9);
 }
@@ -2737,7 +3022,9 @@ yx-axis
   background-color: rgba(255, 255, 255, 0.85);
 }
 .mCS-inset-3-dark.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-inset-3-dark.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+.mCS-inset-3-dark.mCSB_scrollTools
+  .mCSB_dragger.mCSB_dragger_onDrag
+  .mCSB_dragger_bar {
   background-color: #fff;
   background-color: rgba(255, 255, 255, 0.9);
 }

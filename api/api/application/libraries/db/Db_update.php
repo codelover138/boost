@@ -149,12 +149,16 @@ class Db_update
             'entity' => 'tax'
         );
 
-        $taxes = array(
-            'tax_name' => 'VAT (South Africa)',
-            'percentage' => 14
-        );
+        // No Tax is inserted first so it becomes the default for new line items
+        $this->CI->generic_model->create($params, array(
+            'tax_name'   => 'No Tax',
+            'percentage' => 0
+        ));
 
-        $create = $this->CI->generic_model->create($params, $taxes);
+        $create = $this->CI->generic_model->create($params, array(
+            'tax_name'   => 'VAT (South Africa)',
+            'percentage' => 15
+        ));
 
         return $create;
     }

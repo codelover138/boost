@@ -38,7 +38,7 @@ if (!$is_super_admin) {
                     <span class="icon-bar"></span>
                 </button>
                 <a href="<?php echo base_url('welcome/dashboard'); ?>" class="navbar-brand logo_container"><img
-                        src="<?php echo base_url('images/boost_logo.png'); ?>" alt="BOOST" /></a>
+                        src="<?php echo base_url('images/boost_logo_darkbg.svg'); ?>" alt="Boost" /></a>
             </div>
             <div class="collapse navbar-collapse">
                 <ul class="nav navbar-nav navbar-right pull-right-xs">

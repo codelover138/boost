@@ -12,7 +12,7 @@
             <form class="login_form landing" method="post" action="<?php echo base_api_url('login'); ?>">
                 <div class="login_container">
                     <div class="login_logo_container  col-sm-12">
-                        <img src="<?php echo base_url('images/boost_medium_logo.png'); ?>">
+                        <img src="<?php echo base_url('images/boost_logo_full.svg'); ?>">
                     </div>
                     <div class="login_form_container">
                         <div class="col-sm-12 form-group">

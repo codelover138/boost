@@ -49,6 +49,11 @@ class Accounts
 			$post['subscription_status'] = 'trial';
 			$post['is_manual_blocked'] = 0;
 
+			# Default currency to South African Rand (id=1) unless already set
+			if (empty($post['currency_id'])) {
+				$post['currency_id'] = 1;
+			}
+
 			# save the organisations details
         	$org_details = $this->save_account_details($post);	
 		}

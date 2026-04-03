@@ -17,41 +17,79 @@ class Users_model extends CI_Model
 
     public function create($params, $post)
     {
-        $result = array('bool' => false);
+        $result = array('bool' => false, 'message' => array(), 'validation_results' => array());
 
-        $post = $this->password->check_password($post);
-        if (isset($post['bool']) && !$post['bool']) return $post;
+        // Validate required fields first so errors are never overwritten
+        if (empty($post['first_name'])) {
+            $result['message'][] = 'Please enter a first name';
+            $result['validation_results']['first_name'] = 'First name is required';
+        }
+
+        if (empty($post['last_name'])) {
+            $result['message'][] = 'Please enter a last name';
+            $result['validation_results']['last_name'] = 'Last name is required';
+        }
+
+        if (empty($post['email'])) {
+            $result['message'][] = 'Please enter an email address';
+            $result['validation_results']['email'] = 'Email address is required';
+        } elseif (!filter_var($post['email'], FILTER_VALIDATE_EMAIL)) {
+            $result['message'][] = 'Please enter a valid email address';
+            $result['validation_results']['email'] = 'Please enter a valid email address';
+        }
+
+        if (empty($post['user_role_id']) || $post['user_role_id'] == '0') {
+            $result['message'][] = 'Please select a role for this user';
+            $result['validation_results']['user_role_id'] = 'Please select a role for this user';
+        } else {
+            $user_roles = $this->generic_model->read(array(
+                'table' => $this->table_prefix . 'user_roles',
+                'entity' => 'user role'
+            ));
+
+            if (!in_array($post['user_role_id'], $user_roles)) {
+                $result['message'][] = 'Invalid user role';
+                $result['validation_results']['user_role_id'] = 'Invalid user role';
+            }
+        }
+
+        // Validate password separately and merge any errors
+        $password_checked = $this->password->check_password($post);
+        if (isset($password_checked['bool']) && !$password_checked['bool']) {
+            if (!empty($password_checked['message'])) {
+                $result['message'] = array_merge($result['message'], $password_checked['message']);
+            }
+            if (!empty($password_checked['validation_results'])) {
+                $result['validation_results'] = array_merge($result['validation_results'], $password_checked['validation_results']);
+            }
+        } else {
+            $post = $password_checked;
+        }
+
+        // Return all validation errors before touching the database
+        if (!empty($result['message'])) {
+            return $result;
+        }
 
         $post['last_activity'] = current_datetime();
 
-        $params['fields'] = 'email';
-        $params['where'] = array('email' => $post['email']);
+        // Check if email already exists
+        $check_params = $params;
+        $check_params['fields'] = 'email';
+        $check_params['where'] = array('email' => $post['email']);
+        $exists = $this->generic_model->read($check_params);
 
-        #validate user role ID in post
-        if (isset($post['user_role_id'])) {
-            $user_roles = $this->generic_model->read(array(
-                    'table' => $this->table_prefix . 'user_roles',
-                    'entity' => 'user role'
-                )
-            );
-
-            if (!in_array($post['user_role_id'], $user_roles)) :
-                $result['message'][] = 'Invalid user role';
-                $result['validation_results']['user_role_id'] = 'Invalid user role';
-            endif;
-        } else {
-            $result['message'][] = 'Please select a role for this user';
-            $result['validation_results']['user_role_id'] = 'Please select a role for this user';
+        if (!empty($exists)) {
+            $result['message'][] = 'A user with email ' . $post['email'] . ' already exists';
+            $result['validation_results']['email'] = 'Email already exists';
+            return $result;
         }
 
-        # check if user already exists
-        $exists = $this->generic_model->read($params);
+        $result = $this->generic_model->create($params, $post);
 
-        if (empty($exists)) {
-            $result = $this->generic_model->create($params, $post);
-        } else {
-            $result['validation_results']['email'] = 'Email already exists';
-            $result['message'] = array('User with email: ' . $post['email'] . ' already exists.');
+        // Ensure message key always exists so Generic._post() never reads an undefined index
+        if (!isset($result['message'])) {
+            $result['message'] = array();
         }
 
         return $result;

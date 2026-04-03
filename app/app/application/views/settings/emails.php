@@ -14,7 +14,7 @@
     </div>
     <div class="container-fluid bg-white doc-spaced">
        <div class="col-xs-12">
-            <h3>Emails</h3>
+            <h3>Email Templates and Signatures</h3>
        </div>
        
       <div class="form_section">
