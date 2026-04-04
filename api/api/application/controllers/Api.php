@@ -33,10 +33,15 @@ class Api extends CI_Controller
                 $this->load->library('db/switcher', array('account_name' => $account_name));
                 $org = $this->switcher->check_sub_status($account_name);
                 if ($org) {
+                    $paid_until_ts = !empty($org->paid_until) ? strtotime($org->paid_until) : false;
+                    $has_paid_access = $paid_until_ts && $paid_until_ts > time();
                     $blocked_statuses = array('expired', 'past_due', 'cancelled');
-                    $is_blocked = in_array($org->subscription_status, $blocked_statuses);
+                    $is_blocked = in_array($org->subscription_status, $blocked_statuses, true) && !$has_paid_access;
                     if (!$is_blocked && $org->subscription_status === 'trial' && !empty($org->trial_ends_at)) {
                         $is_blocked = strtotime($org->trial_ends_at) < time();
+                    }
+                    if (!$is_blocked && $paid_until_ts && $paid_until_ts <= time()) {
+                        $is_blocked = true;
                     }
                     if ($is_blocked) {
                         $this->regular->header_(402);

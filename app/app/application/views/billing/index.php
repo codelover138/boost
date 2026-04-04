@@ -1,6 +1,7 @@
 <?php
 $billing_data = isset($billing['data']) ? $billing['data'] : array();
 $plan = isset($billing_data['plan']) ? $billing_data['plan'] : array();
+$latest_payment = isset($billing_data['latest_payment']) ? $billing_data['latest_payment'] : array();
 $plans = isset($billing_data['plans']) && is_array($billing_data['plans']) && !empty($billing_data['plans'])
     ? array_values($billing_data['plans'])
     : (!empty($plan) ? array($plan) : array());
@@ -23,6 +24,9 @@ $grace_period_ends_at = !empty($subscription['grace_period_ends_at']) ? $subscri
 $access_message = !empty($subscription['access_message'])
     ? $subscription['access_message']
     : ($can_pay ? 'Your subscription can be renewed now.' : 'Your subscription is currently active.');
+$is_test_mode = !empty($featured_plan['test_mode']);
+$latest_payment = is_array($latest_payment) ? $latest_payment : (array)$latest_payment;
+$can_simulate_recurring = $is_test_mode && !empty($latest_payment) && isset($latest_payment['payment_status']) && strtolower($latest_payment['payment_status']) === 'complete';
 
 $status_title = 'Subscription In Good Standing';
 if ($status_key === 'trial') {
@@ -810,6 +814,28 @@ if (!function_exists('billing_cycle_label')) {
                     </button>
                 </form>
             </div>
+
+            <?php if ($is_test_mode) : ?>
+            <div class="billing-management-card">
+                <h4 class="billing-management-title">Sandbox Renewal Test</h4>
+                <p class="billing-management-copy">
+                    Trigger the recurring renewal flow locally to verify that a new subscription payment row, invoice, and PDF link are created before going live.
+                </p>
+
+                <form method="post" action="<?php echo base_url('billing/simulate-recurring'); ?>" data-native-submit="true"
+                    onsubmit="return confirm('Simulate a sandbox recurring renewal for the latest completed subscription payment?');">
+                    <input type="hidden" name="payment_id" value="<?php echo !empty($latest_payment['id']) ? (int)$latest_payment['id'] : ''; ?>">
+                    <button class="billing-management-button" type="submit"
+                        <?php echo $can_simulate_recurring ? '' : 'disabled="disabled"'; ?>>
+                        Simulate Renewal
+                    </button>
+                </form>
+
+                <?php if (!$can_simulate_recurring) : ?>
+                <p class="billing-plan-note">Complete one sandbox payment first. The simulator uses the latest completed payment as the renewal source.</p>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 

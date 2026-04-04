@@ -30,6 +30,13 @@ class Settings extends CI_Controller
 			$this->user_data = [];
 		}
 
+		// Block access if user does not have account_settings permission
+		if (!empty($this->user_data) && isset($this->user_data['permissions'])) {
+			if (!in_array('account_settings', $this->user_data['permissions'])) {
+				redirect(base_url());
+			}
+		}
+
 	}
 
 	public function _remap($method)

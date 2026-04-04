@@ -181,7 +181,12 @@ class Generic
                     if (isset($post['login'])) {
                         $raw_login = $post['login'];
                         $decoded_authorization = json_decode(base64_decode($raw_login), true);
-                        log_message('error', 'if condition');
+                        if (!$decoded_authorization || empty($decoded_authorization['email']) || empty($decoded_authorization['account_name'])) {
+                            $this->CI->regular->header_(400);
+                            $this->CI->regular->respond(array('status' => 'ERROR', 'message' => array('Invalid login credentials')));
+                            return;
+                        }
+                        $this->CI->userhandler->login($decoded_authorization);
                         return;
                     }
                     break;

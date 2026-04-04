@@ -47,7 +47,8 @@ class Users_model extends CI_Model
                 'entity' => 'user role'
             ));
 
-            if (!in_array($post['user_role_id'], $user_roles)) {
+            $valid_role_ids = array_map(function($role) { return (string)$role->id; }, (array)$user_roles);
+            if (!in_array((string)$post['user_role_id'], $valid_role_ids)) {
                 $result['message'][] = 'Invalid user role';
                 $result['validation_results']['user_role_id'] = 'Invalid user role';
             }
@@ -181,7 +182,8 @@ class Users_model extends CI_Model
                     )
                 );
 
-                if (!in_array($post['user_role_id'], $user_roles)) :
+                $valid_role_ids = array_map(function($role) { return (string)$role->id; }, (array)$user_roles);
+                if (!in_array((string)$post['user_role_id'], $valid_role_ids)) :
                     $result['message'][] = 'Invalid user role';
                     $result['validation_results']['user_role_id'] = 'Invalid user role';
                 endif;

@@ -579,12 +579,20 @@ function getSubDomain(t) {
     return e.split("." + domain_name_string)[0]
 }
 function boostLogin(t) {
+    var i = $(t.target).find("#email").val().trim()
+      , n = $(t.target).find("#password").val();
+
+    if (!i || !n) {
+        var alertContainer = $(t.target).find(".login_alert_container");
+        alertContainer.find("strong").text(!i ? "Please enter your email address." : "Please enter your password.");
+        alertContainer.removeClass("hidden_alert");
+        return;
+    }
+
     var e = $(t.target).find(".saveButton");
     e.attr("disabled", "disabled"),
     e.addClass("loader");
-    var i = $(t.target).find("#email").val()
-      , n = $(t.target).find("#password").val()
-      , a = $(t.target).attr("action")
+    var a = $(t.target).attr("action")
       , r = getSubDomain(window.location.href)
       , o = {
         email: i,

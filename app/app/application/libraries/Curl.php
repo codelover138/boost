@@ -118,7 +118,7 @@ class Curl{
 				exit;
 			}else{	
 				$decoded = json_decode($output, true);	
-				header("location:".base_url('login').'?error='.urlencode(implode('. ',$decoded['message']).'. Please login.').'&redirAddress='.urlencode(uri_string()));
+				header("location:".base_url('login').'?error='.urlencode('Your session has expired. Please log in to continue.').'&redirAddress='.urlencode(uri_string()));
 				exit;
 			}
 		}else{		

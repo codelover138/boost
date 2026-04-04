@@ -373,8 +373,8 @@ class Userhandler
             // When subscription is valid or in grace period, allow the broader set of non-data routes.
             if ($critically_expired) {
                 $allowed_routes = array(
-                    'logout', 'login', 'me', 'billing', 'subscription',
-                    'api/logout', 'api/login', 'api/me', 'api/billing', 'api/subscription'
+                    'logout', 'login', 'me', 'billing',
+                    'api/logout', 'api/login', 'api/me', 'api/billing'
                 );
             }
             else {

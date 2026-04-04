@@ -153,6 +153,30 @@ class Billing extends CI_Controller
         redirect('billing');
     }
 
+    public function simulate_recurring()
+    {
+        $payment_id = trim((string)$this->input->post('payment_id', true));
+        $payload = array();
+        if ($payment_id !== '') {
+            $payload['payment_id'] = $payment_id;
+        }
+
+        $response = $this->curl->rest_api_call('POST', 'billing/simulate_recurring', $payload);
+
+        $flash_type = isset($response['status']) && $response['status'] === 'OK' ? 'success' : 'danger';
+        $message = isset($response['status']) && $response['status'] === 'OK'
+            ? 'Sandbox recurring renewal simulated successfully.'
+            : 'Unable to simulate recurring renewal.';
+
+        if (isset($response['message']) && is_array($response['message']) && !empty($response['message'])) {
+            $message = implode(' ', $response['message']);
+        }
+
+        $this->session->set_flashdata('billing_flash_type', $flash_type);
+        $this->session->set_flashdata('billing_flash_message', $message);
+        redirect('billing');
+    }
+
     public function invoice($payment_id = null)
     {
         if (empty($payment_id) || !is_numeric($payment_id)) {

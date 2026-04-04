@@ -55,7 +55,7 @@
                         Takes less than a minute. No credit card required.
                     </div>
                     <div class="col-sm-12 text-center" style="margin-top:8px; font-size:11px; color:#aaa;">
-                        By continuing, you agree to our <a href="https://boostaccounting.com/terms" target="_blank">Terms of Service</a> and have read our <a href="https://boostaccounting.com/privacy" target="_blank">Privacy Policy</a>.
+                        By continuing, you agree to our <a href="https://boostaccounting.com/terms-of-service.html" target="_blank">Terms of Service</a> and have read our <a href="https://boostaccounting.com/privacy-policy.html" target="_blank">Privacy Policy</a>.
                     </div>
                 </div>
             </form>

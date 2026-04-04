@@ -44,7 +44,20 @@ class Registrations
 		$sent_data = $this->CI->regular->decode();
 		
 		if(isset($sent_data['signup_token'])){
-			$post_decrypt = json_decode($this->CI->encrypt->decode(base64_decode($sent_data['signup_token'])));
+			// Reverse URL-safe base64: restore + and / then re-add = padding
+			$token_raw = $sent_data['signup_token'];
+			$token_padded = strtr($token_raw, '-_', '+/');
+			$pad = strlen($token_padded) % 4;
+			if ($pad > 0) {
+				$token_padded = str_pad($token_padded, strlen($token_padded) + (4 - $pad), '=');
+			}
+			$post_decrypt = json_decode($this->CI->encrypt->decode(base64_decode($token_padded)));
+			if (!$post_decrypt || empty($post_decrypt->email)) {
+				$response['status'] = 'ERROR';
+				$response['message'] = array('Invalid or expired verification link. Please register again.');
+				$this->CI->regular->respond($response);
+				return;
+			}
 			$post['email'] = $post_decrypt->email;
 			$post['company_name'] = $post_decrypt->company_name;
 			$this->params['post']['email'] = $post_decrypt->email;
@@ -240,7 +253,8 @@ class Registrations
 	   
 		if ($response['status'] == 'OK') :
 			$encode_array['date_time'] = date("H:i:s");
-			$url_string = str_replace('==','',base64_encode($this->CI->encrypt->encode(json_encode($encode_array))));
+			// Use URL-safe base64 (replace + with - and / with _) so the token is safe in URL path segments
+			$url_string = rtrim(strtr(base64_encode($this->CI->encrypt->encode(json_encode($encode_array))), '+/', '-_'), '=');
 			$response['url_string'] = $url_string;
             $inputs['new_account_link'] = get_protocol() . 'app.'.$this->CI->config->item('domain').'/signup/verify/'.$url_string;//$_SERVER['SERVER_NAME'];
             $this->send_verification_email($inputs);

@@ -63,6 +63,7 @@ $route['billing'] = "billing/index";
 $route['billing/pay'] = "billing/pay";
 $route['billing/change-plan'] = "billing/change_plan";
 $route['billing/cancel'] = "billing/cancel_subscription";
+$route['billing/simulate-recurring'] = "billing/simulate_recurring";
 $route['billing/invoice/(:num)'] = "billing/invoice/$1";
 $route['billing/complete/(:any)/(:num)'] = "billing/complete/$1/$2";
 $route['reports/download/excel'] = 'reports/download_excel';
