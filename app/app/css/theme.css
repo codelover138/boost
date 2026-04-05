@@ -53,8 +53,8 @@
   opacity: 0;
 }
 .outerContainer_table.login_table {
-  background-color: #454647;
-  /* background-color: #1c2b36; */
+ /*  background-color: #454647; */
+  background-color: #1c2b36; 
   height: 100%;
 }
 .outerContainer_table.login_table .tableCell {
@@ -68,7 +68,7 @@
 }
 .outerContainer_table.login_table .login_container img {
   width: 100%;
-  max-width: 269px;
+  max-width: 320px;
 }
 .outerContainer_table.login_table .login_container .loading_container img {
   width: auto !important;

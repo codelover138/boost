@@ -94,7 +94,7 @@ foreach ($request['data'] as $c) {
           <div class="form-group col-xs-12 col-sm-6  pull-right-sm clear-right-sm">
             <label for="reference" class="control-label pull-left-sm">Reference</label>
             <div class="col-sm-9  pull-right-sm  no-gutter-xs">
-                <input type="text" class="form-control" name="reference" id="reference">
+                <input type="text" class="form-control" name="reference" id="reference" placeholder="e.g. Purchase order number">
             </div>
           </div> 
           
@@ -112,6 +112,7 @@ foreach ($request['data'] as $c) {
      <div class="clearfix formSpacer"></div>
      <div class="form_section ">
          <div class="container-fluid itemList">
+            <p class="text-muted" style="margin-bottom:10px;font-size:13px;">Add the products or services you are billing for. Click <strong>Add Item Row</strong> to add more lines.</p>
             <div class="headerColContainer" ondragover="drag_over_test(event,this)" ondragleave="drag_out_test(event,this)"  ondrop="drop(event,this)">
                     <div class="row heaaderColTable hidden-xs">
                         <div class="col-md-2">

@@ -101,7 +101,7 @@
           <div class="form-group col-xs-12 col-sm-6  pull-right-sm clear-right-sm">
             <label for="reference" class="control-label pull-left-sm">Reference</label>
             <div class="col-sm-9  pull-right-sm  no-gutter-xs">
-                <input type="text" class="form-control" name="reference" id="reference" placeholder="Reference" value="<?php echo $invoice_data['reference']; ?>">
+                <input type="text" class="form-control" name="reference" id="reference" placeholder="e.g. Purchase order number" value="<?php echo $invoice_data['reference']; ?>">
             </div>
           </div> 
           
