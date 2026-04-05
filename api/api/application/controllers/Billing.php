@@ -383,6 +383,7 @@ class Billing extends CI_Controller
             'payfast_token' => $payfast_token,
             'payfast_cancel_status' => isset($cancel_result['status_code']) ? $cancel_result['status_code'] : null
         ));
+        $this->send_cancellation_notice_email($org, $summary['has_paid_access'] ? $org->paid_until : null);
 
         $this->regular->respond(array('status' => 'OK', 'message' => array($message)));
     }
@@ -547,7 +548,7 @@ class Billing extends CI_Controller
         if (!$signature_valid) {
             $hard_validation_errors[] = 'Invalid signature';
         }
-        if (!$amount_valid) {
+        if (!$amount_valid && $normalised_status !== 'cancelled') {
             $hard_validation_errors[] = 'Amount mismatch';
         }
         if (!$merchant_valid) {
@@ -648,6 +649,17 @@ class Billing extends CI_Controller
                 $this->process_recurring_renewal($org, $payment, $post, $payfast_token);
             }
             $this->output_itn_response(200, 'Payment processed');
+            return;
+        }
+
+        if ($normalised_status === 'cancelled') {
+            $this->create_event($org->id, $payment->id, 'subscription_cancelled_itn', 'PayFast subscription cancellation notification received', $post);
+            $this->send_subscription_cancelled_email($org, $payment);
+            $this->log_itn_audit('subscription_cancelled_itn', array(
+                'payment_id'      => $payment->id,
+                'organisation_id' => $org->id,
+            ));
+            $this->output_itn_response(200, 'Cancellation recorded');
             return;
         }
 
@@ -829,7 +841,9 @@ class Billing extends CI_Controller
     protected function process_recurring_renewal($org, $original_payment, $post, $payfast_token)
     {
         $plan = $this->payfast_service->get_plan($original_payment->plan_code);
-        $billing_start = $original_payment->billing_date_to;
+        // Always start from org's current paid_until so the 2nd, 3rd... renewal
+        // advances correctly instead of repeating the same period.
+        $billing_start = !empty($org->paid_until) ? $org->paid_until : $original_payment->billing_date_to;
         $billing_end   = $this->payfast_service->calculate_period_end($billing_start, $plan);
 
         $renewal_data = array(
@@ -860,6 +874,24 @@ class Billing extends CI_Controller
         );
 
         $this->switch_to_main_db($org->account_name);
+
+        // Guard against duplicate ITN retries for the same PayFast transaction
+        if (!empty($renewal_data['payfast_payment_id'])) {
+            $existing = $this->db->select('id')
+                ->from($this->table_prefix . 'subscription_payments')
+                ->where('payfast_payment_id', $renewal_data['payfast_payment_id'])
+                ->where('organisation_id', $org->id)
+                ->limit(1)
+                ->get()->row();
+            if ($existing) {
+                $this->log_itn_audit('renewal_duplicate_skipped', array(
+                    'organisation_id'    => $org->id,
+                    'payfast_payment_id' => $renewal_data['payfast_payment_id']
+                ));
+                return;
+            }
+        }
+
         $create = $this->generic_model->create($params, $renewal_data);
 
         if (!$create['bool']) {
@@ -945,6 +977,26 @@ class Billing extends CI_Controller
         $message .= '<p>Reason: ' . htmlspecialchars($reason, ENT_QUOTES, 'UTF-8') . '</p>';
         $message .= '<p>Please log in and try the payment again.</p>';
 
+        $this->send_email_message($org->email, $subject, $message);
+    }
+
+    protected function send_cancellation_notice_email($org, $paid_until = null)
+    {
+        $subject = 'Boost Accounting subscription cancelled';
+        $message = '<p>Your Boost Accounting subscription has been cancelled.</p>';
+        if ($paid_until) {
+            $message .= '<p>Your workspace will remain active until <strong>' . htmlspecialchars($paid_until, ENT_QUOTES, 'UTF-8') . '</strong>.</p>';
+        }
+        $message .= '<p>If you did not request this cancellation or wish to resubscribe, please log in and renew your subscription.</p>';
+        $this->send_email_message($org->email, $subject, $message);
+    }
+
+    protected function send_subscription_cancelled_email($org, $payment)
+    {
+        $subject = 'Boost Accounting subscription cancelled';
+        $message = '<p>Your Boost Accounting subscription has been cancelled.</p>';
+        $message .= '<p>Reference: <strong>' . htmlspecialchars($payment->merchant_reference, ENT_QUOTES, 'UTF-8') . '</strong></p>';
+        $message .= '<p>If you did not request this cancellation or wish to resubscribe, please log in and renew your subscription.</p>';
         $this->send_email_message($org->email, $subject, $message);
     }
 

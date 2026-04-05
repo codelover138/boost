@@ -626,6 +626,20 @@ if (!function_exists('billing_cycle_label')) {
 </div>
 <?php endif; ?>
 
+<?php if ($cancel_at_period_end) : ?>
+<div class="alert alert-warning">
+    <strong>Cancellation scheduled.</strong>
+    Your subscription will not renew. You keep full access until
+    <strong><?php echo htmlspecialchars(billing_display_datetime(isset($subscription['paid_until']) ? $subscription['paid_until'] : null)); ?></strong>,
+    after which your workspace will be deactivated.
+</div>
+<?php elseif ($status_key === 'cancelled') : ?>
+<div class="alert alert-danger">
+    <strong>Subscription cancelled.</strong>
+    Your workspace no longer has an active subscription. Renew above to restore access.
+</div>
+<?php endif; ?>
+
 <?php if (isset($billing['message']) && is_array($billing['message']) && !empty($billing['message'])) : ?>
 <div class="alert alert-warning">
     <?php echo implode(' ', $billing['message']); ?>
@@ -806,10 +820,10 @@ if (!function_exists('billing_cycle_label')) {
                     <?php endif; ?>
                 </p>
 
-                <form method="post" action="<?php echo base_url('billing/cancel'); ?>" data-native-submit="true"
-                    onsubmit="return confirm('Cancel this subscription at the end of the current billing period?');">
-                    <button class="billing-management-button danger" type="submit"
-                        <?php echo (!$can_cancel || $cancel_at_period_end) ? 'disabled="disabled"' : ''; ?>>
+                <form id="billing-cancel-form" method="post" action="<?php echo base_url('billing/cancel'); ?>" data-native-submit="true">
+                    <button class="billing-management-button danger" type="button"
+                        <?php echo (!$can_cancel || $cancel_at_period_end) ? 'disabled="disabled"' : ''; ?>
+                        <?php echo ($can_cancel && !$cancel_at_period_end) ? 'data-toggle="modal" data-target="#billing-cancel-modal"' : ''; ?>>
                         <?php echo $cancel_at_period_end ? 'Cancellation Scheduled' : 'Cancel Subscription'; ?>
                     </button>
                 </form>
@@ -900,3 +914,52 @@ if (!function_exists('billing_cycle_label')) {
         <?php endif; ?>
     </div>
 </div>
+
+<!-- Cancel Subscription Confirmation Modal -->
+<div class="modal fade" id="billing-cancel-modal" tabindex="-1" role="dialog" aria-labelledby="billing-cancel-modal-title">
+    <div class="modal-dialog modal-sm" role="document" style="max-width:460px;margin:80px auto;">
+        <div class="modal-content" style="border:none;border-radius:20px;box-shadow:0 24px 60px rgba(15,23,42,0.18);overflow:hidden;">
+
+            <div style="padding:28px 28px 0;text-align:center;">
+                <div style="display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:50%;background:#fff2f2;margin-bottom:16px;">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#b42318" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+                <h4 id="billing-cancel-modal-title" style="margin:0 0 10px;font-size:20px;font-weight:700;color:#102033;letter-spacing:-.01em;">
+                    Cancel Subscription?
+                </h4>
+                <p style="margin:0;color:#5a7083;font-size:14px;line-height:1.7;">
+                    Your subscription will <strong>not renew</strong> after the current billing period ends.
+                    <?php if (!empty($subscription['paid_until'])) : ?>
+                    <br><br>
+                    You keep full access until
+                    <strong><?php echo htmlspecialchars(billing_display_datetime($subscription['paid_until'])); ?></strong>.
+                    <?php endif; ?>
+                </p>
+            </div>
+
+            <div style="padding:24px 28px 28px;display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+                <button type="button" class="btn" id="billing-cancel-confirm"
+                    style="width:100%;padding:13px;border:none;border-radius:13px;background:linear-gradient(180deg,#d93025,#b42318);color:#fff;font-size:14px;font-weight:700;box-shadow:0 6px 18px rgba(180,35,24,0.28);cursor:pointer;">
+                    Yes, Cancel My Subscription
+                </button>
+                <button type="button" class="btn" data-dismiss="modal"
+                    style="width:100%;padding:12px;border:1px solid #dde7f0;border-radius:13px;background:#fff;color:#3a5268;font-size:14px;font-weight:700;cursor:pointer;">
+                    Keep Subscription
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('billing-cancel-confirm').addEventListener('click', function () {
+    this.disabled = true;
+    this.textContent = 'Cancelling\u2026';
+    document.getElementById('billing-cancel-form').submit();
+});
+</script>

@@ -97,14 +97,13 @@ function initFunctions() {
         }, 300)
     }),
     $("#offline_error_modal").on("show.bs.modal", function(t) {
-        {
-            var e = $(t.relatedTarget)[0];
-            $(this)
+        var e = t.relatedTarget && typeof t.relatedTarget === "object" && !t.relatedTarget.nodeType ? t.relatedTarget : $(t.relatedTarget).data("error-payload");
+        if (e) {
+            if (e.error_intro) $("#offline_error_modal").find("#error_intro").html(e.error_intro);
+            if (e.error_type) $("#offline_error_modal").find("#error_type").html(e.error_type);
+            if (e.error_action) $("#offline_error_modal").find("#error_action").html(e.error_action);
+            if (typeof e.persistant_error_action === "string") $("#offline_error_modal").find("#persistant_error_action").html(e.persistant_error_action);
         }
-        e.error_intro && $("#offline_error_modal").find("#error_intro").html(e.error_intro),
-        e.error_type && $("#offline_error_modal").find("#error_type").html(e.error_type),
-        e.error_action && $("#offline_error_modal").find("#error_action").html(e.error_action),
-        e.persistant_error_action && $("#offline_error_modal").find("#persistant_error_action").html(e.persistant_error_action)
     }),
     $(".addItemRow").on("click", function() {
         var t = $(".itemRow").length;
@@ -314,6 +313,14 @@ function initImageModal(t) {
     ,
     e.src = $(t.currentTarget).data("base64_data") ? $(t.currentTarget).data("base64_data") : t.currentTarget.href
 }
+function showErrorModal(o) {
+    var m = $("#offline_error_modal");
+    if (o.error_intro) m.find("#error_intro").html(o.error_intro);
+    if (o.error_type) m.find("#error_type").html(o.error_type);
+    if (o.error_action) m.find("#error_action").html(o.error_action);
+    if (typeof o.persistant_error_action === "string") m.find("#persistant_error_action").html(o.persistant_error_action);
+    m.modal("show");
+}
 function ajaxErrorActions(t, e, i, n) {
     if ($(".saveButton,.saveFormData").removeAttr("disabled"),
     $(".saveButton,.saveFormData").removeClass("loader"),
@@ -332,18 +339,53 @@ function ajaxErrorActions(t, e, i, n) {
             r.alertText = a.message,
             openModal(t = document, r)
         }
-    else if ("408" == e.status) {
+    else if (403 == e.status) {
+        var msg = "Access has been denied.";
+        var action = 'Please contact <a href="mailto:support@boostaccounting.com">support@boostaccounting.com</a> for assistance.';
+        var title = "Access Denied";
+        var hideFooter = false;
+        try {
+            var parsed = jQuery.parseJSON(e.responseText);
+            if (parsed && parsed.message && parsed.message[0]) {
+                msg = parsed.message[0];
+            }
+            if (parsed && parsed.code === "USER_BLOCKED") {
+                title = "Account Disabled";
+                action = 'Please contact your workspace admin to restore access.';
+                hideFooter = true;
+            } else if (parsed && parsed.code === "WORKSPACE_BLOCKED") {
+                title = "Workspace Suspended";
+                action = 'Please contact <a href="mailto:support@boostaccounting.com">support@boostaccounting.com</a> to resolve this.';
+                hideFooter = true;
+            } else if (parsed && parsed.code === "SUBSCRIPTION_UPGRADE_REQUIRED") {
+                title = "Subscription Expired";
+                action = 'Please <a href="/billing">renew your subscription</a> to restore access.';
+                hideFooter = true;
+            } else if (parsed && parsed.code === "SUBSCRIPTION_RESTRICTED") {
+                title = "Payment Overdue";
+                action = 'Please <a href="/billing">update your billing</a> to avoid service interruption.';
+                hideFooter = true;
+            }
+        } catch(ex) {}
+        var o = {
+            error_intro: title,
+            error_type: msg,
+            error_action: action,
+            persistant_error_action: hideFooter ? "" : null
+        };
+        showErrorModal(o)
+    } else if ("408" == e.status) {
         var o = {
             error_type: "(" + e.status + ") " + n,
             error_action: "Please check your connection and try again."
         };
-        $("#offline_error_modal").modal("show", o)
+        showErrorModal(o)
     } else {
         var o = {
             error_type: "(" + e.status + ") " + n,
             error_action: "Please try again."
         };
-        $("#offline_error_modal").modal("show", o)
+        showErrorModal(o)
     }
 }
 function recieptToBase64(t) {

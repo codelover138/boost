@@ -427,15 +427,11 @@ class Payfast_service
             );
         }
 
-        $cancel_result = $this->request_subscription_api('PUT', $token . '/cancel', array(
-            'token' => $token
-        ));
+        $cancel_result = $this->request_subscription_api('PUT', $token . '/cancel');
         $decoded = isset($cancel_result['decoded']) ? $cancel_result['decoded'] : null;
         $is_success = !empty($cancel_result['bool']);
 
-        $status_result = $this->request_subscription_api('GET', $token, array(
-            'token' => $token
-        ));
+        $status_result = $this->request_subscription_api('GET', $token . '/fetch');
         $remote_status = $this->extract_subscription_status(isset($status_result['decoded']) ? $status_result['decoded'] : null);
         if ($remote_status !== null) {
             $is_success = in_array($remote_status, array('cancelled', 'cancel', 'inactive', 'paused'), true);
@@ -565,16 +561,16 @@ class Payfast_service
 
     protected function generate_api_signature($fields)
     {
+        $passphrase = trim($this->config['passphrase']);
+        if ($passphrase !== '') {
+            $fields['passphrase'] = $passphrase;
+        }
+
         ksort($fields);
 
         $pairs = array();
         foreach ($fields as $key => $value) {
             $pairs[] = $key . '=' . urlencode(trim((string)$value));
-        }
-
-        $passphrase = trim($this->config['passphrase']);
-        if ($passphrase !== '') {
-            $pairs[] = 'passphrase=' . urlencode($passphrase);
         }
 
         $signature_string = implode('&', $pairs);
@@ -593,9 +589,6 @@ class Payfast_service
             'timestamp' => $timestamp,
             'version' => $version
         );
-        if (isset($body['token']) && trim((string)$body['token']) !== '') {
-            $headers_for_signature['token'] = trim((string)$body['token']);
-        }
 
         $signature = $this->generate_api_signature($headers_for_signature);
         $url = 'https://api.payfast.co.za/subscriptions/' . ltrim((string)$path, '/');

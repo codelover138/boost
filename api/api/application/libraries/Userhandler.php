@@ -51,12 +51,16 @@ class Userhandler
         $account_details = $this->CI->switcher->check_sub_status($input['account_name']);
 
         if ($account_details && isset($account_details->is_manual_blocked) && $account_details->is_manual_blocked == 1) {
-            $block_reason = $account_details->manual_block_reason
-                ? ' Reason: ' . $account_details->manual_block_reason . '.'
-                : ' Please contact our support team for assistance.';
+            $block_reason = !empty($account_details->manual_block_reason)
+                ? $account_details->manual_block_reason
+                : null;
             $return = array(
                 'status' => 'ERROR',
-                'message' => array('Access to this workspace has been suspended.' . $block_reason)
+                'code'   => 'WORKSPACE_BLOCKED',
+                'reason' => $block_reason,
+                'message' => array(
+                    'This workspace has been suspended' . ($block_reason ? ': ' . $block_reason : '') . '. Please contact support@boostaccounting.com for assistance.'
+                )
             );
             $this->CI->regular->header_(403);
             $this->CI->regular->respond($return);
@@ -109,9 +113,12 @@ class Userhandler
             foreach ($result as $res) {
                 if ($res->password == md5($password)) {
                     if (isset($res->is_active) && $res->is_active == 0) {
-                        $return['message'][0] = 'Your account has been deactivated. Please contact your administrator for assistance.';
                         $this->CI->regular->header_(403);
-                        $this->CI->regular->respond($return);
+                        $this->CI->regular->respond(array(
+                            'status'  => 'ERROR',
+                            'code'    => 'USER_BLOCKED',
+                            'message' => array('Your account has been disabled by an administrator.')
+                        ));
                         die();
                     }
                     $user_id = $res->id;
@@ -327,7 +334,11 @@ class Userhandler
             }
             elseif ($status == 'active') {
                 if ($paid_until_ts && $paid_until_ts < time()) {
-                    if (!$grace_end_ts || $grace_end_ts < time()) {
+                    // If no grace_period_ends_at was ever set, calculate it from paid_until
+                    if (!$grace_end_ts) {
+                        $grace_end_ts = strtotime('+' . $grace_days . ' days', $paid_until_ts);
+                    }
+                    if ($grace_end_ts < time()) {
                         $critically_expired = true;
                         $access_denied = true;
                         $msg = 'Your subscription has expired. Please renew your plan to regain full access.';
