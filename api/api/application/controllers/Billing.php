@@ -634,7 +634,7 @@ class Billing extends CI_Controller
             if ($existing_status !== 'complete') {
                 // Initial payment confirmation
                 $this->activate_subscription($org, $payment, $payfast_token);
-                $invoice_id = $this->ensure_subscription_invoice($org, $payment);
+                $expense_id = $this->ensure_subscription_expense($org, $payment);
                 $this->create_event($org->id, $payment->id, 'payment_completed', 'PayFast payment confirmed', $post);
                 $this->send_payment_success_email($org, $payment);
                 $this->log_itn_audit('subscription_activated', array(
@@ -642,7 +642,7 @@ class Billing extends CI_Controller
                     'organisation_id' => $org->id,
                     'paid_until'      => $payment->billing_date_to,
                     'payfast_token'   => $payfast_token,
-                    'invoice_id'      => $invoice_id
+                    'expense_id'      => $expense_id
                 ));
             } elseif (!empty($payfast_token)) {
                 // Recurring auto-renewal from PayFast subscription
@@ -905,7 +905,7 @@ class Billing extends CI_Controller
 
         $renewal_payment = $this->generic_model->read($params, $create['record_id'], 'single');
         $this->activate_subscription($org, $renewal_payment, $payfast_token);
-        $invoice_id = $this->ensure_subscription_invoice($org, $renewal_payment);
+        $expense_id = $this->ensure_subscription_expense($org, $renewal_payment);
         $this->create_event($org->id, $renewal_payment->id, 'payment_completed', 'PayFast recurring auto-renewal confirmed', $post);
         $this->send_payment_success_email($org, $renewal_payment);
         $this->log_itn_audit('recurring_renewal_processed', array(
@@ -913,7 +913,7 @@ class Billing extends CI_Controller
             'renewal_payment_id' => $renewal_payment->id,
             'paid_until'       => $billing_end,
             'payfast_token'    => $payfast_token,
-            'invoice_id'       => $invoice_id
+            'expense_id'       => $expense_id
         ));
     }
 
@@ -1055,99 +1055,54 @@ class Billing extends CI_Controller
         return (bool)$this->switcher->account_db();
     }
 
-    protected function ensure_subscription_invoice($org, $payment)
+    protected function ensure_subscription_expense($org, $payment)
     {
         if (!$this->switch_to_account_db($org->account_name)) {
-            $this->log_itn_audit('invoice_skipped_account_db_missing', array(
+            $this->log_itn_audit('expense_skipped_account_db_missing', array(
                 'organisation_id' => $org->id,
                 'payment_id' => $payment->id
             ));
             return null;
         }
 
-        $existing_invoice_id = $this->find_invoice_id_by_reference($payment->merchant_reference);
-        if ($existing_invoice_id) {
+        $existing_expense_id = $this->find_expense_by_reference($payment->merchant_reference);
+        if ($existing_expense_id) {
             $this->switch_to_main_db($org->account_name);
-            return $existing_invoice_id;
+            return $existing_expense_id;
         }
 
-        $contact_id = $this->get_or_create_subscription_contact($org);
-        if (!$contact_id) {
-            $this->log_itn_audit('invoice_skipped_contact_missing', array(
-                'organisation_id' => $org->id,
-                'payment_id' => $payment->id
-            ));
-            $this->switch_to_main_db($org->account_name);
-            return null;
-        }
-
-        $invoice_number = $this->next_invoice_number();
+        $supplier_id = $this->get_or_create_subscription_supplier();
+        $category_id = $this->get_or_create_subscription_expense_category();
         $currency_id = !empty($org->currency_id) ? (int)$org->currency_id : 1;
-        $invoice_date = !empty($payment->confirmed_at) ? $payment->confirmed_at : date('Y-m-d H:i:s');
-        $payment_amount = number_format((float)$payment->amount_gross, 2, '.', '');
+        $expense_date = !empty($payment->confirmed_at) ? $payment->confirmed_at : date('Y-m-d H:i:s');
+        $amount = (float)$payment->amount_gross;
         $period_description = 'Subscription period: ' . date('Y-m-d', strtotime($payment->billing_date_from))
             . ' to ' . date('Y-m-d', strtotime($payment->billing_date_to));
 
-        $invoice_post = array(
-            'invoice_number' => $invoice_number,
-            'contact_id' => $contact_id,
-            'currency_id' => $currency_id,
-            'discount_percentage' => 0,
-            'reference' => $payment->merchant_reference,
-            'status' => 'paid',
+        $expense_post = array(
+            'usr_id'         => 1,
+            'supplier_id'    => $supplier_id,
+            'currency_id'    => $currency_id,
+            'category_id'    => $category_id,
+            'date'           => $expense_date,
+            'notes'          => $payment->merchant_reference . ' | ' . $period_description,
+            'status'         => 'paid',
             'content_status' => 'active',
-            'sub_total' => $payment_amount,
-            'discount_total' => 0,
-            'vat_amount' => 0,
-            'total_amount' => $payment_amount,
-            'terms' => $period_description,
-            'closing_note' => 'Paid automatically via PayFast subscription.',
-            'reminder' => 0,
-            'date' => $invoice_date,
-            'due_date' => $invoice_date,
-            'date_modified' => current_datetime()
+            'sub_total'      => $amount,
+            'tax_amount'     => 0,
+            'total_amount'   => $amount,
+            'date_modified'  => current_datetime()
         );
 
-        $this->db->insert($this->table_prefix . 'invoices', $invoice_post);
-        $invoice_id = (int)$this->db->insert_id();
-
-        if ($invoice_id <= 0) {
-            $this->switch_to_main_db($org->account_name);
-            return null;
-        }
-
-        $item_post = array(
-            'invoice_id' => $invoice_id,
-            'item_name' => $payment->item_name,
-            'description' => $period_description,
-            'quantity' => 1,
-            'tax' => null,
-            'rate' => (float)$payment->amount_gross,
-            'total_amount' => (float)$payment->amount_gross
-        );
-        $this->db->insert($this->table_prefix . 'invoice_items', $item_post);
-
-        $payment_method_id = $this->get_or_create_invoice_payment_method('PayFast');
-        $invoice_payment_post = array(
-            'invoice_id' => $invoice_id,
-            'contact_id' => $contact_id,
-            'payment_amount' => (float)$payment->amount_gross,
-            'payment_method_id' => $payment_method_id,
-            'reference' => $payment->merchant_reference,
-            'credit_applied' => null,
-            'notification' => 'no',
-            'use_credit' => 'no',
-            'payment_date' => $invoice_date,
-            'date_modified' => current_datetime()
-        );
-        $this->db->insert($this->table_prefix . 'invoice_payments', $invoice_payment_post);
+        $this->db->insert($this->table_prefix . 'expenses', $expense_post);
+        $expense_id = (int)$this->db->insert_id();
 
         $this->switch_to_main_db($org->account_name);
 
-        return $invoice_id;
+        return $expense_id > 0 ? $expense_id : null;
     }
 
-    protected function find_invoice_id_by_reference($reference)
+    protected function find_expense_by_reference($reference)
     {
         $reference = trim((string)$reference);
         if ($reference === '') {
@@ -1155,8 +1110,8 @@ class Billing extends CI_Controller
         }
 
         $query = $this->db->select('id')
-            ->from($this->table_prefix . 'invoices')
-            ->where('reference', $reference)
+            ->from($this->table_prefix . 'expenses')
+            ->like('notes', $reference, 'both')
             ->limit(1)
             ->get();
 
@@ -1164,47 +1119,52 @@ class Billing extends CI_Controller
         return $row ? (int)$row->id : null;
     }
 
-    protected function get_or_create_subscription_contact($org)
+    protected function get_or_create_subscription_supplier()
     {
-        $email = trim((string)$org->email);
-        $company_name = trim((string)$org->company_name);
+        $supplier_name = 'Boost Accounting';
 
-        if ($email !== '') {
-            $query = $this->db->select('id')
-                ->from($this->table_prefix . 'contacts')
-                ->where('email', $email)
-                ->order_by('id', 'ASC')
-                ->limit(1)
-                ->get();
+        $query = $this->db->select('id')
+            ->from($this->table_prefix . 'contacts')
+            ->where('organisation', $supplier_name)
+            ->order_by('id', 'ASC')
+            ->limit(1)
+            ->get();
 
-            $row = $query->row();
-            if ($row) {
-                return (int)$row->id;
-            }
+        $row = $query->row();
+        if ($row) {
+            return (int)$row->id;
         }
 
-        $contact_type_id = $this->get_contact_type_id('client');
-        $contact_post = array(
+        $contact_type_id = $this->get_contact_type_id('supplier');
+        $this->db->insert($this->table_prefix . 'contacts', array(
             'contact_type_id' => $contact_type_id,
-            'organisation' => $company_name !== '' ? $company_name : $org->account_name,
-            'vat_number' => !empty($org->vat_number) ? $org->vat_number : null,
-            'industry_id' => !empty($org->industry_id) ? $org->industry_id : null,
-            'company_size_id' => null,
-            'first_name' => null,
-            'last_name' => null,
-            'email' => $email !== '' ? $email : ('billing+' . $org->id . '@' . $this->config->item('domain')),
-            'land_line' => !empty($org->telephone) ? $org->telephone : null,
-            'mobile' => !empty($org->mobile) ? $org->mobile : null,
-            'address' => trim(implode(', ', array_filter(array(
-                isset($org->address_line_1) ? $org->address_line_1 : null,
-                isset($org->address_line_2) ? $org->address_line_2 : null,
-                isset($org->city) ? $org->city : null,
-                isset($org->region_state) ? $org->region_state : null,
-                isset($org->zip) ? $org->zip : null
-            ))))
-        );
+            'organisation'    => $supplier_name,
+            'email'           => 'billing@' . $this->config->item('domain')
+        ));
 
-        $this->db->insert($this->table_prefix . 'contacts', $contact_post);
+        return (int)$this->db->insert_id();
+    }
+
+    protected function get_or_create_subscription_expense_category()
+    {
+        $category_name = 'Software Subscriptions';
+
+        $query = $this->db->select('id')
+            ->from($this->table_prefix . 'expenses_categories')
+            ->where('category_name', $category_name)
+            ->limit(1)
+            ->get();
+
+        $row = $query->row();
+        if ($row) {
+            return (int)$row->id;
+        }
+
+        $this->db->insert($this->table_prefix . 'expenses_categories', array(
+            'category_name' => $category_name,
+            'type'          => 'default'
+        ));
+
         return (int)$this->db->insert_id();
     }
 
@@ -1223,54 +1183,6 @@ class Billing extends CI_Controller
 
         $this->db->insert($this->table_prefix . 'contact_types', array('type' => $type));
         return (int)$this->db->insert_id();
-    }
-
-    protected function get_or_create_invoice_payment_method($method_name)
-    {
-        $query = $this->db->select('id')
-            ->from($this->table_prefix . 'invoice_payment_methods')
-            ->where('payment_method', $method_name)
-            ->limit(1)
-            ->get();
-
-        $row = $query->row();
-        if ($row) {
-            return (int)$row->id;
-        }
-
-        $this->db->insert($this->table_prefix . 'invoice_payment_methods', array(
-            'payment_method' => $method_name
-        ));
-
-        return (int)$this->db->insert_id();
-    }
-
-    protected function next_invoice_number()
-    {
-        $prefix = 'INV';
-        $template = $this->db->select('invoice_number_prefix')
-            ->from($this->table_prefix . 'templates')
-            ->limit(1)
-            ->get()
-            ->row();
-
-        if ($template && !empty($template->invoice_number_prefix)) {
-            $prefix = trim((string)$template->invoice_number_prefix);
-        }
-
-        $row = $this->db->select('invoice_number')
-            ->from($this->table_prefix . 'invoices')
-            ->order_by('id', 'DESC')
-            ->limit(1)
-            ->get()
-            ->row();
-
-        $next = 1;
-        if ($row && !empty($row->invoice_number) && preg_match('/(\d+)$/', (string)$row->invoice_number, $matches)) {
-            $next = ((int)$matches[1]) + 1;
-        }
-
-        return strtoupper($prefix) . '-' . str_pad((string)$next, 6, '0', STR_PAD_LEFT);
     }
 
     protected function build_subscription_summary($org)
