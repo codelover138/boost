@@ -413,8 +413,8 @@ public function get_monthwise_expenses($start_date = null, $end_date = null)
     // -------------------------
     // Set Date Range for the Last 12 Months
     // -------------------------
-    $end_date = date('Y-m-d'); // Current date (end of range)
-    $start_date = date('Y-m-d', strtotime('-11 months', strtotime($end_date))); // 11 months ago
+    $end_date = date('Y-m-d 23:59:59'); // End of current day
+    $start_date = date('Y-m-d 00:00:00', strtotime('-11 months')); // 11 months ago
 
     // -------------------------
     // Fetch Month-wise Expenses
