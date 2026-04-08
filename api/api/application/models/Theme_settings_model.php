@@ -58,6 +58,9 @@ class Theme_settings_model extends CI_Model
                 $post = $this->process_image($post);
                 $save_image = $post['save_image'];
                 unset($post['save_image']);
+            else :
+                // Keep the current logo when the form submits an empty hidden field.
+                unset($post['image_string']);
             endif;
         }
 

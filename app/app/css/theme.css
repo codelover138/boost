@@ -68,7 +68,7 @@
 }
 .outerContainer_table.login_table .login_container img {
   width: 100%;
-  max-width: 320px;
+  max-width: 180px;
 }
 .outerContainer_table.login_table .login_container .loading_container img {
   width: auto !important;
@@ -317,6 +317,12 @@
   margin-right: 60px;
   padding-top: 4px;
   padding-bottom: 0;
+}
+.logo_container img {
+  display: block;
+  height: 42px;
+  width: auto;
+  max-width: none;
 }
 .sub_header {
   background-color: #fff;

@@ -308,7 +308,15 @@ class Generic_model extends CI_Model
                 endif;
             else :
                 //$run = false;
-                $result['message'][] = $validation['message'];
+                if (isset($validation['message'])) :
+                    if (is_array($validation['message'])) :
+                        foreach ($validation['message'] as $message) :
+                            $result['message'][] = $message;
+                        endforeach;
+                    elseif ($validation['message'] != '') :
+                        $result['message'][] = $validation['message'];
+                    endif;
+                endif;
 
                 unset($validation['bool']);
                 unset($validation['message']);
@@ -318,6 +326,11 @@ class Generic_model extends CI_Model
             #--------------------------------------------------------------------------------
 
             if($run) :
+                $result['bool'] = true;
+                $result['record_id'] = $id;
+                $result['message'][] = $params['entity'] . ' information successfully updated';
+            elseif ($validation['bool']) :
+                // A valid update can legitimately affect 0 rows if nothing changed.
                 $result['bool'] = true;
                 $result['record_id'] = $id;
                 $result['message'][] = $params['entity'] . ' information successfully updated';
