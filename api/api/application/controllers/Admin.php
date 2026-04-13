@@ -25,7 +25,7 @@ class Admin extends CI_Controller
         if (
             $user_data['data']->email !== 'babu313137@gmail.com' &&
             $user_data['data']->email !== 'babu313136@gmail.com' &&
-            $user_data['data']->email !== 'admin@boostaccounting.com'
+            $user_data['data']->email !== 'darren@boostaccounting.com'
         ) {
             $this->regular->header_(403);
             $this->regular->respond(['status' => 'ERROR', 'message' => ['Forbidden: Super Admin Access Only']]);

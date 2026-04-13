@@ -45,7 +45,7 @@ class Welcome extends CI_Controller
 		$user_response = $this->curl->api_call('GET', 'me');
 		if (isset($user_response['bool']) && $user_response['bool'] == true) {
 			$user_data = (array)$user_response['data'];
-			if ($user_data['email'] === 'babu313136@gmail.com' || $user_data['email'] === 'admin@boostaccounting.com') {
+			if ($user_data['email'] === 'babu313136@gmail.com' || $user_data['email'] === 'darren@boostaccounting.com') {
 				redirect('admin/workspaces');
 			}
 		}

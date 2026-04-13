@@ -5,7 +5,7 @@
 ?>
 <header>
     <?php
-$is_super_admin = (isset($user_data['email']) && ($user_data['email'] == 'babu313136@gmail.com' || $user_data['email'] == 'admin@boostaccounting.com'));
+$is_super_admin = (isset($user_data['email']) && ($user_data['email'] == 'babu313136@gmail.com' || $user_data['email'] == 'darren@boostaccounting.com'));
 
 // Fetch and display trial banner if user is not super admin
 if (!$is_super_admin) {
@@ -91,7 +91,7 @@ else {
                 </ul>
                 <ul class="nav navbar-nav main_menu_navigation">
                     <?php
-$is_super_admin = (isset($user_data['email']) && ($user_data['email'] == 'babu313136@gmail.com' || $user_data['email'] == 'admin@boostaccounting.com'));
+$is_super_admin = (isset($user_data['email']) && ($user_data['email'] == 'babu313136@gmail.com' || $user_data['email'] == 'darren@boostaccounting.com'));
 ?>
 
                     <?php if (!$is_super_admin): ?>
