@@ -159,9 +159,6 @@ class Users_model extends CI_Model
 
         $post['last_activity'] = current_datetime();
 
-        $params['fields'] = 'email';
-        $params['where'] = array('email' => $post['email']);
-
         # Check if current user is the account owner
         $owner_params = $params;
         $owner_params['fields'] = 'owner';
@@ -174,6 +171,23 @@ class Users_model extends CI_Model
         }
         else
         {
+            # Check if the email is already taken by a different user
+            if (isset($post['email'])) {
+                $email_check_params = $params;
+                $email_check_params['fields'] = 'id';
+                $email_check_params['where'] = array('email' => $post['email']);
+                $email_exists = $this->generic_model->read($email_check_params);
+                if (!empty($email_exists)) {
+                    foreach ((array)$email_exists as $existing) {
+                        if ((int)$existing->id !== (int)$id) {
+                            $result['message'][] = 'A user with email ' . $post['email'] . ' already exists';
+                            $result['validation_results']['email'] = 'Email already exists';
+                            return $result;
+                        }
+                    }
+                }
+            }
+
             #validate user role ID in post
             if (isset($post['user_role_id'])) {
                 $user_roles = $this->generic_model->read(array(

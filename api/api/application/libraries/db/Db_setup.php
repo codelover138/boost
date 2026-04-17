@@ -757,7 +757,11 @@ class Db_setup
         $this->CI->dbforge->add_field('last_activity DATETIME NOT NULL DEFAULT "0000-00-00 00:00:00"');
 
         $this->CI->dbforge->add_key('id', TRUE);
+        $this->CI->dbforge->add_key('email');
         $this->CI->dbforge->create_table($table_prefix . 'users', TRUE);
+
+        // Enforce unique email at DB level
+        $this->CI->db->query('ALTER TABLE ' . $table_prefix . 'users ADD UNIQUE KEY unique_email (email)');
         /**************************************************************************************************/
 
         /* USER TOKENS
