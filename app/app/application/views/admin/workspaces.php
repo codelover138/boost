@@ -110,6 +110,14 @@ foreach ($workspaces as $ws) {
 .ws-badge.blocked { background: #fee2e2; color: #991b1b; }
 .ws-badge.other   { background: #f3f4f6; color: #374151; }
 
+.ws-card-account-name {
+    font-size: 12px; color: #667eea; font-weight: 600;
+    margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
+    background: #f0f1ff; border-radius: 5px; padding: 3px 8px;
+    width: fit-content;
+}
+.ws-card-account-name svg { flex-shrink: 0; }
+
 .ws-card-email {
     font-size: 13px; color: #6b7280; margin-bottom: 10px;
     display: flex; align-items: center; gap: 6px;
@@ -296,13 +304,18 @@ foreach ($workspaces as $ws) {
                     $company     = !empty($ws['company_name']) ? htmlspecialchars($ws['company_name']) : '(No Name)';
                     $email       = !empty($ws['email']) ? htmlspecialchars($ws['email']) : '—';
                     $reason      = !empty($ws['manual_block_reason']) ? htmlspecialchars($ws['manual_block_reason']) : '';
+                    $account_name = !empty($ws['account_name']) ? htmlspecialchars($ws['account_name']) : '—';
                 ?>
-                <div class="ws-card" data-search="<?php echo strtolower($company . ' ' . $email); ?>">
+                <div class="ws-card" data-search="<?php echo strtolower($company . ' ' . $email . ' ' . $account_name); ?>">
                     <div class="ws-card-stripe <?php echo $stripeClass; ?>"></div>
                     <div class="ws-card-body">
                         <div class="ws-card-head">
                             <div class="ws-card-name"><?php echo $company; ?></div>
                             <span class="ws-badge <?php echo $badgeClass; ?>"><?php echo $badgeLabel; ?></span>
+                        </div>
+                        <div class="ws-card-account-name">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                            <?php echo $account_name; ?>
                         </div>
                         <div class="ws-card-email">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
