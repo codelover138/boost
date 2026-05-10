@@ -1,0 +1,72 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2026-02-24 01:24:47 --> ANTIGRAVITY ATTEMPT 2026-02-24 01:24:47
+ERROR - 2026-02-24 01:24:47 --> else condition
+ERROR - 2026-02-24 01:24:47 --> {"status":"ERROR","message":["Login data or auth token not found"]}
+ERROR - 2026-02-24 01:24:47 --> {"status":"ERROR","message":["Login data or auth token not found"]}
+ERROR - 2026-02-24 00:27:13 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 02:00:03 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 02:00:05 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 02:00:07 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 02:00:09 --> 404 Page Not Found: WuEL/index
+ERROR - 2026-02-24 02:00:13 --> 404 Page Not Found: A/index
+ERROR - 2026-02-24 02:00:16 --> 404 Page Not Found: Download/file.ext
+ERROR - 2026-02-24 02:00:19 --> 404 Page Not Found: SiteLoader/index
+ERROR - 2026-02-24 02:00:21 --> 404 Page Not Found: MPlayer/index
+ERROR - 2026-02-24 04:51:17 --> {"status":"ERROR","message":["This account does not exist"]}
+ERROR - 2026-02-24 05:33:48 --> 404 Page Not Found: Cgi-bin/.%2e
+ERROR - 2026-02-24 05:34:04 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2026-02-24 06:43:37 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 08:07:34 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 08:10:40 --> {"status":"OK","message":["This account exists"]}
+ERROR - 2026-02-24 10:23:41 --> ANTIGRAVITY ATTEMPT 2026-02-24 10:23:41
+ERROR - 2026-02-24 10:23:41 --> else condition
+ERROR - 2026-02-24 10:23:41 --> {"status":"ERROR","message":["Login data or auth token not found"]}
+ERROR - 2026-02-24 10:23:41 --> {"status":"ERROR","message":["Login data or auth token not found"]}
+ERROR - 2026-02-24 08:37:20 --> {"status":"OK","message":["This account exists"]}
+ERROR - 2026-02-24 10:37:33 --> ANTIGRAVITY ATTEMPT 2026-02-24 10:37:33
+ERROR - 2026-02-24 10:37:33 --> DECODED_LOGIN_PAYLOAD: {"email":"babu313136@gmail.com","password":"biTS1@34","account_name":"admin","timestamp":1771922251110}
+ERROR - 2026-02-24 10:37:33 --> Userhandler::login called with input: {"email":"babu313136@gmail.com","password":"biTS1@34","account_name":"admin","timestamp":1771922251110}
+ERROR - 2026-02-24 10:37:33 --> Userhandler::login using account: admin and email: babu313136@gmail.com on db: boost_api
+ERROR - 2026-02-24 10:37:33 --> {"status":"OK","message":["login successful"],"token":"81a7a5a33cfa05dc68ca221961d1ca21","token_expire":"2026-02-24 11:37:33","session_id":"d4e389af7e98c5d854c63e2c62050231","user_data":{"id":"1","first_name":"Babu","last_name":"Babu","email":"babu313136@gmail.com","contact_number":"","user_role_id":"1","owner":"1","password":"e28c65ecd165547bfcabda5816411ffa","failed_attempts":"0","date_created":"2026-02-18 01:12:07","date_modified":"2026-02-23 22:21:07","last_attempt_datetime":"2026-02-23 22:21:07","token_expire":"0000-00-00 00:00:00","last_activity":"2026-02-23 22:21:07"}}
+ERROR - 2026-02-24 10:37:33 --> {"status":"OK","message":["login successful"],"token":"81a7a5a33cfa05dc68ca221961d1ca21","token_expire":"2026-02-24 11:37:33","session_id":"d4e389af7e98c5d854c63e2c62050231","user_data":{"id":"1","first_name":"Babu","last_name":"Babu","email":"babu313136@gmail.com","contact_number":"","user_role_id":"1","owner":"1","password":"e28c65ecd165547bfcabda5816411ffa","failed_attempts":"0","date_created":"2026-02-18 01:12:07","date_modified":"2026-02-23 22:21:07","last_attempt_datetime":"2026-02-23 22:21:07","token_expire":"0000-00-00 00:00:00","last_activity":"2026-02-23 22:21:07"}}
+ERROR - 2026-02-24 10:37:33 --> {"status":"OK","message":["login successful"],"token":"81a7a5a33cfa05dc68ca221961d1ca21","token_expire":"2026-02-24 11:37:33","session_id":"d4e389af7e98c5d854c63e2c62050231","user_data":{"id":"1","first_name":"Babu","last_name":"Babu","email":"babu313136@gmail.com","contact_number":"","user_role_id":"1","owner":"1","password":"e28c65ecd165547bfcabda5816411ffa","failed_attempts":"0","date_created":"2026-02-18 01:12:07","date_modified":"2026-02-23 22:21:07","last_attempt_datetime":"2026-02-23 22:21:07","token_expire":"0000-00-00 00:00:00","last_activity":"2026-02-23 22:21:07"}}
+ERROR - 2026-02-24 10:37:33 --> if condition
+ERROR - 2026-02-24 10:37:33 --> {"bool":true,"data":{"id":"1","first_name":"Babu","last_name":"Babu","email":"babu313136@gmail.com","user_role_id":"1","contact_number":"","last_activity":"2026-02-24 10:37:33","user_role":"Admin","permissions":{"1":"dashboard","2":"invoices","3":"supplier_invoices","4":"expenses","5":"travel_tracker","6":"estimates","7":"reports","8":"contacts","9":"account_settings","10":"send_invoices","11":"send_estimates","12":"send_credit_notes","13":"create_contacts","14":"credit_notes","15":"expenses","16":"create_expenses"},"token":{"id":"24","user_id":"1","session_id":"d4e389af7e98c5d854c63e2c62050231","token":"81a7a5a33cfa05dc68ca221961d1ca21","date_created":"2026-02-24 10:37:33","date_modified":"2026-02-24 10:37:33","token_expire":"2026-02-24 11:37:33"},"company_name":"codelover138"}}
+ERROR - 2026-02-24 10:37:33 --> {"bool":true,"data":{"id":"1","first_name":"Babu","last_name":"Babu","email":"babu313136@gmail.com","user_role_id":"1","contact_number":"","last_activity":"2026-02-24 10:37:33","user_role":"Admin","permissions":{"1":"dashboard","2":"invoices","3":"supplier_invoices","4":"expenses","5":"travel_tracker","6":"estimates","7":"reports","8":"contacts","9":"account_settings","10":"send_invoices","11":"send_estimates","12":"send_credit_notes","13":"create_contacts","14":"credit_notes","15":"expenses","16":"create_expenses"},"token":{"id":"24","user_id":"1","session_id":"d4e389af7e98c5d854c63e2c62050231","token":"81a7a5a33cfa05dc68ca221961d1ca21","date_created":"2026-02-24 10:37:33","date_modified":"2026-02-24 10:37:33","token_expire":"2026-02-24 11:37:33"},"company_name":"codelover138"}}
+ERROR - 2026-02-24 08:37:33 --> {"status":"OK","data":{"199":{"id":"199","date_created":"2026-02-18 02:07:25","date_modified":"2026-02-20 17:25:47","company_name":"oneclick","vat_number":null,"industry_id":null,"address_line_1":null,"address_line_2":null,"country_id":null,"region_state":null,"city":null,"zip":null,"email":"babu313137@gmail.com","mobile":null,"telephone":null,"fax":null,"currency_id":null,"time_zone_id":null,"account_url":"oneclick","day_light_savings":"no","account_id":null,"account_db":"boost_acc199","account_name":"oneclick","postal_code":null,"subdomain":null,"trial_ends_at":"2026-04-04 00:07:25","subscription_status":"trial","grace_period_ends_at":null,"is_manual_blocked":"0","manual_block_reason":null,"paid_until":null}}}
+ERROR - 2026-02-24 10:37:35 --> {"request":{"data":[]},"user_data":{"id":"1","first_name":"Babu","last_name":"Babu","email":"babu313136@gmail.com","user_role_id":"1","contact_number":"","last_activity":"2026-02-24 10:37:33","user_role":"Admin","permissions":{"1":"dashboard","2":"invoices","3":"supplier_invoices","4":"expenses","5":"travel_tracker","6":"estimates","7":"reports","8":"contacts","9":"account_settings","10":"send_invoices","11":"send_estimates","12":"send_credit_notes","13":"create_contacts","14":"credit_notes","15":"expenses","16":"create_expenses"},"token":{"id":"24","user_id":"1","session_id":"d4e389af7e98c5d854c63e2c62050231","token":"81a7a5a33cfa05dc68ca221961d1ca21","date_created":"2026-02-24 10:37:33","date_modified":"2026-02-24 10:37:35","token_expire":"2026-02-24 11:37:35"},"company_name":"codelover138"}}
+ERROR - 2026-02-24 08:53:00 --> {"status":"OK","message":["This account exists"]}
+ERROR - 2026-02-24 10:29:43 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 11:22:34 --> {"status":"OK","message":["This account exists"]}
+ERROR - 2026-02-24 13:22:47 --> ANTIGRAVITY ATTEMPT 2026-02-24 13:22:47
+ERROR - 2026-02-24 13:22:47 --> DECODED_LOGIN_PAYLOAD: {"email":"babu313136@gmail.com","password":"biTS1@34","account_name":"admin","timestamp":1771932166092}
+ERROR - 2026-02-24 13:22:47 --> Userhandler::login called with input: {"email":"babu313136@gmail.com","password":"biTS1@34","account_name":"admin","timestamp":1771932166092}
+ERROR - 2026-02-24 13:22:47 --> Userhandler::login using account: admin and email: babu313136@gmail.com on db: boost_api
+ERROR - 2026-02-24 13:22:47 --> {"status":"OK","message":["login successful"],"token":"1c5e808bba2b6b2705074306cf4ecfca","token_expire":"2026-02-24 14:22:47","session_id":"f791c8a9c90ed249b8a7918b5816772b","user_data":{"id":"1","first_name":"Babu","last_name":"Babu","email":"babu313136@gmail.com","contact_number":"","user_role_id":"1","owner":"1","password":"e28c65ecd165547bfcabda5816411ffa","failed_attempts":"0","date_created":"2026-02-18 01:12:07","date_modified":"2026-02-24 10:37:33","last_attempt_datetime":"2026-02-24 10:37:33","token_expire":"0000-00-00 00:00:00","last_activity":"2026-02-24 10:37:33"}}
+ERROR - 2026-02-24 13:22:47 --> {"status":"OK","message":["login successful"],"token":"1c5e808bba2b6b2705074306cf4ecfca","token_expire":"2026-02-24 14:22:47","session_id":"f791c8a9c90ed249b8a7918b5816772b","user_data":{"id":"1","first_name":"Babu","last_name":"Babu","email":"babu313136@gmail.com","contact_number":"","user_role_id":"1","owner":"1","password":"e28c65ecd165547bfcabda5816411ffa","failed_attempts":"0","date_created":"2026-02-18 01:12:07","date_modified":"2026-02-24 10:37:33","last_attempt_datetime":"2026-02-24 10:37:33","token_expire":"0000-00-00 00:00:00","last_activity":"2026-02-24 10:37:33"}}
+ERROR - 2026-02-24 13:22:47 --> {"status":"OK","message":["login successful"],"token":"1c5e808bba2b6b2705074306cf4ecfca","token_expire":"2026-02-24 14:22:47","session_id":"f791c8a9c90ed249b8a7918b5816772b","user_data":{"id":"1","first_name":"Babu","last_name":"Babu","email":"babu313136@gmail.com","contact_number":"","user_role_id":"1","owner":"1","password":"e28c65ecd165547bfcabda5816411ffa","failed_attempts":"0","date_created":"2026-02-18 01:12:07","date_modified":"2026-02-24 10:37:33","last_attempt_datetime":"2026-02-24 10:37:33","token_expire":"0000-00-00 00:00:00","last_activity":"2026-02-24 10:37:33"}}
+ERROR - 2026-02-24 13:22:47 --> if condition
+ERROR - 2026-02-24 13:22:48 --> {"bool":true,"data":{"id":"1","first_name":"Babu","last_name":"Babu","email":"babu313136@gmail.com","user_role_id":"1","contact_number":"","last_activity":"2026-02-24 13:22:47","user_role":"Admin","permissions":{"1":"dashboard","2":"invoices","3":"supplier_invoices","4":"expenses","5":"travel_tracker","6":"estimates","7":"reports","8":"contacts","9":"account_settings","10":"send_invoices","11":"send_estimates","12":"send_credit_notes","13":"create_contacts","14":"credit_notes","15":"expenses","16":"create_expenses"},"token":{"id":"25","user_id":"1","session_id":"f791c8a9c90ed249b8a7918b5816772b","token":"1c5e808bba2b6b2705074306cf4ecfca","date_created":"2026-02-24 13:22:47","date_modified":"2026-02-24 13:22:48","token_expire":"2026-02-24 14:22:48"},"company_name":"codelover138"}}
+ERROR - 2026-02-24 11:22:48 --> {"status":"OK","data":{"199":{"id":"199","date_created":"2026-02-18 02:07:25","date_modified":"2026-02-20 17:25:47","company_name":"oneclick","vat_number":null,"industry_id":null,"address_line_1":null,"address_line_2":null,"country_id":null,"region_state":null,"city":null,"zip":null,"email":"babu313137@gmail.com","mobile":null,"telephone":null,"fax":null,"currency_id":null,"time_zone_id":null,"account_url":"oneclick","day_light_savings":"no","account_id":null,"account_db":"boost_acc199","account_name":"oneclick","postal_code":null,"subdomain":null,"trial_ends_at":"2026-04-04 00:07:25","subscription_status":"trial","grace_period_ends_at":null,"is_manual_blocked":"0","manual_block_reason":null,"paid_until":null}}}
+ERROR - 2026-02-24 13:22:49 --> {"request":{"data":[]},"user_data":{"id":"1","first_name":"Babu","last_name":"Babu","email":"babu313136@gmail.com","user_role_id":"1","contact_number":"","last_activity":"2026-02-24 13:22:47","user_role":"Admin","permissions":{"1":"dashboard","2":"invoices","3":"supplier_invoices","4":"expenses","5":"travel_tracker","6":"estimates","7":"reports","8":"contacts","9":"account_settings","10":"send_invoices","11":"send_estimates","12":"send_credit_notes","13":"create_contacts","14":"credit_notes","15":"expenses","16":"create_expenses"},"token":{"id":"25","user_id":"1","session_id":"f791c8a9c90ed249b8a7918b5816772b","token":"1c5e808bba2b6b2705074306cf4ecfca","date_created":"2026-02-24 13:22:47","date_modified":"2026-02-24 13:22:49","token_expire":"2026-02-24 14:22:49"},"company_name":"codelover138"}}
+ERROR - 2026-02-24 11:47:32 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 11:52:56 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 13:55:25 --> ANTIGRAVITY ATTEMPT 2026-02-24 13:55:25
+ERROR - 2026-02-24 13:55:25 --> else condition
+ERROR - 2026-02-24 13:55:25 --> {"status":"ERROR","message":["Login data or auth token not found"]}
+ERROR - 2026-02-24 13:55:25 --> {"status":"ERROR","message":["Login data or auth token not found"]}
+ERROR - 2026-02-24 14:10:50 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 19:30:07 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2026-02-24 19:52:57 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 20:15:34 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 20:15:39 --> 404 Page Not Found: Faviconico/index
+ERROR - 2026-02-24 20:48:48 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 20:48:50 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 21:36:46 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 21:41:54 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2026-02-24 22:25:48 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 23:00:34 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 23:23:28 --> 404 Page Not Found: Faviconico/index
+ERROR - 2026-02-24 23:27:24 --> {"status":"ERROR","message":["Account-Name header not found"]}
+ERROR - 2026-02-24 23:27:47 --> 404 Page Not Found: Robotstxt/index
