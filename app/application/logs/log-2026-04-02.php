@@ -1,0 +1,56 @@
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2026-04-02 00:36:39 --> 404 Page Not Found: Env/index
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+
+ERROR - 2026-04-02 00:36:39 --> 404 Page Not Found: Env/index
+ERROR - 2026-04-02 01:33:13 --> 404 Page Not Found: Faviconico/index
+ERROR - 2026-04-02 01:33:15 --> 404 Page Not Found: Faviconico/index
+ERROR - 2026-04-02 01:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 01:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 01:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 01:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 01:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 02:02:32 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2026-04-02 04:58:08 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 04:58:08 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 04:58:08 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 04:58:08 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 04:58:08 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 05:24:33 --> 404 Page Not Found: Faviconico/index
+ERROR - 2026-04-02 07:21:01 --> 404 Page Not Found: Faviconico/index
+ERROR - 2026-04-02 07:58:06 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 07:58:06 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 07:58:06 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 07:58:06 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 07:58:06 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 08:43:43 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2026-04-02 10:58:10 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 10:58:10 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 10:58:10 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 10:58:10 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 10:58:10 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 12:09:20 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2026-04-02 13:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 13:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 13:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 13:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 13:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 14:38:11 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2026-04-02 16:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 16:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 16:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 16:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 16:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 17:05:18 --> 404 Page Not Found: Robotstxt/index
+ERROR - 2026-04-02 19:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 19:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 19:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 19:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 19:58:07 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 22:58:09 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 22:58:09 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 22:58:09 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 22:58:09 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 22:58:09 --> 404 Page Not Found: Well-known/acme-challenge
+ERROR - 2026-04-02 23:53:26 --> 404 Page Not Found: Robotstxt/index
