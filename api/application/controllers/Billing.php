@@ -549,7 +549,14 @@ class Billing extends CI_Controller
             $hard_validation_errors[] = 'Invalid signature';
         }
         if (!$amount_valid && $normalised_status !== 'cancelled') {
-            $hard_validation_errors[] = 'Amount mismatch';
+            // For recurring ITN the original payment is already 'complete'; PayFast may
+            // charge the recurring_amount which can differ from the initial amount.
+            // Treat as a warning so the renewal is not silently blocked.
+            if ($existing_status === 'complete') {
+                $warning_messages[] = 'Amount mismatch (recurring — original: ' . $payment->amount_gross . ', received: ' . (isset($post['amount_gross']) ? $post['amount_gross'] : 'none') . ')';
+            } else {
+                $hard_validation_errors[] = 'Amount mismatch';
+            }
         }
         if (!$merchant_valid) {
             $hard_validation_errors[] = 'Merchant mismatch';
@@ -647,6 +654,15 @@ class Billing extends CI_Controller
             } elseif (!empty($payfast_token)) {
                 // Recurring auto-renewal from PayFast subscription
                 $this->process_recurring_renewal($org, $payment, $post, $payfast_token);
+            } else {
+                // PayFast did not include a token — cannot process recurring renewal.
+                // The Subscription_renewal cron will catch this as a safety net.
+                $this->log_itn_audit('recurring_skipped_no_token', array(
+                    'payment_id'      => $payment->id,
+                    'organisation_id' => $org->id,
+                    'post_keys'       => array_keys($post)
+                ));
+                $this->create_event($org->id, $payment->id, 'recurring_skipped_no_token', 'Recurring ITN received but no token present', $post);
             }
             $this->output_itn_response(200, 'Payment processed');
             return;

@@ -530,7 +530,8 @@ class Db_setup
             'cancellation_requested_at' => array('type' => 'DATETIME', 'null' => TRUE),
             'manual_block_reason' => array('type' => 'VARCHAR', 'constraint' => 255, 'null' => TRUE),
             'is_manual_blocked' => array('type' => 'TINYINT', 'constraint' => 1, 'default' => 0),
-            'grace_period_ends_at' => array('type' => 'DATETIME', 'null' => TRUE)
+            'grace_period_ends_at' => array('type' => 'DATETIME', 'null' => TRUE),
+            'payfast_token' => array('type' => 'VARCHAR', 'constraint' => 100, 'null' => TRUE)
         );
 
         $this->CI->dbforge->add_field($organisations);
@@ -559,6 +560,7 @@ class Db_setup
             'billing_date_to' => array('type' => 'DATETIME', 'null' => TRUE),
             'payfast_payment_id' => array('type' => 'VARCHAR', 'constraint' => 100, 'null' => TRUE),
             'payfast_reference' => array('type' => 'VARCHAR', 'constraint' => 100, 'null' => TRUE),
+            'payfast_token' => array('type' => 'VARCHAR', 'constraint' => 100, 'null' => TRUE),
             'payment_method' => array('type' => 'VARCHAR', 'constraint' => 50, 'null' => TRUE),
             'signature' => array('type' => 'VARCHAR', 'constraint' => 255, 'null' => TRUE),
             'itn_verified' => array('type' => 'TINYINT', 'constraint' => 1, 'default' => 0),

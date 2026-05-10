@@ -18,6 +18,18 @@ $route['billing/(:any)'] = 'billing/$1';
 $route['billing/(:any)/(:any)'] = 'billing/$1/$2';
 $route['billing/(:any)/(:any)/(:any)'] = 'billing/$1/$2/$3';
 
+// Cron Routes
+$route['crons/expire_trials']              = 'crons/expire_trials/index';
+$route['crons/expire_trials/(:any)']       = 'crons/expire_trials/$1';
+$route['crons/trial_reminders']            = 'crons/trial_reminders/index';
+$route['crons/trial_reminders/(:any)']     = 'crons/trial_reminders/$1';
+$route['crons/payment_reminders']          = 'crons/payment_reminders/index';
+$route['crons/payment_reminders/(:any)']   = 'crons/payment_reminders/$1';
+$route['crons/reminders']                  = 'crons/reminders/index';
+$route['crons/reminders/(:any)']           = 'crons/reminders/$1';
+$route['crons/subscription_renewal']       = 'crons/subscription_renewal/index';
+$route['crons/subscription_renewal/(:any)'] = 'crons/subscription_renewal/$1';
+
 // Super Admin Routes
 // Super Admin Routes
 // Super Admin Routes

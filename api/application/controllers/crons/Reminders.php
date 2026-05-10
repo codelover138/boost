@@ -18,7 +18,7 @@ class Reminders extends CI_Controller
 
     public function send()
     {
-        if (!$this->input->is_cli_request())
+        if ($this->input->is_cli_request())
         {
             $this->load->library('reminders2');
             $results = $this->reminders2->send();

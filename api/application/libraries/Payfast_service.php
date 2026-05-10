@@ -417,6 +417,83 @@ class Payfast_service
         );
     }
 
+    public function fetch_subscription($token)
+    {
+        $token = trim((string)$token);
+        if ($token === '') {
+            return array('bool' => false, 'message' => 'Missing token', 'status' => null, 'run_date' => null, 'decoded' => null);
+        }
+
+        $result  = $this->request_subscription_api('GET', $token . '/fetch');
+        $decoded = isset($result['decoded']) ? $result['decoded'] : null;
+        $bool    = !empty($result['bool']);
+
+        // PayFast wraps the real subscription record inside data.response.
+        // The top-level "status" field is just the HTTP response label ("success"),
+        // not the subscription state. Extract the real subscription status first.
+        $subscription_status = null;
+        $run_date            = null;
+
+        if (is_array($decoded)) {
+            // Try data.response (most specific — numeric 1/0 or string active/cancelled)
+            $inner = null;
+            if (isset($decoded['data']['response']) && is_array($decoded['data']['response'])) {
+                $inner = $decoded['data']['response'];
+            } elseif (isset($decoded['response']) && is_array($decoded['response'])) {
+                $inner = $decoded['response'];
+            }
+
+            if (is_array($inner)) {
+                // Numeric status: 1 = active, 0 = cancelled
+                if (isset($inner['status'])) {
+                    $s = $inner['status'];
+                    if ($s === 1 || $s === '1') {
+                        $subscription_status = 'active';
+                    } elseif ($s === 0 || $s === '0') {
+                        $subscription_status = 'cancelled';
+                    } else {
+                        $subscription_status = strtolower(trim((string)$s));
+                    }
+                }
+                // token_status is a clearer string field PayFast sometimes returns
+                if ($subscription_status === null && isset($inner['token_status'])) {
+                    $subscription_status = strtolower(trim((string)$inner['token_status']));
+                }
+                if (!empty($inner['run_date'])) {
+                    $run_date = $inner['run_date'];
+                }
+                // PayFast returns amount in cents (e.g. 9900 = R99.00) — convert to rands
+                if (isset($inner['amount']) && is_numeric($inner['amount'])) {
+                    $amount = number_format((float)$inner['amount'] / 100, 2, '.', '');
+                }
+            }
+
+            // Fallback: search all layers for run_date
+            if ($run_date === null) {
+                foreach (array($decoded, isset($decoded['data']) ? $decoded['data'] : null) as $layer) {
+                    if (is_array($layer) && !empty($layer['run_date'])) {
+                        $run_date = $layer['run_date'];
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Last fallback: use extract_subscription_status (returns top-level "success" etc.)
+        if ($subscription_status === null) {
+            $subscription_status = $this->extract_subscription_status($decoded);
+        }
+
+        return array(
+            'bool'     => $bool,
+            'message'  => isset($result['message']) ? $result['message'] : '',
+            'status'   => $subscription_status,
+            'run_date' => $run_date,
+            'amount'   => isset($amount) ? $amount : null,
+            'decoded'  => $decoded
+        );
+    }
+
     public function cancel_subscription($token)
     {
         $token = trim((string)$token);

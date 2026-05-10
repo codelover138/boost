@@ -35,6 +35,7 @@ class Trial_reminders extends CI_Controller
 
         $table_prefix = $this->config->item('db_table_prefix');
         $main_org_table = $table_prefix . 'organisations';
+        $main_db_name   = $this->db->database;
 
         // Find trials ending in 5 days or fewer (every day for the last 5 days)
         // DATEDIFF(trial_ends_at, CURDATE()) calculates the difference in days
@@ -73,10 +74,8 @@ class Trial_reminders extends CI_Controller
                 echo "Sent reminder to {$user->email} for org {$org->account_name} (Ends in {$org->days_left} days)\n";
             }
 
-            // Switch back to the main database just in case for other queries
-            $main_db = $this->db->database; // wait, CodeIgniter doesn't expose database like this easily, but `USE $main_db` would be needed if we make another query on main DB.
-            // Since we use full query with the CI connection, we should switch back to main DB.
-            $this->db->db_select($this->db->database); // This selects back the configured CI default database
+            // Switch back to main DB so the next iteration's org query runs correctly.
+            $this->db->query("USE {$main_db_name}");
         }
 
         echo "Trial reminder process completed.\n";
