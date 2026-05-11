@@ -21,8 +21,7 @@ if (!$is_super_admin && !$is_admin_page) {
         $subscription = $billing_status_response['data']['subscription'];
         $subscription_status = isset($subscription['status']) ? strtolower($subscription['status']) : '';
         $can_pay = isset($subscription['can_pay']) ? (bool)$subscription['can_pay'] : false;
-        $grace_ends_at = !empty($subscription['grace_period_ends_at']) ? strtotime($subscription['grace_period_ends_at']) : false;
-        $has_grace_access = ($subscription_status === 'grace_period') || ($grace_ends_at && $grace_ends_at > time());
+        $has_grace_access = ($subscription_status === 'grace_period');
         $blocked_statuses = array('cancelled', 'expired', 'past_due');
         $billing_only_access = $can_pay && in_array($subscription_status, $blocked_statuses, true) && !$has_grace_access;
 

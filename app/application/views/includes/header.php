@@ -61,8 +61,7 @@ if (!$is_super_admin) {
     if (isset($billing_status_req['status']) && $billing_status_req['status'] == 'OK' && isset($billing_status_req['data']['subscription'])) {
         $header_subscription = $billing_status_req['data']['subscription'];
         $header_status = isset($header_subscription['status']) ? strtolower($header_subscription['status']) : '';
-        $header_grace_ends_at = !empty($header_subscription['grace_period_ends_at']) ? strtotime($header_subscription['grace_period_ends_at']) : false;
-        $header_has_grace_access = ($header_status === 'grace_period') || ($header_grace_ends_at && $header_grace_ends_at > time());
+        $header_has_grace_access = ($header_status === 'grace_period');
 
         if ($header_has_grace_access) {
             $billing_only_access = false;
