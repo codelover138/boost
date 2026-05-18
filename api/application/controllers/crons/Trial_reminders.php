@@ -87,11 +87,14 @@ class Trial_reminders extends CI_Controller
 
         $days_text = $org->days_left == 1 ? '1 day' : $org->days_left . ' days';
 
-        $message = '<p>Dear ' . ucwords($user->first_name) . ',</p>';
+        $name = !empty($user->first_name) ? ucwords($user->first_name) : 'there';
+        $message = '<p>Dear ' . $name . ',</p>';
         $message .= '<p>This is a polite reminder that your free trial for <strong>' . ucwords(str_replace('_', ' ', $org->account_name)) . '</strong> ';
         $message .= 'is ending in exactly <strong>' . $days_text . '</strong>.</p>';
         $message .= '<p>To ensure uninterrupted access to your account and data, please upgrade your subscription before the trial expires.</p>';
-        $message .= '<p><a href="' . get_protocol() . 'boostaccounting.com/login' . '">Login to Upgrade</a></p>';
+        $domain      = $this->config->item('domain');
+        $upgrade_url = 'https://' . $org->account_name . '.' . $domain . '/billing';
+        $message .= '<p><a href="' . $upgrade_url . '">Login to Upgrade</a></p>';
         $message .= '<p>Best regards,<br>The Boost Accounting Team</p>';
 
         $data = array(
