@@ -390,8 +390,15 @@ function ajaxErrorActions(t, e, i, n) {
         };
         showErrorModal(o)
     } else {
+        var errorMsg = "(" + e.status + ") " + n;
+        try {
+            var parsedErr = jQuery.parseJSON(e.responseText);
+            if (parsedErr && parsedErr.message && parsedErr.message[0]) {
+                errorMsg = parsedErr.message[0];
+            }
+        } catch(ex) {}
         var o = {
-            error_type: "(" + e.status + ") " + n,
+            error_type: errorMsg,
             error_action: "Please try again."
         };
         showErrorModal(o)
@@ -500,7 +507,8 @@ function boostVerify(t) {
         url: i,
         method: n,
         data: JSON.stringify(a),
-        context: t
+        context: t,
+        global: false
     }).done(function(t) {
         "OK" == t.status ? ($(".modal-buttons > *").animate({
             opacity: 0
@@ -536,8 +544,21 @@ function boostVerify(t) {
                 opacity: 1
             }, 400)
         }))
-    }).error(function() {
-        $(t.target).find(".modal-buttons.hidden").fadeIn(400),
+    }).error(function(jqXHR) {
+        var msg = "An error occurred. Please try again.";
+        try {
+            var parsed = jQuery.parseJSON(jqXHR.responseText);
+            if (parsed && parsed.message && parsed.message[0]) {
+                msg = parsed.message[0];
+            }
+        } catch(ex) {}
+        $(".input_group > *").animate({
+            opacity: 0
+        }, 400, function() {
+            $(".input_group").slideUp(300)
+        });
+        $(".modal-buttons").fadeIn(400);
+        $(".login_alert_container .alert strong").text(msg);
         $(".login_alert_container").slideDown(300, function() {
             $(this).find(".alert").animate({
                 opacity: 1

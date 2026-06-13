@@ -100,35 +100,27 @@ class Registrations
             
 			$email = $post['email'];
 
-            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                # if the email exists
-                $exists = $this->CI->generic_model->exists(array(
-                    'table' => $this->table_prefix . 'organisations',
-                    'where' => array('email' => $email)
-                ), true);
-
-                if ($exists) {
-                    $post_vars = $post;
-
-                    if (isset($post_vars['piggyback'])) unset($post_vars['piggyback']);
-
-                    $inputs = array(
-                        'post' => $post_vars,
-                        'email' => $email,
-                        'user_id' => $exists->id
-                    );
-					
-
-                    $response = $this->$method_function($inputs);
-                } else {
-                    # Email does not exist
-                    $response['message'][] = 'Supplied email address does not exist';
-                }
-            } else {
-                # Email is invalid
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $response['status'] = 'ERROR';
                 $response['message'][] = 'Invalid email supplied';
+                $this->CI->regular->header_(400);
+                $this->CI->regular->respond($response);
+                return;
             }
 
+            # block duplicate account creation if email already registered
+            $exists = $this->CI->generic_model->exists(array(
+                'table' => $this->table_prefix . 'organisations',
+                'where' => array('email' => $email)
+            ), true);
+
+            if ($exists) {
+                $response['status'] = 'ERROR';
+                $response['message'][] = 'An account with this email address already exists';
+                $this->CI->regular->header_(400);
+                $this->CI->regular->respond($response);
+                return;
+            }
 
             # check if theres post set within user defined params
             if (isset($this->params['post'])) :
@@ -141,7 +133,6 @@ class Registrations
             # input to be sent to one of the four request methods
             $inputs = array();
             $inputs['post'] = $post_vars;
-			
 
             if ($this->CI->regular->request_method() != 'GET') {
                 # unsets piggyback post in method used is not GET

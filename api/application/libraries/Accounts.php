@@ -234,7 +234,7 @@ class Accounts
             endif;
 
            // $return['validation_results'] = $exists_arr;
-            $return['bool'] = true;
+            $return['bool'] = false;
             return $return;
         }
         else {
