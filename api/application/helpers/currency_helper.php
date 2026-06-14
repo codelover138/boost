@@ -17,7 +17,7 @@ if (!function_exists('currency')) {
         if (is_null($return_value)) {
             return $result;
         } else {
-            if (property_exists($result, $return_value)) {
+            if (is_object($result) && property_exists($result, $return_value)) {
                 return $result->$return_value;
             } else {
                 return false;

@@ -7,6 +7,7 @@ class Payments_model extends CI_Model
     {
         parent::__construct();
         $this->load->model('generic_model');
+        $this->load->model('credit_model');
         $this->table_prefix = $this->config->item('db_table_prefix');
         $this->load->library('finance');
     }
@@ -67,6 +68,15 @@ class Payments_model extends CI_Model
 
         $post['contact_id'] = $contact_id;
         $post['payment_amount'] = monify($post['payment_amount']);
+
+        if (empty($post['payment_method_id'])) {
+            return array(
+                'bool'               => false,
+                'status'             => 'ERROR',
+                'message'            => array('Please select a payment method.'),
+                'validation_results' => array('payment_method_id' => 'Payment method is required.')
+            );
+        }
 
         $log_msg = null;
 
